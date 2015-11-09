@@ -27,7 +27,7 @@ i.e.:
 Since streaming is done asynchronously, and since Plezi is multi-threaded by default (this can be changed to single threaded, but is less recomended unless you know your code doesn't block - see `Plezi::Settings.max_threads = number`), Asynchronous HTTP method nesting makes sure that the code doesn't conflict and that race conditions don't occure within the same HTTP response.
 
 
-#### Iodines's `response.stream_async &block`
+### Iodines's `response.stream_async`
 
 Iodines's response object, which is accessed by the controller using the `response` method (or the `@response` object), allows easy access to HTTP streaming.
 
@@ -54,7 +54,7 @@ As noted above, `response.stream_async` calls should always be nested and never 
 
 Calling `response.stream_async`
 
-#### Iodines's `response.stream_array enum, &block`
+### Iodines's `response.stream_array`
 
 To make nesting easier, Iodines's response object provides the `response.stream_array enum, &block` method.
 
@@ -101,9 +101,9 @@ You can also add data to the array while 'looping', which allows you to use the 
 `Iodine`'s core is built with simplicity in mind, making the programmer happy. With this in mind, Iodine offers a single and simple method that allow us to easily queue code execution.
 
 
-#### `Iodine.run(arg1, arg2, arg3...) {block}`
+#### `Iodine.run`
 
-`Iodine.run` takes arguments to be passed to a block of code prior to execution. This allows us to seperate the `Proc` object creation fron the data handling and possibly (but not always) optimize our code.
+`Iodine.run(arg1, arg2, arg3...) {block}` takes arguments to be passed to a block of code prior to execution. This allows us to seperate the `Proc` object creation fron the data handling and possibly (but not always) optimize our code.
 
 For example:
 
@@ -149,9 +149,9 @@ Sometimes we want to schedule something to be done in a while, ormaybe we want a
 
 In come Iodine's TimedEvents: `Iodine.run_after` and `Iodine.run_every`
 
-#### `Iodine.run_every(seconds, arg1, arg2...) {|arg1, arg2..., timed_event| block }`
+#### `Iodine.run_every`
 
-`Iodine.run_every` is very similar to the `Iodine.run`, except it automatically injects an argument to our block, the timed even itself, as the last (optional) parameter. This allows us to stop the repeating event should the need arise.
+`Iodine.run_every(seconds, arg1, arg2...) {|arg1, arg2..., timed_event| block }` is very similar to the `Iodine.run`, except it automatically injects an argument to our block, the timed even itself, as the last (optional) parameter. This allows us to stop the repeating event should the need arise.
 
     require 'plezi'
 
@@ -192,9 +192,9 @@ A similar approach could have been accomplished by setting a repeat limit:
 
     exit
 
-#### `Iodine.run_after(seconds, arg1, arg2...) {|arg1, arg2..., timed_event| block}`
+#### `Iodine.run_after`
 
-`Iodine.run_after` is very similar to the `Iodine.run_every`, except it is designed to "self destruct" after only only execution.
+`Iodine.run_after(seconds, arg1, arg2...) {|arg1, arg2..., timed_event| block}` is very similar to the `Iodine.run_every`, except it is designed to "self destruct" after only only execution.
 
 The timed event allows us to create a new event with the same job, if we wish to.
 

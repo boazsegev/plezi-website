@@ -194,4 +194,4 @@ Here's a more powerful example of a route with a block of code, this time using 
 
 ## The next step
 
-Now that we have learned more about the power of Plezi's routing system, it's time to [learn more about what Controller classes can do for us](./controllers.md).
+Now that we have learned more about the power of Plezi's routing system, it's time to [learn more about what Controller classes can do for us](./controllers).

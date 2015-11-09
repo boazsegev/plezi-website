@@ -72,7 +72,7 @@ Our `ChatServer` will actually answer a request such as (for example) `"/my-name
 
 ### Sending the client
 
-The following method answers the path `'/'` (the index path, no `:id` value) by "rendering" our template into an html file and sending it.
+The following method answers the path `'/'` (the index path, no `:id`) by "rendering" our template into an html file and sending it.
 
     class ChatServer
         def index

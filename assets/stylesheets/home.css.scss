@@ -85,6 +85,10 @@ div {position: relative;}
     display: block;
     height: 5em; width: auto;
     z-index: 9999;
+    img
+    {
+        height: 100%;
+    }
 }
 
 #client_code

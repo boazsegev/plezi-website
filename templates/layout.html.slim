@@ -5,17 +5,17 @@ html
         meta http-equiv="X-UA-Compatible" content="IE=edge"
         meta content="width=device-width, initial-scale=1, maximum-scale=2.0, user-scalable=yes, minimal-ui=yes" name="viewport"
         title= @title || "Plezi - a Ruby framework for real-time web applications"
-        link href='https://fonts.googleapis.com/css?family=Montserrat|Quicksand|Chivo' rel='stylesheet' type='text/css'
-        / link href='/assets/stylesheets/bootstrap.css' rel='stylesheet' type='text/css'
-        link href='/assets/javascripts/styles/railscasts.css' rel='stylesheet' type='text/css'
+        link href='https://fonts.googleapis.com/css?family=Montserrat|Quicksand|Karla' rel='stylesheet' type='text/css'
         / link href='/assets/javascripts/styles/monokai_sublime.css' rel='stylesheet' type='text/css'
-        / link href='/assets/javascripts/styles/github.css' rel='stylesheet' type='text/css'
         script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
 
         / Adjustments
         link href='/assets/stylesheets/main.css' rel='stylesheet' type='text/css'
         - if self.is_a?(HomeController)
+            link href='/assets/javascripts/styles/railscasts.css' rel='stylesheet' type='text/css'
             link href='/assets/stylesheets/home.css' rel='stylesheet' type='text/css'
+        - else
+            link href='/assets/javascripts/styles/github.css' rel='stylesheet' type='text/css'
         / script src="/assets/javascripts/websocket.js"
 
 
@@ -42,19 +42,34 @@ html
         meta name="theme-color" content="#ffffff"
 
     body
-        div#logo
+        a#logo href='/'
         nav#top_nav
             ul
+                li
+                    a href='/guides' Guides and Demos
                 li
                     a href='http://www.rubydoc.info/github/boazsegev/plezi/master' Docs
                 li
                     a href='https://github.com/boazsegev/plezi' Source Code
-        == yield
-        / -- Bootstrap core JavaScript
-        / ==================================================
-        / Placed at the end of the document so the pages load faster
-        / script src="/assets/javascripts/bootstrap.min.js"
+        - if self.is_a?(HomeController)
+            == yield
+        - else
+            nav#side_bar == render :guides_sidebar
+            #md_container
+                == yield
+                img#sign src='/images/plezi_watercolor.png' alt='Plezi'
+        - if flash[:notice]
+            #notice
+                a.notice_close onclick='hide_notice()' X
+                div#notice_text
+                    pre= flash[:notice]
+        - else
+            #notice.hidden
+                a.notice_close onclick='hide_notice()' X
+                div#notice_text
         / Highlight code
         script src="/assets/javascripts/highlight.pack.js"
         javascript:
             hljs.initHighlighting();
+            function show_notice() { document.getElementById("notice").classList.remove('hidden'); }; 
+            function hide_notice() { document.getElementById("notice").classList.add('hidden'); };

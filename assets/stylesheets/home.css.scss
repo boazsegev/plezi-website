@@ -6,7 +6,6 @@ html, body, input
 
 #top_nav
 {
-    height: 5em;
     li
     {
         a
@@ -21,6 +20,12 @@ html, body, input
             }
         }
     }
+}
+#sign
+{
+    position:absolute;
+    right: 1em; bottom:0;
+    z-index:250;
 }
 // Main Demo Code
 div {position: relative;}
@@ -79,7 +84,7 @@ div {position: relative;}
     top: 1em; right: 1em;
     display: block;
     height: 5em; width: auto;
-    z-index: 9999999;
+    z-index: 9999;
 }
 
 #client_code

@@ -6,4 +6,4 @@ At the moment this is just a "stub" page, but it will grow.
 
 # Contributing
 
-When submitting guides and demo code, please submit them as github flavored markdown files (`demo.md`).
+When submitting guides and demo code, please submit them as github flavored markdown files, with the html type signature (`demo.html.md`).

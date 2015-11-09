@@ -47,5 +47,13 @@ host templates: Root.join('templates').to_s,
 # end
 
 # Add your routes and controllers by order of priority.
-route '/(:id)', HomeController
+route '/guides', GuidesController
+route '/', HomeController
+
+class Err404
+	def index
+		redirect_to '/', notice: "#{request.original_path} can't be found"
+	end
+end
+route '*', Err404
 

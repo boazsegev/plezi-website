@@ -9,7 +9,7 @@ class HomeController
 	def on_open
 		return close unless params[:id]
 		broadcast :print, "#{params[:id]} joind the chat."
-		print "Welcome, #{params[:id]}"
+		print "Welcome, #{params[:id]}!"
 	end
 	def on_close
 		broadcast :print, "#{params[:id]} left the chat."

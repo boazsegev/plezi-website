@@ -30,7 +30,7 @@
 	# Iodine.processes = 4
 
 # change some of the default settings here.
-host templates: Root.join('templates').to_s,
+host templates: Root.join('guides').to_s,
 	public: Root.join('public').to_s,
 	assets: Root.join('assets').to_s
 

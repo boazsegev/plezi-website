@@ -22,3 +22,7 @@ If you prefer to start writing code right away, read through our [Hello World](/
 If you feel adventurous and want to start playing around with Websocket, feel free to try out the [Websocket chatroom](/guides/hello_chat) tutorial and follow along.
 
 This should get your apetite running and you'll be peeking at our more in-depth guides in no-time.
+
+## The table of contents
+
+To your right you'll find a floating "Table of Contents" for the document your reading. Hover above it with your mouse (or touch it) if you want to skip between sections of the same document.

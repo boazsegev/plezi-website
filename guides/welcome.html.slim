@@ -34,50 +34,49 @@ javascript:
 		$('#output').animate({ scrollTop:
 				$('#output')[0].scrollHeight }, "slow");
 	}
-div id='demo'
-	div id='code'
-		div id='server_code'
-			pre
-				code class='ruby'
-					|
-						# finish with `exit` if running within `irb`
-						require 'plezi'
-						class ChatServer
-							def index
-								render :client
-							end
-							def on_open
-								return close unless params[:id]
-								broadcast :print,
-										"\#{params[:id]} joind the chat."
-								print "Welcome, \#{params[:id]}!"
-							end
-							def on_close
-								broadcast :print,
-										"\#{params[:id]} left the chat."
-							end
-							def on_message data
-								self.class.broadcast :print,
-											"\#{params[:id]}: \#{data}"
-							end
-							protected
-							def print data
-								write ::ERB::Util.html_escape(data)
-							end
-						end
-						path_to_client = File.expand_path( File.dirname(__FILE__) )
-						host templates: path_to_client
-						route '/', ChatServer
-	div id='client'
+div#demo
+	div#client
 		div class='bordered'
 			p "Hello Chat Room" had never been simpler...
-			form id='form'
+			form#form
 				input type='text' id='text' name='text' placeholder='nickname' autocomplete="off"
 				input type='submit' value='send'
 			javascript:
 				$('#form')[0].onsubmit = onsubmit
 			ul id='output'
 		img#sign src='/images/plezi_watercolor_light.png' alt='Plezi'
+	div#code
+		pre
+			code class='ruby'
+				|
+					# finish with `exit` if running within `irb`
+					require 'plezi'
+					class ChatServer
+						def index
+							render :client
+						end
+						def on_open
+							return close unless params[:id]
+							broadcast :print,
+									"\#{params[:id]} joind the chat."
+							print "Welcome, \#{params[:id]}!"
+						end
+						def on_close
+							broadcast :print,
+									"\#{params[:id]} left the chat."
+						end
+						def on_message data
+							self.class.broadcast :print,
+										"\#{params[:id]}: \#{data}"
+						end
+						protected
+						def print data
+							write ::ERB::Util.html_escape(data)
+						end
+					end
+					path_to_client = File.expand_path( File.dirname(__FILE__) )
+					host templates: path_to_client
+					route '/', ChatServer
 input#show_code type='checkbox'
 div id='client_code'
 	pre

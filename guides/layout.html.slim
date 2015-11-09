@@ -16,6 +16,7 @@ html
             link href='/assets/stylesheets/home.css' rel='stylesheet' type='text/css'
         - else
             link href='/assets/javascripts/styles/github.css' rel='stylesheet' type='text/css'
+        link rel='stylesheet' media='only screen and (max-device-width : 768px)' href='/assets/stylesheets/small.css'
         / script src="/assets/javascripts/websocket.js"
 
 
@@ -43,6 +44,7 @@ html
 
     body
         a#logo href='/'
+        input#show_nav type='checkbox'
         nav#top_nav
             ul
                 li
@@ -54,6 +56,7 @@ html
         - if self.is_a?(HomeController)
             == yield
         - else
+            input#show_sidebar type='checkbox'
             nav#side_bar == render :guides_sidebar
             #md_container
                 == yield

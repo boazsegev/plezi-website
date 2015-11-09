@@ -1,0 +1,60 @@
+doctype html
+html
+    head
+        meta charset="utf-8"
+        meta http-equiv="X-UA-Compatible" content="IE=edge"
+        meta content="width=device-width, initial-scale=1, maximum-scale=2.0, user-scalable=yes, minimal-ui=yes" name="viewport"
+        title= @title || "Plezi - a Ruby framework for real-time web applications"
+        link href='https://fonts.googleapis.com/css?family=Montserrat|Quicksand|Chivo' rel='stylesheet' type='text/css'
+        / link href='/assets/stylesheets/bootstrap.css' rel='stylesheet' type='text/css'
+        link href='/assets/javascripts/styles/railscasts.css' rel='stylesheet' type='text/css'
+        / link href='/assets/javascripts/styles/monokai_sublime.css' rel='stylesheet' type='text/css'
+        / link href='/assets/javascripts/styles/github.css' rel='stylesheet' type='text/css'
+        script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
+
+        / Adjustments
+        link href='/assets/stylesheets/main.css' rel='stylesheet' type='text/css'
+        - if self.is_a?(HomeController)
+            link href='/assets/stylesheets/home.css' rel='stylesheet' type='text/css'
+        / script src="/assets/javascripts/websocket.js"
+
+
+        link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png"
+        link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png"
+        link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png"
+        link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png"
+        link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png"
+        link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png"
+        link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png"
+        link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png"
+        link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png"
+        link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32"
+        link rel="icon" type="image/png" href="/favicon-194x194.png" sizes="194x194"
+        link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96"
+        link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192"
+        link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16"
+        link rel="manifest" href="/manifest.json"
+        link rel="mask-icon" href="/safari-pinned-tab.svg" color="#b60003"
+        meta name="apple-mobile-web-app-title" content="Plezi"
+        meta name="application-name" content="Plezi"
+        meta name="msapplication-TileColor" content="#b91d47"
+        meta name="msapplication-TileImage" content="/mstile-144x144.png"
+        meta name="theme-color" content="#ffffff"
+
+    body
+        div#logo
+        nav#top_nav
+            ul
+                li
+                    a href='http://www.rubydoc.info/github/boazsegev/plezi/master' Docs
+                li
+                    a href='https://github.com/boazsegev/plezi' Source Code
+        == yield
+        / -- Bootstrap core JavaScript
+        / ==================================================
+        / Placed at the end of the document so the pages load faster
+        / script src="/assets/javascripts/bootstrap.min.js"
+        / Highlight code
+        script src="/assets/javascripts/highlight.pack.js"
+        javascript:
+            hljs.initHighlighting();

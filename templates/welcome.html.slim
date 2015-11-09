@@ -1,0 +1,134 @@
+img src='/images/ruby.png' alt='ruby' id='ruby_lang'
+javascript:
+	ws = NaN
+	handle = ''
+	function onsubmit(e) {
+		e.preventDefault();
+		if($('#text')[0].value == '') {return false}
+		if(ws && ws.readyState == 1) {
+			ws.send($('#text')[0].value);
+			$('#text')[0].value = '';
+		} else {
+			handle = $('#text')[0].value
+			var url = "ws://" + window.document.location.host + '/' + $('#text')[0].value
+			ws = new WebSocket(url)
+			ws.onopen = function(e) {
+				output("<b>Connected :-)</b>");
+				$('#text')[0].value = '';
+				$('#text')[0].placeholder = 'your message';
+			}
+			ws.onclose = function(e) {
+				output("<b>Disonnected :-/</b>")
+				$('#text')[0].placeholder = 'nickname';
+				$('#text')[0].value = handle
+			}
+			ws.onmessage = function(e) {
+				output(e.data);
+			}
+		}
+		return false;
+	}
+	function output(data) {
+		$('#output').append("<li>" + data + "</li>")
+		$('#output').animate({ scrollTop:
+				$('#output')[0].scrollHeight }, "slow");
+	}
+div id='demo'
+	div id='code'
+		div id='server_code'
+			pre
+				code class='ruby'
+					|
+						# finish with `exit` if running within `irb`
+						require 'plezi'
+						class ChatServer
+							def index
+								render :client
+							end
+							def on_open
+								return close unless params[:id]
+								broadcast :print,
+										"\#{params[:id]} joind the chat."
+								print "Welcome, \#{params[:id]}"
+							end
+							def on_close
+								broadcast :print,
+										"\#{params[:id]} left the chat."
+							end
+							def on_message data
+								self.class.broadcast :print,
+											"\#{params[:id]}: \#{data}"
+							end
+							protected
+							def print data
+								write ::ERB::Util.html_escape(data)
+							end
+						end
+						path_to_client = File.expand_path( File.dirname(__FILE__) )
+						host templates: path_to_client
+						route '/', ChatServer
+	div id='client'
+		div class='bordered'
+			p "Hello Chat Room" had never been simpler...
+			form id='form'
+				input type='text' id='text' name='text' placeholder='nickname' autocomplete="off"
+				input type='submit'
+			javascript:
+				$('#form')[0].onsubmit = onsubmit
+			ul id='output'
+		img src='/images/plezi_watercolor_light.png' alt='Plezi' style='width: 33%; position:absolute; right: 1em; bottom:0; z-index:250;'
+input#show_code type='checkbox'
+div id='client_code'
+	pre
+		code class='html'
+			|
+				&lt;!-- client.html.erb --&gt;
+				&lt;!DOCTYPE html&gt;&lt;html&gt;
+				&lt;head&gt;
+					&lt;script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"&gt;&lt;/script&gt;
+					&lt;script&gt;
+						ws = NaN
+						handle = ''
+						function onsubmit(e) {
+							e.preventDefault();
+							if($('#text')[0].value == '') {return false}
+							if(ws &amp;&amp; ws.readyState == 1) {
+								ws.send($('#text')[0].value);
+								$('#text')[0].value = '';
+							} else {
+								handle = $('#text')[0].value
+								var url = "ws://" + window.document.location.host +
+											'/' + $('#text')[0].value
+								ws = new WebSocket(url)
+								ws.onopen = function(e) {
+									output("&lt;b&gt;Connected :-)&lt;/b&gt;");
+									$('#text')[0].value = '';
+									$('#text')[0].placeholder = 'your message';
+								}
+								ws.onclose = function(e) {
+									output("&lt;b&gt;Disonnected :-/&lt;/b&gt;")
+									$('#text')[0].value = '';
+									$('#text')[0].placeholder = 'nickname';
+									$('#text')[0].value = handle
+								}
+								ws.onmessage = function(e) {
+									output(e.data);
+								}
+							}
+							return false;
+						}
+						function output(data) {
+							$('#output').append("&lt;li&gt;" + data + "&lt;/li&gt;")
+							$('#output').animate({ scrollTop:
+										$('#output')[0].scrollHeight }, "slow");
+						}
+					&lt;/script&gt;
+				&lt;/head&gt;&lt;body&gt;
+					&lt;p&gt;"Hello Chat Room" had never been simpler...&lt;/p&gt;
+					&lt;form id='form'&gt;
+						&lt;input type='text' id='text' name='text' placeholder='nickname'&gt;&lt;/input&gt;
+						&lt;input type='submit'&gt;&lt;/input&gt;
+					&lt;/form&gt;
+					&lt;script&gt; $('#form')[0].onsubmit = onsubmit &lt;/script&gt;
+					&lt;ul id='output'&gt;&lt;/ul&gt;
+				&lt;/body&gt;

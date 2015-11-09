@@ -1,0 +1,114 @@
+/* Color Scheme */
+
+    // background-color: $darkest_color;
+    // color: $lightest_color;
+
+// $mid_color: #814040;  // Main Primary color */
+// $lightest_color: #CE8A8A;
+// $light_color: #AB5E5E;
+// $dark_color: #732626;
+// $darkest_color: #541010;
+
+/* fonts */
+$title_font: 'Montserrat', sans-serif;
+$main_font: 'Quicksand', sans-serif;
+$menu_font: 'Chivo', sans-serif;
+
+html, body
+{
+    width: 100%; height: 100%;
+    background-color: #e0e0e0;
+    color: #202020;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    font-family: $main_font;
+    font-size: 1em;
+    padding:0; margin: 0;
+}
+input
+{
+    background-color: #e0e0e0;
+    color: #202020;
+    font-size: 1em;
+    padding: 0.3em 1em;
+}
+input[type=submit]
+{
+    margin: 0 0 0 1em;
+}
+h1, h2, h3
+{
+    font-family: $title_font;
+    padding: 0.2em;
+    margin: 0;
+}
+h1 {text-align: center;}
+h2 {text-align: left;}
+h3 {text-align: right;}
+code, .bordered
+{
+    box-sizing: border-box;
+    border: 1px solid;
+    border-radius: 1em;
+    padding: 1em;
+    overflow: scroll;
+}
+
+#logo
+{
+    position: fixed;
+    top: 1em; left: 1em;
+    display: block;
+    height: 3em; width: 8em;
+    z-index: 9999999;
+    &:after
+    {
+        content: ' ';
+        display: block;
+        width: 100%; height: 100%;
+        background-repeat: no-repeat;
+        background-image: url('/images/logo_thick_dark.png');
+        background-size: 100% 100%;
+    }
+}
+// Navigation
+
+#top_nav
+{
+    display: block;
+    width: 100%; height: 4em;
+    border-bottom: 1px solid;
+    box-sizing: border-box;
+    ul
+    {
+        display: block;
+        width: 100%;
+        height: 100%;
+        margin: 0; padding:0;
+        padding-left: 12em;
+    }
+    li
+    {
+        display: inline-block;
+        position: relative;
+        top:1em;
+        a
+        {
+            white-space: nowrap;
+            display: inline-block;
+            width: 7em;
+            padding: 0.5em 1em;
+            text-align:center;
+            margin: 0.2em;
+            border-radius: 0.5em;
+            background-color: #e0e0e0;
+            color: #020202;
+            text-decoration: none;
+            &:hover
+            {
+                background-color: #f0f0f0;
+                color: #000;
+            }
+        }
+    }
+}

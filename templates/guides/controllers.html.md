@@ -1,4 +1,4 @@
-# Plezi Controllers - Virtual folders, RESTful requests, Websockets and more.
+# Plezi Controllers
 
 In the core of Plezi's framework is a smart Object Oriented Router which acts like a "virtual folder" with RESTful routing and Websocket support.
 
@@ -12,15 +12,15 @@ The second layer of this powerful routing system is the Controller class which w
 
 (todo: write documentation)
 
-### A Virtual Folder
+## RESTful methods
 
 (todo: write documentation)
 
-### RESTful methods
+## Virtual folder
 
 (todo: write documentation)
 
-### Websocket Callbacks
+## Websocket Callbacks
 
 (todo: write documentation)
 

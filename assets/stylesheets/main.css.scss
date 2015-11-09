@@ -175,6 +175,102 @@ code
         }
     }
 }
+
+.toc
+{
+    &:after
+    {
+        content: 'Table of Contents';
+        z-index: -1;
+        position: absolute;
+        top: 1em; left: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 1.2em;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        -webkit-transition: transform 0.3s ease, opacity 0.3s ease;
+        -moz-transition: transform 0.3s ease, opacity 0.3s ease;
+        -o-transition: transform 0.3s ease, opacity 0.3s ease;
+        opacity: 1;
+
+        -webkit-border-radius: 0.5em;
+        -moz-border-radius: 0.5em;
+        border-radius: 0.5em;
+        background-color: #CE8A8A;
+        background-color: rgba(255, 255, 255, 0.6);
+    }
+    &:before
+    {
+        content: ' ';
+        z-index: -1;
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(255, 255, 255, 0.94);
+        filter: blur(10px);
+        -webkit-filter: blur(10px);
+    }
+    transition: transform 0.3s ease;
+    -webkit-transition: transform 0.3s ease;
+    -moz-transition: transform 0.3s ease;
+    -o-transition: transform 0.3s ease;
+    transform: translateX(100%);
+    z-index: +15;
+    left: initial;
+    position: fixed;
+    top: 0; right: 0;
+    background-color: rgba(64, 64, 64, 0.32);
+    border: none;
+    border-left: 1px solid;
+    border-bottom: 1px solid;
+    -webkit-border-radius: 1em;
+    -moz-border-radius: 1em;
+    border-radius: 1em;
+    padding: 1em 0.5em;
+    box-sizing: border-box;
+    &:hover
+    {
+        transform: translateX(0);
+        &:after
+        {
+            transform: translateX(0);
+            opacity: 0;
+            // background-color: transparent;
+        }
+    }
+    li
+    {
+        display: block;
+    }
+    a
+    {
+        display: inline-block;
+        position: relative;
+        min-width: 7em;
+        padding: 0.2em 1em;
+        text-align:left;
+        margin: 0.2em;
+        border-radius: 0.5em;
+        color: #020202;
+        text-decoration: none;
+        &:hover
+        {
+            color: #000;
+            &:after
+            {
+                display: block;
+                position: absolute;
+                top: 0; left:0;
+                content: '>';
+                padding: 0.2em 0;
+            }
+        }
+    }
+
+}
+
+
 #sign
 {
     height: 5em;

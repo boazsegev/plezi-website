@@ -37,7 +37,7 @@ Now visit [localhost:3000](http://localhost:3000/)
 
 Three lines! Nice :-)
 
-### Object Oriented design is fun!
+## Object Oriented design is fun!
 
 While Plezi allows us to utilize methods, like we just did, Plezi really shines when we use Controller classes.
 
@@ -70,7 +70,7 @@ Did you notice how the controller has natural access to the request's `params`?
 
 This is because Plezi inherits our controller and adds some magic to it, allowing us to read _and set_ cookies using the `cookies` Hash based cookie-jar, set or read session data using `session`, look into the `request`, set special headers for the `response`, store self destructing cookies using `flash` and so much more!
 
-### Can websockets do that?!
+## Can websockets do that?!
 
 Plezi was designed for websockets from the ground up. If your controller class defines an `on_message(data)` callback, plezi will automatically enable websocket connections for that route.
 
@@ -123,7 +123,7 @@ Broadcasting isn't the only tool Plezi offers, we can also send a message to a s
 
 ...It's even possible to register a unique identity, such as a specific user or even a `session.id`, so their messages are waiting for them even when they're off-line (you decide how long they wait)! We simply use `register_as @user.id` in our `on_open` callback, and than the user can get notifications sent by `notify user.id, :evet_method, *args`.
 
-### Websocket scaling is as easy as one line of code!
+## Websocket scaling is as easy as one line of code!
 
 A common issue with Websocket scaling is trying to send websocket messages from server X to a user connected to server Y... On Heroku, it's enough add one Dyno (a total of two Dynos) to break some websocket applications.
 
@@ -134,7 +134,7 @@ Just tell Plezi how to acess your Redis server and Plezi will make sure that you
     # REDIS_URL is where Herolu-Redis stores it's URL
     ENV['PL_REDIS_URL'] ||= ENV['REDIS_URL'] || "redis://username:password@my.host:6389"
 
-### Hosts, template rendering, assets...?
+## Hosts, template rendering, assets...?
 
 Plezi allows us to use different host-names for different routes. i.e.:
 

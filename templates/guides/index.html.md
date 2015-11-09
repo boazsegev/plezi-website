@@ -15,7 +15,7 @@ With Plezi, you can easily:
 
 To your left you will find a menu with the list of available guides and demo code.
 
-To start up, make sure you [installed Plezi](/guides/install). Next, read [the overview](/guides/basics) and try the demo code as you follow along.
+To start up, make sure you [installed Plezi](/guides/install). Next, read [the Getting Started overview](/guides/basics) and try the demo code as you follow along.
 
 If you prefer to start writing code right away, read through our [Hello World](/guides/hello_world) tutorial, as it contains much more than a simple "Hello World".
 

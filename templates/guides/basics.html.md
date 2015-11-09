@@ -1,4 +1,4 @@
-# A little about Plezi
+# Getting started with Plezi
 
 Here we will explore a bit about starting up with Plezi.
 

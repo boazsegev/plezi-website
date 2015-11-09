@@ -11,12 +11,11 @@ html
 
         / Adjustments
         link href='/assets/stylesheets/main.css' rel='stylesheet' type='text/css'
+        link rel='stylesheet' media='only screen and (max-device-width : 768px)' href='/assets/stylesheets/small.css'
         - if self.is_a?(HomeController)
             link href='/assets/javascripts/styles/railscasts.css' rel='stylesheet' type='text/css'
-            link href='/assets/stylesheets/home.css' rel='stylesheet' type='text/css'
         - else
             link href='/assets/javascripts/styles/github.css' rel='stylesheet' type='text/css'
-        link rel='stylesheet' media='only screen and (max-device-width : 768px)' href='/assets/stylesheets/small.css'
         / script src="/assets/javascripts/websocket.js"
 
 
@@ -42,7 +41,7 @@ html
         meta name="msapplication-TileImage" content="/mstile-144x144.png"
         meta name="theme-color" content="#ffffff"
 
-    body
+    body class="#{self.is_a?(HomeController) ? 'dark' : 'light'}"
         a#logo href='/'
         input#show_nav type='checkbox'
         nav#top_nav

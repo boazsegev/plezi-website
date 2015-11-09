@@ -365,3 +365,158 @@ code
         -ms-transform: scale(1, 0);
     }
 }
+
+
+
+
+/*  Dark Theme Changes */
+body.dark, .dark input
+{
+    background-color: #202020;
+    color: #e0e0e0;
+    #top_nav
+    {
+        li
+        {
+            a
+            {
+                border: 1px solid #CE8A8A;
+                background-color: #541010;
+                color: #CE8A8A;
+                &:hover
+                {
+                    background-color: #732626;
+                    color: #CE8A8A;
+                }
+            }
+        }
+    }
+
+    #sign
+    {
+        position:absolute;
+        right: 1em; bottom:0;
+        z-index:250;
+    }
+    // Main Demo Code
+    div {position: relative;}
+    #demo
+    {
+        margin-top: 3em;
+    }
+    #client
+    {
+        position: absolute;
+        top: 0; right: 0;
+        width: 45%;
+        padding: 0 1em 1em 0;
+        box-sizing: border-box;
+        .bordered
+        {
+            display: block;
+            height: 100%;
+        }
+        #output
+        {
+            height: 10em;
+            overflow: scroll;
+        }
+    }
+    #code
+    {
+        box-sizing: border-box;
+        width: 55%; height: 100%;
+        padding: 0 1em;
+        margin: 0;
+        pre, code
+        {
+            width: 100%;
+        }
+    }
+
+    #logo:after
+    {
+        background-image: url('/images/logo_thick_light.png');
+    }
+    #ruby_lang
+    {
+        position: fixed;
+        top: 1em; right: 1em;
+        display: block;
+        height: 5em; width: auto;
+        z-index: 9999;
+        img
+        {
+            height: 100%;
+        }
+    }
+
+    #client_code
+    {
+        transition:transform 0.3s ease;
+        -webkit-transition:transform 0.3s ease;
+        -moz-transition:transform 0.3s ease;
+        -o-transition:transform 0.3s ease;
+        display: block;
+        position: fixed;
+        top: -200%;
+        transform: scaleY(0);
+        transform-origin: 50% 0;
+        opacity: 0.9;
+        background-color: rgba(64,64,64,0.64);
+        padding: 3em 20%;
+        margin: 0;
+        box-sizing: border-box;
+        position: absolute;
+        overflow: scroll;
+        top: 0; left: 0; bottom: 0; right: 0;
+        z-index: 200;
+        code, pre, div
+        {
+            margin: 0;
+        }
+    }
+    #show_code
+    {
+        display: block;
+        position: absolute;
+        bottom: 14px; right: 14px;
+        font-size: 0.01em;
+        overflow: visible;
+        z-index: 300;
+        transform: translateX(999999px);
+        &:after
+        {
+            transform: translateX(-999999px);
+            content: "Show Client Code";
+            display: block;
+            height: 2.3em; width: 12em;
+            font-size: 100em;
+            box-sizing: border-box;
+            padding: 0.5em;
+            text-align: center;
+            border-radius: 0.5em;
+            border: 1px solid;
+            background-color: #541010;
+            z-index: 300;
+            position: absolute;
+            left: -11em;
+            top:-1em;
+        }
+        &:checked
+        {
+            &:after
+            {
+                content: "Hide Client Code";
+                background-color: #732626;
+            }
+        }
+    }
+    #show_code:checked+#client_code
+    {
+        display: block;
+        top: 0;
+        transform: scaleY(1);
+    }
+
+}

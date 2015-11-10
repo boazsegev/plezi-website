@@ -1,7 +1,28 @@
 //media only screen and (max-device-width : 768px)
+
+body
+{
+    &:after
+    {
+        content: ' ';
+        display: block;
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%;
+        height: 7em;
+        z-index: +1;
+        background-color: rgba(240, 240, 240, 0.88);
+        filter: blur(10px);
+        -webkit-filter: blur(10px);
+        pointer-events: none;
+    }
+}
+
 code, pre
 {
     overflow: hidden;
+    word-wrap: break-word;
+    pointer-events: none;
 }
 #md_container
 {
@@ -19,14 +40,14 @@ code, pre
         top: 0;
     }
     // padding-top: 3em;
-    top: 4em; right: 0;
+    top: 5em; right: 0;
 }
 #logo
 {
     top:0.3em;
     border-radius: 1em;
-    background-color: rgb(240,240,240);
-    background-color: rgba(240, 240, 240, 0.64);
+    // background-color: rgb(240,240,240);
+    // background-color: rgba(240, 240, 240, 0.64);
 }
 #sign
 {
@@ -39,7 +60,7 @@ code, pre
 {
     display: block;
     position: fixed;
-    top: 4em; left:0;
+    top: 5em; left:0;
     overflow: visible;
     transform: translateX(999999px);
     z-index: 900;
@@ -79,7 +100,7 @@ code, pre
 {
     display: block;
     width: 100%; height: 100%;
-    padding-top: 6em;
+    padding-top: 9em;
     position: fixed;
     overflow: scroll;
     background-color: rgb(240,240,240);
@@ -150,13 +171,17 @@ code, pre
 
 body.dark
 {
-    #logo
+    &:after
     {
-        background-color: transparent;
+        background-color: rgba(32, 32, 32, 0.88);
     }
+    // #logo
+    // {
+    //     background-color: transparent;
+    // }
     #tagline
     {
-        margin-top: 4em;
+        margin-top: 7em;
         font-size: 1.1em;
     }
     #show_code
@@ -164,11 +189,9 @@ body.dark
         position: fixed;
         z-index: 500;
         right: initial;
-        left: 14px;
+        left: 0.5em;
         &:after
         {
-            left: initial;
-            right: -10em;
         }
     }
     #client_code
@@ -180,6 +203,8 @@ body.dark
         {
             width: 100%; height: 100%;
             overflow-y: scroll;
+            pointer-events: auto;
+            word-wrap: normal;
         }
     }
 

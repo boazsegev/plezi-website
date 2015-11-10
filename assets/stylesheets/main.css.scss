@@ -481,18 +481,16 @@ body.dark, .dark input
     {
         display: block;
         position: absolute;
-        bottom: 14px; right: 14px;
-        font-size: 0.01em;
+        bottom: 0.5em; right: 0.5em;
+        height: 2.3em; width: 7em;
         overflow: visible;
         z-index: 300;
         transform: translateX(999999px);
         &:after
         {
             transform: translateX(-999999px);
-            content: "Show Client Code";
+            content: "Client Code";
             display: block;
-            height: 2.3em; width: 12em;
-            font-size: 100em;
             box-sizing: border-box;
             padding: 0.5em;
             text-align: center;
@@ -501,14 +499,14 @@ body.dark, .dark input
             background-color: #541010;
             z-index: 300;
             position: absolute;
-            left: -11em;
-            top:-1em;
+            left: 0;
+            top:0;
         }
         &:checked
         {
             &:after
             {
-                content: "Hide Client Code";
+                // content: "Hide Code";
                 background-color: #732626;
             }
         }

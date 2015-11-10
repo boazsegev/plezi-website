@@ -288,10 +288,19 @@ code
 
 #sign
 {
-    height: 5em;
+    height: 5em; width: 8.2em;
     position:absolute;
     right: 1em; bottom:0;
     z-index:250;
+    &:after
+    {
+        content: ' ';
+        display: block;
+        width: 100%; height: 100%;
+        background-repeat: no-repeat;
+        background-image: url('/images/plezi_watercolor.png');
+        background-size: 100% 100%;
+    }
 }
 #logo
 {
@@ -491,6 +500,18 @@ body.dark, .dark input
 {
     background-color: #202020;
     color: #e0e0e0;
+    code
+    {
+        background-color: #333;
+    }
+    a
+    {
+        color: #ddf;
+        &:visited
+        {
+            color: #eef;
+        }
+    }
     #top_nav
     {
         li
@@ -512,6 +533,10 @@ body.dark, .dark input
     #logo:after
     {
         background-image: url('/images/logo_thick_light.png');
+    }
+    #sign:after
+    {
+        background-image: url('/images/plezi_watercolor_light.png');
     }
 
     #show_code
@@ -555,4 +580,20 @@ body.dark, .dark input
             }
         }
     }
+
+    #side_bar
+    {
+        li
+        {
+            a
+            {
+                color: #e0e0e0;
+                &:hover
+                {
+                    color: #fff;
+                }
+            }
+        }
+    }
+
 }

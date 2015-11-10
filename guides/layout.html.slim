@@ -10,12 +10,9 @@ html
         script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
 
         / Adjustments
+        link href='/assets/stylesheets/code.css' rel='stylesheet' type='text/css'
         link href='/assets/stylesheets/main.css' rel='stylesheet' type='text/css'
         link rel='stylesheet' media='only screen and (max-device-width : 768px)' href='/assets/stylesheets/small.css'
-        - if self.is_a?(HomeController)
-            link href='/assets/javascripts/styles/railscasts.css' rel='stylesheet' type='text/css'
-        - else
-            link href='/assets/javascripts/styles/github.css' rel='stylesheet' type='text/css'
         / script src="/assets/javascripts/websocket.js"
 
 
@@ -41,7 +38,7 @@ html
         meta name="msapplication-TileImage" content="/mstile-144x144.png"
         meta name="theme-color" content="#ffffff"
 
-    body class="#{self.is_a?(HomeController) ? 'dark' : 'light'}"
+    body
         a#logo href='/'
         input#show_nav type='checkbox'
         nav#top_nav
@@ -52,6 +49,8 @@ html
                     a href='http://www.rubydoc.info/github/boazsegev/plezi/master' Docs
                 li
                     a href='https://github.com/boazsegev/plezi' Source Code
+                li
+                    a#theme href='javascript: change_themes();' Night Theme
         - if self.is_a?(HomeController)
             == yield
         - else
@@ -59,8 +58,7 @@ html
             nav#side_bar == render :guides_sidebar
             #md_container
                 == yield
-                a href='/'
-                    img#sign src='/images/plezi_watercolor.png' alt='Plezi'
+                a#sign href='/'
         - if flash[:notice]
             #notice
                 a.notice_close onclick='hide_notice()' X
@@ -76,6 +74,22 @@ html
             hljs.initHighlighting();
             function show_notice() { document.getElementById("notice").classList.remove('hidden'); }; 
             function hide_notice() { document.getElementById("notice").classList.add('hidden'); };
+            function change_themes() {
+                if(localStorage.getItem("theme") == 'dark') {
+                    localStorage.setItem("theme", "light");
+                } else {
+                    localStorage.setItem("theme", "dark");
+                }
+                $('body')[0].className = localStorage.getItem("theme");
+                set_theme_link();
+                $('#show_nav').attr('checked', false);
+                return false;
+            };
+            function set_theme_link() {
+                $("#theme").html( ( (localStorage.getItem("theme") == 'dark') ? "Night" : "Day") + " Theme" );
+                }
+            $('body')[0].className = (localStorage.getItem("theme") == 'dark') ? "dark" : "light";
+            set_theme_link();
 
             // Google Analytics
             if(location.hostname != "localhost") {

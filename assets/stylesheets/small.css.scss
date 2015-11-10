@@ -1,5 +1,8 @@
 //media only screen and (max-device-width : 768px)
-
+code, pre
+{
+    overflow: hidden;
+}
 #md_container
 {
     padding: 7em 0.5em;

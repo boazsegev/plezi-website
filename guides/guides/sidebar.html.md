@@ -3,7 +3,7 @@
 * 
 * [Getting started](/guides/basics)
 * [Hello World](/guides/hello_world)
-* [Chatroom](/guides/hello_chat)
+* [Hello Chatroom](/guides/hello_chat)
 * 
 * [Routing with Plezi](/guides/routes)
 * [Using controllers](/guides/controllers)

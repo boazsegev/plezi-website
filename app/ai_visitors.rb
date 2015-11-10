@@ -28,6 +28,7 @@ class AIConnection
 		"works!",
 		"hi ya'll",
 		"YO :-)",
+		"I'm here!",
 		"eat THIS, node.js :p",
 		"I think I saw someone with my handle! Not fair!",
 		"Anybody there?",
@@ -63,4 +64,4 @@ class AIConnection
 	end
 end
 
-Iodine.run_every(6) { AIConnection.new }
+Iodine.run_every(16) { AIConnection.new }

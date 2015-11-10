@@ -24,6 +24,10 @@ code, pre
     word-wrap: break-word;
     pointer-events: none;
 }
+#output
+{
+    pointer-events: none;
+}
 #md_container
 {
     padding: 7em 0.5em;
@@ -87,7 +91,7 @@ code, pre
     {
         &:after
         {
-            transform: translateX(-999999px) rotate(90deg);
+            transform: translateX(-999999px) rotate(-90deg);
             background-color: rgba(64, 32, 64, 0.64);
         }
     }
@@ -120,6 +124,13 @@ code, pre
     display: block;
     position: fixed;
     top: 0.2em; right:0.5em; left:initial;
+    &:checked
+    {
+        &:after
+        {
+            transform: translateX(-999999px) rotate(90deg);
+        }
+    }
 }
 #top_nav
 {
@@ -169,6 +180,64 @@ code, pre
 
 
 
+//Demo code
+#tagline
+{
+    margin-top: 7em;
+    font-size: 1.1em;
+}
+#show_code
+{
+    position: fixed;
+    z-index: 500;
+    right: initial;
+    left: 0.5em;
+    &:after
+    {
+    }
+}
+#client_code
+{
+    padding: 3em 0.2em;
+    width: 100%; height: 100%;
+    overflow-y: scroll;
+    code, pre
+    {
+        width: 100%; height: 100%;
+        overflow-y: scroll;
+        pointer-events: auto;
+        word-wrap: normal;
+    }
+}
+
+#demo
+{
+    position: static;
+    overflow: visible;
+    margin-top: 1em;
+    padding-bottom: 3em;
+    #code
+    {
+        width: 100%; height: initial;
+        overflow: hidden;
+        code
+        {
+            overflow: hidden;
+        }
+    }
+    #client
+    {
+        overflow: hidden;
+        display: block;
+        position: static;
+        top: 0; right: 0;
+        width: 100%;
+        padding: 0 1em;
+    }
+
+}
+
+// Dark Theme
 body.dark
 {
     &:after
@@ -179,61 +248,7 @@ body.dark
     // {
     //     background-color: transparent;
     // }
-    #tagline
-    {
-        margin-top: 7em;
-        font-size: 1.1em;
-    }
-    #show_code
-    {
-        position: fixed;
-        z-index: 500;
-        right: initial;
-        left: 0.5em;
-        &:after
-        {
-        }
-    }
-    #client_code
-    {
-        padding: 3em 0.2em;
-        width: 100%; height: 100%;
-        overflow-y: scroll;
-        code, pre
-        {
-            width: 100%; height: 100%;
-            overflow-y: scroll;
-            pointer-events: auto;
-            word-wrap: normal;
-        }
-    }
 
-    #demo
-    {
-        position: static;
-        overflow: visible;
-        margin-top: 1em;
-        padding-bottom: 3em;
-        #code
-        {
-            width: 100%; height: initial;
-            overflow: hidden;
-            code
-            {
-                overflow: hidden;
-            }
-        }
-        #client
-        {
-            overflow: hidden;
-            display: block;
-            position: static;
-            top: 0; right: 0;
-            width: 100%;
-            padding: 0 1em;
-        }
-
-    }
     #top_nav
     {
         background-color: rgb(32,32,32);

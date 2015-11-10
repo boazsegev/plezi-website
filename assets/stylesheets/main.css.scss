@@ -366,9 +366,126 @@ code
     }
 }
 
-
-
-
+// Main Demo Code
+#demo
+{
+    margin-top: 3em;
+    position: relative;
+    #sign
+    {
+        position:absolute;
+        right: 1em; bottom:0;
+        z-index:250;
+    }
+}
+#client
+{
+    position: absolute;
+    top: 0; right: 0;
+    width: 45%;
+    padding: 0 1em 1em 0;
+    box-sizing: border-box;
+    .bordered
+    {
+        display: block;
+        height: 100%;
+    }
+    #output
+    {
+        height: 10em;
+        overflow: scroll;
+    }
+}
+#code
+{
+    box-sizing: border-box;
+    width: 55%; height: 100%;
+    padding: 0 1em;
+    margin: 0;
+    position: relative;
+    pre, code
+    {
+        width: 100%;
+    }
+}
+#client_code
+{
+    transition:transform 0.3s ease;
+    -webkit-transition:transform 0.3s ease;
+    -moz-transition:transform 0.3s ease;
+    -o-transition:transform 0.3s ease;
+    display: block;
+    position: fixed;
+    top: -200%;
+    transform: scaleY(0);
+    transform-origin: 50% 0;
+    opacity: 0.98;
+    background-color: rgb(240,240,240);
+    background-color: rgba(240,240,240,0.80);
+    padding: 3em 20%;
+    margin: 0;
+    box-sizing: border-box;
+    position: absolute;
+    overflow: scroll;
+    top: 0; left: 0; bottom: 0; right: 0;
+    z-index: 200;
+    code, pre, div
+    {
+        margin: 0;
+    }
+}
+#show_code
+{
+    display: block;
+    position: absolute;
+    bottom: 0.5em; right: 0.5em;
+    height: 2.3em; width: 7em;
+    overflow: visible;
+    z-index: 300;
+    transform: translateX(999999px);
+    &:after
+    {
+        transform: translateX(-999999px);
+        content: "Client Code";
+        display: block;
+        box-sizing: border-box;
+        padding: 0.5em;
+        text-align: center;
+        border-radius: 0.5em;
+        border: 1px solid;
+        background-color: #e0e0e0;
+        z-index: 300;
+        position: absolute;
+        left: 0;
+        top:0;
+    }
+    &:checked
+    {
+        &:after
+        {
+            // content: "Hide Code";
+            background-color: #ffffff;
+        }
+    }
+}
+#show_code:checked+#client_code
+{
+    display: block;
+    top: 0;
+    transform: scaleY(1);
+}
+#ruby_lang
+{
+    position: fixed;
+    top: 1em; right: 1em;
+    display: block;
+    height: 5em; width: auto;
+    z-index: 9999;
+    img
+    {
+        height: 100%;
+    }
+}
 /*  Dark Theme Changes */
 body.dark, .dark input
 {
@@ -391,116 +508,17 @@ body.dark, .dark input
             }
         }
     }
-
-    #sign
-    {
-        position:absolute;
-        right: 1em; bottom:0;
-        z-index:250;
-    }
-    // Main Demo Code
-    #demo
-    {
-        margin-top: 3em;
-        position: relative;
-    }
-    #client
-    {
-        position: absolute;
-        top: 0; right: 0;
-        width: 45%;
-        padding: 0 1em 1em 0;
-        box-sizing: border-box;
-        .bordered
-        {
-            display: block;
-            height: 100%;
-        }
-        #output
-        {
-            height: 10em;
-            overflow: scroll;
-        }
-    }
-    #code
-    {
-        box-sizing: border-box;
-        width: 55%; height: 100%;
-        padding: 0 1em;
-        margin: 0;
-        position: relative;
-        pre, code
-        {
-            width: 100%;
-        }
-    }
-
+ 
     #logo:after
     {
         background-image: url('/images/logo_thick_light.png');
     }
-    #ruby_lang
-    {
-        position: fixed;
-        top: 1em; right: 1em;
-        display: block;
-        height: 5em; width: auto;
-        z-index: 9999;
-        img
-        {
-            height: 100%;
-        }
-    }
 
-    #client_code
-    {
-        transition:transform 0.3s ease;
-        -webkit-transition:transform 0.3s ease;
-        -moz-transition:transform 0.3s ease;
-        -o-transition:transform 0.3s ease;
-        display: block;
-        position: fixed;
-        top: -200%;
-        transform: scaleY(0);
-        transform-origin: 50% 0;
-        opacity: 0.9;
-        background-color: rgba(64,64,64,0.64);
-        padding: 3em 20%;
-        margin: 0;
-        box-sizing: border-box;
-        position: absolute;
-        overflow: scroll;
-        top: 0; left: 0; bottom: 0; right: 0;
-        z-index: 200;
-        code, pre, div
-        {
-            margin: 0;
-        }
-    }
     #show_code
     {
-        display: block;
-        position: absolute;
-        bottom: 0.5em; right: 0.5em;
-        height: 2.3em; width: 7em;
-        overflow: visible;
-        z-index: 300;
-        transform: translateX(999999px);
         &:after
         {
-            transform: translateX(-999999px);
-            content: "Client Code";
-            display: block;
-            box-sizing: border-box;
-            padding: 0.5em;
-            text-align: center;
-            border-radius: 0.5em;
-            border: 1px solid;
             background-color: #541010;
-            z-index: 300;
-            position: absolute;
-            left: 0;
-            top:0;
         }
         &:checked
         {
@@ -511,11 +529,30 @@ body.dark, .dark input
             }
         }
     }
-    #show_code:checked+#client_code
+    #client_code
     {
-        display: block;
-        top: 0;
-        transform: scaleY(1);
+        background-color: rgba(64,64,64,0.80);
     }
+    .toc
+    {
+        background-color: rgba(64, 64, 64, 0.32);
+        &:after
+        {
 
+            background-color: rgb(0,0,0);
+            background-color: rgba(128, 128, 128, 0.6);
+        }
+        &:before
+        {
+            background-color: rgba(64, 64, 64, 0.94);
+        }
+        a
+        {
+            color: #e0e0e0;
+            &:hover
+            {
+                color: #fff;
+            }
+        }
+    }
 }

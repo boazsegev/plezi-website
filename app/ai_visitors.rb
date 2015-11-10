@@ -64,4 +64,4 @@ class AIConnection
 	end
 end
 
-Iodine.run_every(16) { AIConnection.new }
+Iodine.run_every(32) { AIConnection.new }

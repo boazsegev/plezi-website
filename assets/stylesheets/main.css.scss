@@ -199,7 +199,7 @@ code
         z-index: -1;
         position: absolute;
         top: 1em; left: 0;
-        width: 100%;
+        width: 10em;
         text-align: center;
         font-size: 1.2em;
         transform: translateX(-100%);
@@ -399,10 +399,10 @@ body.dark, .dark input
         z-index:250;
     }
     // Main Demo Code
-    div {position: relative;}
     #demo
     {
         margin-top: 3em;
+        position: relative;
     }
     #client
     {
@@ -428,6 +428,7 @@ body.dark, .dark input
         width: 55%; height: 100%;
         padding: 0 1em;
         margin: 0;
+        position: relative;
         pre, code
         {
             width: 100%;

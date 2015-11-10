@@ -59,7 +59,8 @@ html
             nav#side_bar == render :guides_sidebar
             #md_container
                 == yield
-                img#sign src='/images/plezi_watercolor.png' alt='Plezi'
+                a href='/'
+                    img#sign src='/images/plezi_watercolor.png' alt='Plezi'
         - if flash[:notice]
             #notice
                 a.notice_close onclick='hide_notice()' X

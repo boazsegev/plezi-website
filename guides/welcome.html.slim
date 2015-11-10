@@ -34,17 +34,20 @@ javascript:
 		$('#output').animate({ scrollTop:
 				$('#output')[0].scrollHeight }, "slow");
 	}
+h1#tagline Websockets for Ruby made easy
+/ h1#tagline the Ruby framework for realtime web-apps
 div#demo
 	div#client
 		div class='bordered'
-			p "Hello Chat Room" had never been simpler...
+			p A real-time Websocket Chat Room? Easy!
 			form#form
 				input type='text' id='text' name='text' placeholder='nickname' autocomplete="off"
 				input type='submit' value='send'
 			javascript:
 				$('#form')[0].onsubmit = onsubmit
 			ul id='output'
-		img#sign src='/images/plezi_watercolor_light.png' alt='Plezi'
+            a href='/guides'
+				img#sign src='/images/plezi_watercolor_light.png' alt='Plezi'
 	div#code
 		pre
 			code class='ruby'
@@ -124,7 +127,7 @@ div id='client_code'
 						}
 					&lt;/script&gt;
 				&lt;/head&gt;&lt;body&gt;
-					&lt;p&gt;"Hello Chat Room" had never been simpler...&lt;/p&gt;
+					&lt;p&gt;A real-time Websocket Chat Room? Easy!&lt;/p&gt;
 					&lt;form id='form'&gt;
 						&lt;input type='text' id='text' name='text' placeholder='nickname'&gt;&lt;/input&gt;
 						&lt;input type='submit' value='send'&gt;&lt;/input&gt;

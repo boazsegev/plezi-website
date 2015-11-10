@@ -86,7 +86,7 @@ html
                 return false;
             };
             function set_theme_link() {
-                $("#theme").html( ( (localStorage.getItem("theme") == 'dark') ? "Night" : "Day") + " Theme" );
+                $("#theme").html( ( (localStorage.getItem("theme") == 'dark') ? "Day" : "Night") + " Theme" );
                 }
             $('body')[0].className = (localStorage.getItem("theme") == 'dark') ? "dark" : "light";
             set_theme_link();

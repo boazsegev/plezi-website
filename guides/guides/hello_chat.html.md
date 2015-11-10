@@ -66,9 +66,7 @@ The web page is the "client" for our web application. and the `path_to_client` t
 
 `route '/', ChatServer` - We are connecting the `"/"` path to our `ChatServer` controller.
 
-Actually, since Plezi is quite opinionated about it's routes, Plezi assumes we meant to write `"/(:id)"`, meaning that the optional `params[:id]` can be set using our route.
-
-Our `ChatServer` will actually answer a request such as (for example) `"/my-name"` and will set the `params[:id]`'s value to be `"my-name"`.
+Actually, since Plezi is quite opinionated about it's routes, Plezi assumes we meant to write `"/(:id)"`, meaning that the optional `params[:id]` can be set using our route. i.e., our `ChatServer` will answer the request `"/my-name"` and will set the `params[:id]`'s value to be `"my-name"`.
 
 ### Sending the client
 

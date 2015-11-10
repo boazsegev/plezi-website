@@ -123,7 +123,11 @@ code, pre
 {
     display: block;
     position: fixed;
-    top: 0.2em; right:0.5em; left:initial;
+    top: 0.2em; right:0; left:initial;
+    &:after
+    {
+        right:0; left:initial;
+    }
     &:checked
     {
         &:after

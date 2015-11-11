@@ -94,6 +94,10 @@ Congratualations! You've created a Plezi application. It's a chat room and we wa
 
 [todo: write]
 
+### Hello RESTful requests
+
+[todo: write]
+
 ## Moving our response to a template
 
 [todo: write]

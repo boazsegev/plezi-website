@@ -379,7 +379,7 @@ We also need to update our `on_open` and `on_close` to use JSON... This might be
         def on_close
             broadcast :emit,
                     type: 'connection',
-                    data: 'exit'
+                    data: 'leave'
                     from: params[:id],
                     uuid: uuid
         end
@@ -405,4 +405,37 @@ But first, we need to update the `handle_chat` method, because we already saniti
 
 ### Using JSON on the client
 
-[todo: demonstrate JSON, add unicasting / identity support]
+To use JSON with javascript we will need to use `JSON.parse(e.data)` in our `onmessage(e)` callback. Our new javascript callback will look something like this (but don't follow my lead, I'm a lazy javascripter, and it's probably better to seperate this to more functions):
+
+    ws.onmessage = function(e) {
+        var msg = JSON.parse(e.data);
+        switch(msg.type){
+            case 'chat':
+                output(msg.from + ": " + msg.data)
+                break;
+            case 'connection':
+                switch(msg.data) {
+                    case 'join':
+                        output(msg.from + " joined the chat :-)");
+                        break;
+                    case 'leave':
+                        output(msg.from + " left the chat :-/");
+                        break;
+                    case 'welcome':
+                        output("Welcome, " + msg.from + " :-)");
+                        break;
+                }
+            case 'err':
+                output("Error: " + msg.data)
+                break;
+        }
+    }
+
+As you can see, we are starting to develop what is known as a "Protocol" for our server-client communication.
+
+This also shows you how many options we really face.
+
+For instance, we can move the conncetion listings to a side elemnt. We can also tell Plezi to react to a 'join' message by telling the original connection who's already here. Than, we can use that data (remember the uuid?) to send private messages to one user and not the others... We can even start using Plezi's Identity API to send messages to users who went off-line these messages will wait for a while, so if the user reconnects, they'll see what private messages they missed.
+
+
+[todo: add unicasting / identity support]

@@ -115,11 +115,11 @@ Plezi offers us two great ways to authenticate the connection:
 
 * the `on_open` callback will prevent any incoming websocket messages from being processed until it's finished. This allows us to use `on_open` for authentication without worrying about websocket messages being processed before we have completed our authentication.
 
-    This is a "hallway" type of authentication (you can enter the hallway, but you're not inside just yet).
+    This is a "hallway" type of authentication (you can enter the hallway, but you're not all in just yet).
 
     The advantage of this approach is that it allows us to send back authentication error messages using our websocket connection as well as unify any initialization we need with the authentication.
 
-In this example, our authentication process is simple, we just make sure our client has a nickname by using the `params[:id]` or we close the connection (remember Plezi's RESTful routing?).
+In this example, our authentication process is simple, we just make sure our client has a nickname by using the `params[:id]` or we close the connection (remember Plezi's RESTful routing? no? we'll get back to it in a bit).
 
     class ChatServer
         def on_open
@@ -140,5 +140,269 @@ Since we use `on_open` (and not `pre_connect`), we can improve this by sending a
         end
     end
 
+### Handling websocket data
 
-[todo: explain the code from the landing page, demonstrate JSON]
+After our client connects to our websocket controller, chat messages will start flowing. Also, we will want to let people know the client is here.
+
+Enter `broadcast` on stage left...
+
+The Controller's instance `broadcast` method will alert all it siblings (all the __other__ ChatServer websocket connections) to an event. We use it in our `on_open` callback to inform everyone about the new connection:
+
+        def on_open
+            return close unless params[:id]
+            broadcast :print,
+                    "\#{params[:id]} joind the chat."
+            print "Welcome, \#{params[:id]}!"
+        end
+
+In this implementation, we broadcast an event called `:print`.
+
+Events in Plezi are super simple, they are automatically routed to methods and any data attached to the event is automatically routed to the method's arguments.
+
+We implement the `print` event by simply writing to the websocket (using the `write` method) after sanitizing the data and protectting ourselves from cross-site-scripting attacks (XSS):
+
+    class ChatServer
+        # notice the method must be protected,
+        # so that it doesn't translate as an Http route.
+        protected
+
+        def print data
+            write ::ERB::Util.html_escape(data)
+        end
+    end
+
+That's it, it all makes sense now. Our `on_close` callback acts the same:
+
+    class ChatServer
+        def on_close
+            broadcast :print,
+                    "\#{params[:id]} left the chat."
+        end
+    end
+
+And also out `on_message`... wait, no... our `on_message` callback uses a Class method instead of the instance method - this means that ALL of the ChatServer websockets receive the event - even our own instance:
+
+
+    class ChatServer
+        def on_message data
+            self.class.broadcast :print,
+                        "\#{params[:id]}: \#{data}"
+        end
+    end
+
+It's just a convenience, we could have gotten a similar result (a bit lees asynchronous and a bit less DRY) using:
+
+    class ChatServer
+        def on_message data
+            broadcast :print,
+                    "\#{params[:id]}: \#{data}"
+            print "\#{params[:id]}: \#{data}"
+        end
+    end
+
+That's all we need from our server. Let's look at our client code.
+
+### The client
+
+This is not a Javascript or Html tutorial, so I will ignore styling in favor of functionality. I will also ignore some of the code and explain only what I think is most important or relevant.
+
+If you clicked the "Client Code" button at the bottom of plezi.io's landing page, you probably saw the following peice of code:
+
+    <!DOCTYPE html><html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script>
+            ws = NaN
+            handle = ''
+            function onsubmit(e) {
+                e.preventDefault();
+                if($('#text')[0].value == '') {return false}
+                if(ws && ws.readyState == 1) {
+                    ws.send($('#text')[0].value);
+                    $('#text')[0].value = '';
+                } else {
+                    handle = $('#text')[0].value
+                    var url = "ws://" + window.document.location.host +
+                                '/' + $('#text')[0].value
+                    ws = new WebSocket(url)
+                    ws.onopen = function(e) {
+                        output("<b>Connected :-)</b>");
+                        $('#text')[0].value = '';
+                        $('#text')[0].placeholder = 'your message';
+                    }
+                    ws.onclose = function(e) {
+                        output("<b>Disonnected :-/</b>")
+                        $('#text')[0].value = '';
+                        $('#text')[0].placeholder = 'nickname';
+                        $('#text')[0].value = handle
+                    }
+                    ws.onmessage = function(e) {
+                        output(e.data);
+                    }
+                }
+                return false;
+            }
+            function output(data) {
+                $('#output').append("<li>" + data + "</li>")
+                $('#output').animate({ scrollTop:
+                            $('#output')[0].scrollHeight }, "slow");
+            }
+        </script>
+    </head><body>
+        <p>A real-time Websocket Chat Room? Easy!</p>
+        <form id='form'>
+            <input type='text' id='text' name='text' placeholder='nickname'></input>
+            <input type='submit' value='send'></input>
+        </form>
+        <script> $('#form')[0].onsubmit = onsubmit </script>
+        <ul id='output'></ul>
+    </body>
+
+The code is quite simple in concept (although I think the Javascript is a bit less readable and friendly when compared with Ruby).
+
+There is a text input feild in a form. When the form is submitted, the application checks if a websocket connection is already established.
+
+If there's no connection, the text in the input field is used as a nickname to establish a new connection. If a connection already exists, the text in the input field is used to send a chat message.
+
+In bothe cases, the script prevents the default action (the form submition) from taking place.
+
+Let's look where the client's connection is created:
+
+    function onsubmit(e) {
+        // ...
+        if(ws && ws.readyState == 1) {
+            // ... (sending messages)
+        } else {
+            // ...
+            // The `url` for the websocket - we can also statically write it in.
+            var url = "ws://" + window.document.location.host +
+                        '/' + $('#text')[0].value
+            // Look! Here is the new connection to the websocket!
+            ws = new WebSocket(url)
+            // next, we set up the callback:
+            ws.onopen = function(e) {
+                // ...
+            }
+            ws.onclose = function(e) {
+                // ...
+            }
+            ws.onmessage = function(e) {
+                // ...
+            }
+        }
+
+As you can see, there is a similarity here. In Javascript, we open a new connection and set up it's callbacks. The callback names are very similar, although their naming convention is a bit different (singlewords instead of snake_case).
+
+Since Javascript is single threaded, it's okay if we setup the callbacks AFTER we tell javascript to create the new connection. The new connection will be initiated only once our code is finished. This is different from Ruby and it's good to know this when working with Javascript.
+
+The rest is common Javascript with jQuery being leveraged to make it a bit shorter to write. We simply add text to the `"output"` element as they trickle in.
+
+## Using JSON messages
+
+At the moment, our websockets aren't very flexible. Our application communicates using raw strings and a single type of data.
+
+It's true that Plezi can use binary websocket messages to give us more options, but Javascript isn't very good with binary strings... On the other hand, Javascript has this great tool for seralizing objects, called JSON (similar to Ruby's YAML).
+
+We can use JSON to give our websockets more functionality. But first, let's move our single functionality to the JSON format, so we can keep what we have as we add more.
+
+Let's update our Plezi application to use JSON.
+
+### Using JSON on the server
+
+First, we'll need our application to parse the JSON format, we'll close the connection if this fails, because this will mean we're not talking to an authorized client.
+
+Next, we will check the message type and route it to a method that will handle it correctly. For this we will need to write a __protected__ method (so the Http router doesn't think it's a public route) to handle chat messages. We'll call it `handle_chat`.
+
+We'll also need to rewrite our `print` method... and while we're at it, let's change it's name, `print` is so 80's.
+
+Our new `on_message` callback , `handle_chat` method and `print` (renamed to `emit`) will look something like this:
+
+    class ChatServer
+        def on_message data
+            begin
+                msg = JSON.parse(data)
+            rescue
+                return close
+            end
+            case msg['type']
+            when /chat/
+                handle_chat msg
+            else
+                # nothing right now
+                nil
+            end
+        end
+
+        protected
+
+        def handle_chat message
+            self.class.broadcast :emit,
+                type: 'chat',
+                from: ::ERB::Util.html_escape(params[:id]),
+                to: 'public',
+                uuid: uuid,
+                data: ::ERB::Util.html_escape(message['data'])
+        end
+
+        def emit data
+            write data.to_json
+        end
+    end
+
+You might have noticed I keep sanitizing the data I get from the user. We'll optimize this later, but it super important to **NEVER trust data you get from the big scary internet**... people (and machines) send the weirdest things.
+
+Another thing you might have noticed is the `uuid` that sliped in there. It's a great way to recoginze the websocket's connection and will allow us, later on, to support unicasting (sending messages to one person instead of the whole chatroom).
+
+We also need to update our `on_open` and `on_close` to use JSON... This might be a good time to introduce a new type of message... It could, if we want it to, look something like this:
+
+    class ChatServer
+        def on_open
+            unless params[:id]
+                emit type: 'err', data: "You need a nickname to join the chat!"
+                return close
+            end
+            # lets sanitize the nickname here,
+            # so we don't repeat this all the time...
+            params[:id] = ::ERB::Util.html_escape(params[:id])
+            # inform others
+            broadcast :emit,
+                    type: 'connection',
+                    data: 'join'
+                    from: params[:id],
+                    uuid: uuid
+            # welcome our client
+            emit type: 'connection',
+                data: 'welcome'
+                from: params[:id],
+                uuid: uuid
+        end
+        def on_close
+            broadcast :emit,
+                    type: 'connection',
+                    data: 'exit'
+                    from: params[:id],
+                    uuid: uuid
+        end
+    end
+
+Wow, we already added two new types of message - connection messages and error messages... we can decide what to do with them when we get to our client code.
+
+But first, we need to update the `handle_chat` method, because we already sanitized the nickname in our `on_open` callback:
+
+    class ChatServer
+
+        protected
+
+        def handle_chat message
+            self.class.broadcast :emit,
+                from: params[:id],
+                to: 'public',
+                uuid: uuid,
+                type: 'chat',
+                data: ::ERB::Util.html_escape(message['data'])
+        end
+    end
+
+### Using JSON on the client
+
+[todo: demonstrate JSON, add unicasting / identity support]

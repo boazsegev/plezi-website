@@ -10,3 +10,5 @@
 * [Websockets](/guides/websockets)
 * [ASync helpers](/guides/async_helpers)
 * [Logging helpers](/guides/logging)
+*
+* [YARD Documentation](http://www.rubydoc.info/gems/plezi)

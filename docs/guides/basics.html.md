@@ -27,7 +27,7 @@ See it work: [http://localhost:3000/](http://localhost:3000/)
 
 The Plezi framework was designed with intuitive ease of use in mind.
 
-We'll explore a more "robust" `Hello World` example in our [Hello world tutorial](/guides/hello_world), but here's a kicker... open `irb` and type (or copy & paste) the following:
+We'll explore a more "robust" `Hello World` example in our [Hello world tutorial](./hello_world), but here's a kicker... open `irb` and type (or copy & paste) the following:
 
     require 'plezi'
     route('*') { "Hello World!" }

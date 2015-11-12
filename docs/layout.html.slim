@@ -51,6 +51,23 @@ html
                     a href='https://github.com/boazsegev/plezi' Source Code
                 li
                     a#theme href='javascript: change_themes();' Night Theme
+                    javascript:
+                        function change_themes() {
+                            if(localStorage.getItem("theme") == 'dark') {
+                                localStorage.setItem("theme", "light");
+                            } else {
+                                localStorage.setItem("theme", "dark");
+                            }
+                            $('body')[0].className = localStorage.getItem("theme");
+                            set_theme_link();
+                            $('#show_nav').attr('checked', false);
+                            return false;
+                        };
+                        function set_theme_link() {
+                            $("#theme").html( ( (localStorage.getItem("theme") == 'dark') ? "Day" : "Night") + " Theme" );
+                            }
+                        $('body')[0].className = (localStorage.getItem("theme") == 'dark') ? "dark" : "light";
+                        set_theme_link();
         - if self.is_a?(HomeController)
             == yield
         - else
@@ -74,23 +91,6 @@ html
             hljs.initHighlighting();
             function show_notice() { document.getElementById("notice").classList.remove('hidden'); }; 
             function hide_notice() { document.getElementById("notice").classList.add('hidden'); };
-            function change_themes() {
-                if(localStorage.getItem("theme") == 'dark') {
-                    localStorage.setItem("theme", "light");
-                } else {
-                    localStorage.setItem("theme", "dark");
-                }
-                $('body')[0].className = localStorage.getItem("theme");
-                set_theme_link();
-                $('#show_nav').attr('checked', false);
-                return false;
-            };
-            function set_theme_link() {
-                $("#theme").html( ( (localStorage.getItem("theme") == 'dark') ? "Day" : "Night") + " Theme" );
-                }
-            $('body')[0].className = (localStorage.getItem("theme") == 'dark') ? "dark" : "light";
-            set_theme_link();
-
             // Google Analytics
             if(location.hostname != "localhost") {
                 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

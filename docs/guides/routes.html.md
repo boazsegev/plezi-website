@@ -1,4 +1,4 @@
-# Plezi's Smart Routing System
+# Plezi&#39;s smart routing system
 
 In the core of Plezi's framework is a smart Object Oriented Router which acts like a "virtual folder" with RESTful routing and Websocket support.
 

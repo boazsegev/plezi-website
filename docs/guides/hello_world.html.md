@@ -1,4 +1,4 @@
-# The "Hello World" OVERKILL!
+# The Hello World OVERKILL!
 
 If you read [the overview](/guides/basics), you know that a "Hello World" Plezi applicationonly needs two line (three, if you're using `irb` instead of a ruby script)... remember?
 
@@ -223,7 +223,7 @@ Now, let's restart the application and re-visit: [localhost:3000/London](http://
 
 [todo: write]
 
-## What about AJAX/JSON clients?
+## What about AJAX-JSON clients?
 
 [todo: write]
 

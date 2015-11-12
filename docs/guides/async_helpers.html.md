@@ -27,7 +27,7 @@ i.e.:
 Since streaming is done asynchronously, and since Plezi is multi-threaded by default (this can be changed to single threaded, but is less recomended unless you know your code doesn't block - see `Plezi::Settings.max_threads = number`), Asynchronous HTTP method nesting makes sure that the code doesn't conflict and that race conditions don't occure within the same HTTP response.
 
 
-### Iodines's `response.stream_async`
+### Iodines&#39;s `response.stream_async`
 
 Iodines's response object, which is accessed by the controller using the `response` method (or the `@response` object), allows easy access to HTTP streaming.
 
@@ -54,7 +54,7 @@ As noted above, `response.stream_async` calls should always be nested and never 
 
 Calling `response.stream_async`
 
-### Iodines's `response.stream_array`
+### Iodines&#39;s `response.stream_array`
 
 To make nesting easier, Iodines's response object provides the `response.stream_array enum, &block` method.
 
@@ -96,7 +96,7 @@ You can also add data to the array while 'looping', which allows you to use the 
 
 [Iodine](https://github.com/boazsegev/iodine) has a very powerful Asynchronous Workflow Engine which offers a very intuitve and simplified way to use API both for queuing code snippets (blocks / methods) and for schedualing non-persistent timed events (future timed events are discarded during shutdown and need to be re-initiated).
 
-### The Asynchronous "Queue"
+### The Asynchronous Queue
 
 `Iodine`'s core is built with simplicity in mind, making the programmer happy. With this in mind, Iodine offers a single and simple method that allow us to easily queue code execution.
 

@@ -227,7 +227,7 @@ Now, let's restart the application and re-visit: [localhost:3000/London](http://
 
 [todo: write]
 
-### Using re-write routes to set the response's format
+### Using re-write routes to format the response
 
 [todo: write]
 

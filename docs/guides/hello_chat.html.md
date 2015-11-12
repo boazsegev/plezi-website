@@ -297,7 +297,7 @@ Since Javascript is single threaded, it's okay if we setup the callbacks AFTER w
 
 The rest is common Javascript with jQuery being leveraged to make it a bit shorter to write. We simply add text to the `"output"` element as they trickle in.
 
-## Using JSON messages
+## Leveraging JSON
 
 At the moment, our websockets aren't very flexible. Our application communicates using raw strings and a single type of data.
 
@@ -307,7 +307,7 @@ We can use JSON to give our websockets more functionality. But first, let's move
 
 Let's update our Plezi application to use JSON.
 
-### Using JSON on the server
+### Server side JSON
 
 First, we'll need our application to parse the JSON format, we'll close the connection if this fails, because this will mean we're not talking to an authorized client.
 
@@ -403,7 +403,7 @@ But first, we need to update the `handle_chat` method, because we already saniti
         end
     end
 
-### Using JSON on the client
+### Client side JSON
 
 To use JSON with javascript we will need to use `JSON.parse(e.data)` in our `onmessage(e)` callback. Our new javascript callback will look something like this (but don't follow my lead, I'm a lazy javascripter, and it's probably better to seperate this to more functions):
 

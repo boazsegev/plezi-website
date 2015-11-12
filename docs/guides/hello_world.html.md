@@ -88,17 +88,130 @@ Congratualations! You've created a Plezi application. It's a chat room and we wa
 
 ## Saying Hello directly from the Controller
 
-[todo: write]
+At the moment, all our application is in one file: `hello_world.rb`.
 
-### Organizing our controller code
+The part we're interested right now, is the `MyController#index` method. At the moment, it looks something like this:
 
-[todo: write]
+    class MyController
+        def index
+            # return response << "Hello World!" # for a hello world app
+            render :welcome
+        end
+    end
+
+The method `MyController#render` (yes, it's an instance method) simply takes the name of a template file (more on that later) and renders the templat to a String. This string is automatically appended to the `response` object if it's the method's return value (that just makes writing Http routes easier).
+
+Since we want to change this to "Hello World", let's update our method to return a "Hello World" string:
+
+    class MyController
+        def index
+            "Hello World!"
+        end
+    end
+
+While we're at it, let's set the cookie "Hello" to the value "World"... we want a very thorough message:
+
+    class MyController
+        def index
+            cookies[:hello] = "world"
+            "Hello World!"
+        end
+    end
+
+### (re)Organizing our controller code
+
+You know, I really don't like having all my code in one file. It makes me run through endless lines of code when I want to make changes...
+
+Let's move our Controller to a seperate file and while where at it, let's give it a proper name.
+
+Plezi is ready for this very common practice. In our `hello_world.rb` file you will find the following commented line - remove the comment:
+
+    # # Load code from a subfolder called 'app'?
+    Dir[File.join "{app}", "**" , "*.rb"].each {|file| load File.expand_path(file)}
+
+Create a folder named `app` in our `hello_world` application's root folder, and crate a file with our controller code. We'll call our file `hello_controller.rb`:
+
+    class HelloController
+        def index
+            cookies[:hello] = "world"
+            "Hello World!"
+        end
+    end
+
+Now our application is happily broken. It won't work... Why? because our Http router ([read more about routes here](./routes)) doesn't know about the new controller's name. Let's fix this.
+
+Edit the `hello_world.rb` file again, replacing this line:
+
+    route '/(:id)', MyController
+
+with this line:
+
+    route '/', HelloController
+
+"WAIT!", I hear you say, "What happened to the `"/(:id)"`?"
+
+Don't worry, the `"(:id)"` part is implied. Plezi always assumes RESTful routing and it will append an optional `:id` parameter to the path.
+
+This approach will let us do some really funky things very easily... But first, low and behold your somewhat (but not quite) bloated "Hello World". Run the app and bask in it's glory.
 
 ### Hello RESTful requests
 
-[todo: write]
+The world is a very interesting place, with many continents and places inside... Wouldn't we want our "Hello World!" to be alittle more flexible? Sure we do.
 
-## Moving our response to a template
+Remember the implied `:id` parameter? RESTful routing means that the method `show` will be called if the `:id` is supplied and there is no special method designated (more on that later)... Let's use this.
+
+Let's edit our `hello_controller.rb` file:
+
+    class HelloController
+        def index
+            cookies[:hello] = "world"
+            "Hello World!"
+        end
+        def show
+            cookies[:hello] = params[:id]
+            "Hello #{params[:id]}!"
+        end
+    end
+
+Hmm... not very DRY, is it... let's try again, and let's give more respect to the cookie while we're at it! Here's our updated code:
+
+    class HelloController
+        def index
+            redirect_to :World
+        end
+        def show
+            response << "You came from #{cookies[:hello]}. now...\n" if cookies[:hello]
+            cookies[:hello] = params[:id]
+            "Hello #{params[:id]}!"
+        end
+    end
+
+Now, restart the application and visit: [http://localhost:3000/New%20York](localhost:3000/New York), [http://localhost:3000/London](localhost:3000/London) and [http://localhost:3000/Atlantis](localhost:3000/Atlantis) (Always wanted to go there)...
+
+`show` isn't the only RESTful method, you can read our [guide about Controllers](./controllers) or view the [stub code at Plezi::StubRESTCtrl and Plezi::StubWSCtrl](https://github.com/boazsegev/plezi/blob/master/lib/plezi/handlers/stubs.rb) to learn more about reserved methods.
+
+Just one last thing... Atlantis isn't really here no more... let's make it a special case by adding a dedicated method for this `:id`:
+
+    class HelloController
+        def index
+            redirect_to :World
+        end
+        def show
+            response << "You came from #{cookies[:hello]}. now...\n" if cookies[:hello]
+            cookies[:hello] = params[:id]
+            "Hello #{params[:id]}!"
+        end
+        def atlantis
+            cookies[:hello] = nil
+            "Dude! It sunk!"
+        end
+    end
+
+Now, let's restart the application and re-visit: [http://localhost:3000/London](localhost:3000/London) and [http://localhost:3000/Atlantis](localhost:3000/Atlantis)^*^ - This was cool!
+
+^*^ Make sure to click the links to the pages and not manually type the addresses in your browser. Today's browsers have "predictive" loading and they will start requesting all sorts of pages while you're still typing, causing the cookie data to change with every attempted "guess".
+
+## Moving the View out of the Controller
 
 [todo: write]
 
@@ -106,7 +219,7 @@ Congratualations! You've created a Plezi application. It's a chat room and we wa
 
 [todo: write]
 
-## Handling 404 errors more gracefully
+## Handling errors more gracefully
 
 [todo: write]
 

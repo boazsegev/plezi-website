@@ -132,7 +132,7 @@ Plezi leverages the power or Redis to automatically push both websocket messages
 Just tell Plezi how to acess your Redis server and Plezi will make sure that your users get their messages and that your application can access it's session data accross different servers:
 
     # REDIS_URL is where Herolu-Redis stores it's URL
-    ENV['PL_REDIS_URL'] ||= ENV['REDIS_URL'] || "redis://username:password@my.host:6389"
+    ENV['PL_REDIS_URL'] ||= ENV['REDIS_URL'] || "redis://:password@my.host:6389/0" #0 is the DB selector
 
 ## Hosts, template rendering, assets...?
 

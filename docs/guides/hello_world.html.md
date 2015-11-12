@@ -6,7 +6,7 @@ If you read [the overview](/guides/basics), you know that a "Hello World" Plezi 
     route('*') { "Hello World!" }
     exit # <- this exits the terminal and starts the server
 
-So... what the hell do we have to write about? Well...
+So... instead of writing the __shortest__ hello world tutorial, we're going to write the most __bloated__ hello world application ever, allowing up to explore some of the more powerful and common features Plezi has to offer.
 
 To make things more interesting, we're going to:
 
@@ -16,7 +16,7 @@ To make things more interesting, we're going to:
 * Use a layout for all our Html rendered pages (yes, there will be only one).
 * Handle 404 errors gracefully.
 * Add an AJAX JSON rewite-route to set our reponse format.
-* Send the response in JSON format when requested.
+* Send the response in JSON format when requested (using the power of templates and layouts).
 * Install Github's render engine and use that instead of our original render engine (but we will keep the layout).
 
 Hmmm... I'm still thinking about more ideas, but this seems like a fun start.
@@ -186,30 +186,30 @@ Hmm... not very DRY, is it... let's try again, and let's give more respect to th
         end
     end
 
-Now, restart the application and visit: [http://localhost:3000/New%20York](localhost:3000/New York), [http://localhost:3000/London](localhost:3000/London) and [http://localhost:3000/Atlantis](localhost:3000/Atlantis) (Always wanted to go there)...
+Now, restart the application and visit: [localhost:3000/New%20York](http://localhost:3000/New York), [localhost:3000/London](http://localhost:3000/London) and [localhost:3000/Atlantis](http://localhost:3000/Atlantis) (Always wanted to go there)...
 
 `show` isn't the only RESTful method, you can read our [guide about Controllers](./controllers) or view the [stub code at Plezi::StubRESTCtrl and Plezi::StubWSCtrl](https://github.com/boazsegev/plezi/blob/master/lib/plezi/handlers/stubs.rb) to learn more about reserved methods.
 
-Just one last thing... Atlantis isn't really here no more... let's make it a special case by adding a dedicated method for this `:id`:
+Just one last thing... Atlantis isn't really here no more... let's make it a special case by adding a dedicated method for this `:id`. Also, let's replace `cookies` with a short-lived fesion called `flash` (a self-destructing cookie):
 
     class HelloController
         def index
             redirect_to :World
         end
         def show
-            response << "You came from #{cookies[:hello]}. now...\n" if cookies[:hello]
-            cookies[:hello] = params[:id]
+            response << "You came from #{flash[:hello]}. now...\n" if flash[:hello]
+            flash[:hello] = params[:id]
             "Hello #{params[:id]}!"
         end
         def atlantis
-            cookies[:hello] = nil
+            # notice what happens when we don't set the flash.
             "Dude! It sunk!"
         end
     end
 
-Now, let's restart the application and re-visit: [http://localhost:3000/London](localhost:3000/London) and [http://localhost:3000/Atlantis](localhost:3000/Atlantis)^*^ - This was cool!
+Now, let's restart the application and re-visit: [localhost:3000/London](http://localhost:3000/London) and [localhost:3000/Atlantis](http://localhost:3000/Atlantis)<sup>*</sup> - This was cool!
 
-^*^ Make sure to click the links to the pages and not manually type the addresses in your browser. Today's browsers have "predictive" loading and they will start requesting all sorts of pages while you're still typing, causing the cookie data to change with every attempted "guess".
+\* Make sure to click the links to the pages and not manually type the addresses in your browser. Today's browsers have "predictive" loading and they will start requesting all sorts of pages while you're still typing, causing the cookie data to change with every attempted "guess".
 
 ## Moving the View out of the Controller
 

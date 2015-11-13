@@ -2,9 +2,9 @@ GEM
   remote: https://rubygems.org/
   specs:
     github-markup (1.4.0)
-    iodine (0.1.12)
-    plezi (0.12.11)
-      iodine (~> 0.1.12)
+    iodine (0.1.13)
+    plezi (0.12.13)
+      iodine (~> 0.1.13)
     redcarpet (3.3.3)
     sass (3.4.19)
     slim (3.0.6)

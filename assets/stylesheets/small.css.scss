@@ -44,7 +44,9 @@ code, pre
         top: 0;
     }
     // padding-top: 3em;
-    top: 5em; right: 0;
+    top: 6em;
+    height: 75%;
+    right: 0;
 }
 #logo
 {
@@ -105,6 +107,7 @@ code, pre
     display: block;
     width: 100%; height: 100%;
     padding-top: 9em;
+    z-index: 400;
     position: fixed;
     overflow: scroll;
     background-color: rgb(240,240,240);

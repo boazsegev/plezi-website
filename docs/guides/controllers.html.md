@@ -64,21 +64,21 @@ Read more at the <a href='http://www.rubydoc.info/gems/iodine/Iodine/Http/Respon
 
 (todo: write documentation)
 
-### `params`
+### The `params` hash
 
 (todo: write documentation)
 
-### `cookies`
+### The `cookies` cookie-jar
 
 (todo: write documentation)
 
-### `flash` (Http)
+### The `flash` cookie-jar
 
 The `flash` object is a little bit of a magic hash that sets and reads temporary cookies. these cookies will live for one successful request to a Controller and will then be removed.
 
 Use it like a Hash, using `flash[:key]` to read or `flash[:key]=value` to set.
 
-### `session`
+### The `session` storage
 
 The session object is a LOCAL storage (unlike Rails which stors the data in a cookie) with a Hash like interface.
 
@@ -96,87 +96,83 @@ The session object will be either Plezi's Redis session object (syncing local da
 
 (todo: write documentation)
 
-### `render`
+### The `render` method
 
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#render-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 (todo: write documentation)
 
-### `send_data` (Http)
+### The `send_data` method (Http)
 
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#send_data-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 (todo: write documentation)
 
-### `requested_method`
+### The `requested_method` method
 
 (todo: write documentation)
 
-### `redirect_to` (Http)
+### The `redirect_to` method (Http)
 
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#redirect_to-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 (todo: write documentation)
 
-### `url_for`
+### The `url_for` URL builder
 
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#url_for-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 (todo: write documentation)
 
-### `full_url_for`
+### The `full_url_for` URL builder
 
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#full_url_for-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 (todo: write documentation)
 
-### `host_params`
+### The `host_params` hash
 
 (todo: write documentation)
 
-### `write` (Websockets)
+### Using `write` to write to a Websocket
 
 (todo: write documentation)
 
-### `unicast` (Websockets)
+### The `unicast` method (Websockets)
 
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#unicast-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 (todo: write documentation)
 
-### `broadcast` (Websockets)
+### The `broadcast` method (Websockets)
 
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#broadcast-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 (todo: write documentation)
 
-### `multicast` (Websockets)
+### The `multicast` method (Websockets)
 
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#multicast-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 (todo: write documentation)
 
-### `multicast` (Websockets)
+### The `register_as` Identity method (Websockets)
 
 (todo: write documentation)
 
-### `register_as` (Websockets)
-
-(todo: write documentation)
-
-### `notify` (Websockets)
+### The `notify` Identity method (Websockets)
 
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#notify-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 (todo: write documentation)
 
-### `registered?` (Websockets)
+### The `registered?` Identity method (Websockets)
 
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#registered%3F-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 (todo: write documentation)
 
-### `placebo?` (Websockets)
+### The `placebo?` method (Websockets)
 
 (todo: write documentation)
 

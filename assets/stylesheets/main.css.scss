@@ -28,6 +28,7 @@ html, body
 body
 {
     overflow-y: scroll;
+    // -webkit-overflow-scrolling: touch;
 }
 input
 {
@@ -62,6 +63,7 @@ code
     border-radius: 1em;
     padding: 1em;
     overflow: scroll;
+    z-index: 50;
 }
 
 #md_container
@@ -121,6 +123,7 @@ code
             text-align:center;
             margin: 0.2em;
             border-radius: 0.5em;
+            border: 1px solid #e0e0e0;
             background-color: #e0e0e0;
             color: #020202;
             text-decoration: none;
@@ -148,6 +151,7 @@ code
     display: block;
     position: fixed;
     overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
     left:0;
     width: 20%; height: 100%;
     border-right: 1px solid;
@@ -197,7 +201,7 @@ code
     &:after
     {
         content: 'Table of Contents';
-        z-index: -1;
+        z-index: 125;
         position: absolute;
         top: 1em; left: 0;
         width: 10em;
@@ -212,40 +216,44 @@ code
 
         -webkit-border-radius: 0.5em;
         -moz-border-radius: 0.5em;
+
         border-radius: 0.5em;
         background-color: #CE8A8A;
         background-color: rgba(255, 255, 255, 0.6);
-    }
-    &:before
-    {
-        content: ' ';
-        z-index: -1;
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-color: rgba(255, 255, 255, 0.94);
-        filter: blur(10px);
-        -webkit-filter: blur(10px);
     }
     transition: transform 0.3s ease;
     -webkit-transition: transform 0.3s ease;
     -moz-transition: transform 0.3s ease;
     -o-transition: transform 0.3s ease;
     transform: translateX(100%);
-    z-index: +15;
+    z-index: 150;
     left: initial;
     position: fixed;
     top: 0; right: 0;
-    background-color: rgba(64, 64, 64, 0.32);
+    background-color: rgb(250, 250, 250);
+    background-color: rgba(255, 255, 255, 0.92);
     border: none;
     border-left: 1px solid;
     border-bottom: 1px solid;
     -webkit-border-radius: 1em;
     -moz-border-radius: 1em;
     border-radius: 1em;
-    padding: 1em 0.5em;
     box-sizing: border-box;
-    &:hover
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    height:100%;
+    & > ul
+    {
+        padding: 1em 0.5em;
+        margin: 0;
+        height:100%;
+        box-sizing: border-box;
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+        display: block;
+    }
+    &:hover, &:focus, &:active
     {
         transform: translateX(0);
         &:after
@@ -285,7 +293,6 @@ code
     }
 
 }
-
 
 #sign
 {
@@ -561,16 +568,12 @@ body.dark, .dark input
     }
     .toc
     {
-        background-color: rgba(64, 64, 64, 0.32);
+        background-color: rgba(64, 64, 64, 94);
         &:after
         {
 
             background-color: rgb(0,0,0);
             background-color: rgba(128, 128, 128, 0.6);
-        }
-        &:before
-        {
-            background-color: rgba(64, 64, 64, 0.94);
         }
         a
         {

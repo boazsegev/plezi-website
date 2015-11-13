@@ -21,5 +21,5 @@ MD_RENDERER_TOC = Redcarpet::Markdown.new Redcarpet::Render::HTML_TOC.new()
 # register the Makrdown renderer with some Github flavors (but not the official Github Renderer)
 ::Plezi::Renderer.register :md do |filename, context, &block|
 	data = IO.read filename
-	Plezi.cache_needs_update?(filename) ? Plezi.cache_data( filename, "#{MD_RENDERER_TOC.render(data).sub('<ul>', "<ul class='toc'>")}\n#{::MD_RENDERER.render(data)}" )  : (Plezi.get_cached filename)
+	Plezi.cache_needs_update?(filename) ? Plezi.cache_data( filename, "<div class='toc'>#{MD_RENDERER_TOC.render(data)}</div>\n#{::MD_RENDERER.render(data)}" )  : (Plezi.get_cached filename)
 end

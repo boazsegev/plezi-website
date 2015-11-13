@@ -9,13 +9,14 @@ body
         position: absolute;
         top: 0; left: 0;
         width: 100%;
-        height: 7em;
-        z-index: +1;
+        height: 6em;
+        z-index: 90;
         background-color: rgba(240, 240, 240, 0.88);
         filter: blur(10px);
         -webkit-filter: blur(10px);
         pointer-events: none;
     }
+    -webkit-overflow-scrolling: auto;
 }
 
 code, pre
@@ -34,6 +35,9 @@ code, pre
     display: inline-block;
     margin-left: 0;
     width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
 }
 .toc
 {

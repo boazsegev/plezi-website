@@ -14,7 +14,7 @@ Plezi has the ability to take in any class as a controller class and route Http 
 
 In effect, Controller classes act as "virtual folders" where methods are the "files" served by the Plezi router.
 
-To use a class as a Controller, simply attach it to a [route](./routes). i.e.:
+To use a class as a Controller, simply attach it to a [route](./routes). i.e., type the following in your `irb` terminal:
 
     require 'plezi'
     class UsersController
@@ -29,12 +29,11 @@ To use a class as a Controller, simply attach it to a [route](./routes). i.e.:
         end
     end
     Plezi.route "/users", UsersController
+    exit # on `irb` we start Plezi by exiting `irb`
 
 Notice the difference between [localhost:3000/users/foo](http://localhost:3000/users/foo) and [localhost:3000/users/bar](http://localhost:3000/users/bar).
 
 \* you can read the demo code for [Plezi::StubRESTCtrl and Plezi::StubWSCtrl](https://github.com/boazsegev/plezi/blob/master/lib/plezi/handlers/stubs.rb) to learn more. Also, feel free to read more about the [Iodine Websocket and Http server](https://github.com/boazsegev/iodine) which powers Plezi's core. You can find helpful information about the amazing [Request](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Http/Request) and [Response](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Http/Response) objects.
-
-(todo: write documentation)
 
 ## RESTful methods
 
@@ -50,31 +49,71 @@ Notice the difference between [localhost:3000/users/foo](http://localhost:3000/u
 
 ## Helper methods and objects
 
-(todo: write documentation)
+Once a controller class had been attached to a route, Plezi will inherit this class and add to it some functionality that is available within the controller's methods.
+
+The following properties and methods are accessible from within your Controller classes.
 
 ### `request`
 
-Read more at the <a href='http://www.rubydoc.info/gems/iodine/Iodine/Http/Request' target='_blank'>YARD documentation for the Request object</a>.
+The request object is a Hash like object, containing the request's information and some helper methods.
 
-(todo: write documentation)
+Read more at the <a href='http://www.rubydoc.info/gems/iodine/Iodine/Http/Request' target='_blank'>YARD documentation for the Request object</a>.
 
 ### `response`
 
-Read more at the <a href='http://www.rubydoc.info/gems/iodine/Iodine/Http/Response' target='_blank'>YARD documentation for the Response object</a>.
+The response object allows more control of the response, such as setting headers, streaming the response etc'.
 
-(todo: write documentation)
+Read more at the <a href='http://www.rubydoc.info/gems/iodine/Iodine/Http/Response' target='_blank'>YARD documentation for the Response object</a>.
 
 ### The `params` hash
 
-(todo: write documentation)
+The `params` Hash includes all the data from form data, query data and route parameters that had been collected for the request.
+
+It's a shortcut for `requst.params`.
+
+Param keys are always symbols. Values are either Strings, numbers or `true`/`false`.
+
+Uploaded files include the following data (assuming `:file_field` is the name of the file input in the Html form):
+
+* `params[:file_field][:name]` - contains the original file's name.
+
+* `params[:file_field][:type]` - contains the file's mime type.
+
+* `params[:file_field][:size]` - contains the length of the file uploaded in bytes.
+
+* `params[:file_field][:file]` - contains a Tempfile which stores the file data.
+
+* `params[:file_field][:data]` - will dump the Tempfile data into the memory and store it in the Hash. Don't use this except if you intend to read the whole file data into the memory anyway.
+
+Some param names are reserved, as they are used for common shortcuts or other uses. Reserved params names include:
+
+* `:locale` - this param name will set the locale when using the I18n gem.
+
+* `:format` - this param name will set the format of the template being rendered.
+
+Read about [routes](./routes) to discover how to use the request path to set parameters.
 
 ### The `cookies` cookie-jar
 
-(todo: write documentation)
+The `cookies` cookie jar is a Hash that both reads and writes cookies (it uses `response.set_cookie` whenever a value is assigned to a cookie name).
+
+To read a cookie name, simply:
+
+    cookies[:name]
+
+To set a cookie's value, simply:
+
+    cookies[:name] = "value"
+
+It's also possible to set the <a target='_blank' href='http://www.rubydoc.info/gems/iodine/Iodine/Http/Response#set_cookie-instance_method'>`response.set_cookie` options</a> when setting the value. i.e.:
+
+    cookies[:name] = {value: "value", secure: true}
+
+Remember, cookies are sent to the browser using Http headers - you CAN'T set cookies after the headers were sent. If streaming a response, make sure to set all cookies BEFORE streaming begins.
 
 ### The `flash` cookie-jar
 
-The `flash` object is a little bit of a magic hash that sets and reads temporary cookies. these cookies will live for one successful request to a Controller and will then be removed.
+The `flash` object is a little bit of a magic hash that sets and reads temporary cookies. These cookies will be removed after the next request sent by the client to the application.
 
 Use it like a Hash, using `flash[:key]` to read or `flash[:key]=value` to set.
 
@@ -94,41 +133,65 @@ Be aware that Session hijacking is a serious threat and avoid trusting the sessi
 
 The session object will be either Plezi's Redis session object (syncing local data when scaling) or the local <a target='_blank' href='http://www.rubydoc.info/gems/iodine/Iodine/Http/SessionManager/FileSessionStorage/SessionObject'>Tempfile session storage object that comes bundled with Iodine</a>. They both share the same API.
 
-(todo: write documentation)
-
 ### The `render` method
+
+Renders a template file (.slim/.erb/.haml) to a String and attempts to set the response's 'content-type' header (if it's still empty).
+
+For example, to render the file `body.html.slim` with the layout `main_layout.html.haml`:
+
+    render :body, layout: :main_layout
+
+or, for example, to render the file `message.json.slim`
+
+    render :message, format: 'json'
 
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#render-instance_method' target='_blank'>YARD documentation for this method</a>.
 
-(todo: write documentation)
-
 ### The `send_data` method (Http)
+
+This method sends raw data to be saved as a file or viewed as an attachment. The browser behave as if it had recieved a file.
+
+This is usful for sending 'attachments' (data to be downloaded) rather then a regular response.
+
+This is also useful for offering a file name for the browser to “save as”.
 
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#send_data-instance_method' target='_blank'>YARD documentation for this method</a>.
 
-(todo: write documentation)
-
 ### The `requested_method` method
 
-(todo: write documentation)
+This method review's the request and returns the name of the controller method that was invoked.
 
 ### The `redirect_to` method (Http)
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#redirect_to-instance_method' target='_blank'>YARD documentation for this method</a>.
+This method does two things:
 
-(todo: write documentation)
+1. It sets redirection headers for the response.
+
+2. It sets the `flash` object (short-time cookies) with all the values passed except the :status value.
+
+i.e., to redirect within the same controller:
+
+    redirect_to "https://www.google.com"
+
+Unless `url` is a String, the controller will attempt to guess the URL using the `url_for` method. i.e., to redirect within the same controller, setting `flash[:notice]` to a message:
+
+    redirect_to :index, notice: "my message"
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#redirect_to-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 ### The `url_for` URL builder
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#url_for-instance_method' target='_blank'>YARD documentation for this method</a>.
+The controller will attempt to guess the URL used to reach any path within it's parameters, setting query parameters if the parameters are not part of the route's path parameters. i.e.:
 
-(todo: write documentation)
+url_for :index # the root of the controller
+url_for id: 1, _method: :delete # the DELETE method emulation for RESTful ID 1.
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#url_for-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 ### The `full_url_for` URL builder
 
+Same as `url_for`, but attempts to rebuild the full url (inluding the schema, port and domain name).
 Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#full_url_for-instance_method' target='_blank'>YARD documentation for this method</a>.
-
-(todo: write documentation)
 
 ### The `host_params` hash
 

@@ -152,11 +152,11 @@ with this line:
 
 Don't worry, the `"(:id)"` part is implied. Plezi always assumes RESTful routing and it will append an optional `:id` parameter to the path.
 
-This approach will let us do some really funky things very easily... But first, low and behold your somewhat (but not quite) bloated "Hello World". Run the app and bask in it's glory.
+This approach will let us do some really funky things very easily... But first, low and behold our somewhat (but not quite) bloated "Hello World". Run the app and bask in it's glory.
 
 ### Hello RESTful requests
 
-The world is a very interesting place, with many continents and places inside... Wouldn't we want our "Hello World!" to be alittle more flexible? Sure we do.
+The world is a very interesting place, with many continents and places inside... Wouldn't we want our "Hello World!" to be a little more flexible? Sure we do.
 
 Remember the implied `:id` parameter? RESTful routing means that the method `show` will be called if the `:id` is supplied and there is no special method designated (more on that later)... Let's use this.
 
@@ -186,11 +186,11 @@ Hmm... not very DRY, is it... let's try again, and let's give more respect to th
         end
     end
 
-Now, restart the application and visit: [localhost:3000/New%20York](http://localhost:3000/New York), [localhost:3000/London](http://localhost:3000/London) and [localhost:3000/Atlantis](http://localhost:3000/Atlantis) (Always wanted to go there)...
+Now, restart the application and visit: [localhost:3000/New York](http://localhost:3000/New%20York), [localhost:3000/London](http://localhost:3000/London) and [localhost:3000/Atlantis](http://localhost:3000/Atlantis) (Always wanted to go there)...
 
 `show` isn't the only RESTful method, you can read our [guide about Controllers](./controllers) or view the [stub code at Plezi::StubRESTCtrl and Plezi::StubWSCtrl](https://github.com/boazsegev/plezi/blob/master/lib/plezi/handlers/stubs.rb) to learn more about reserved methods.
 
-Just one last thing... Atlantis isn't really here no more... let's make it a special case by adding a dedicated method for this `:id`. Also, let's replace `cookies` with a short-lived fesion called `flash` (a self-destructing cookie):
+Just one last thing... Atlantis isn't really here no more... let's make it a special case by adding a dedicated method for this `:id`. Also, let's replace `cookies` with a short-lived cookie-flavor called `flash` (a self-destructing cookie):
 
     class HelloController
         def index
@@ -213,10 +213,60 @@ Now, let's restart the application and re-visit: [localhost:3000/London](http://
 
 ## Moving the View out of the Controller
 
-[todo: write]
+Now, we kinda' made a wrong turn somewhere along the way, when our controller started to format our response directly, instead of levereging templates.
 
-## Using a layout
+Also, we should probably be using Html instead for clear text.
 
+As we format our response for Html, we would probably want to seperate all the common stuff from our actual content - this is a very useful and common approach that allows us to update the design and flow of our formatted response using a global (or semi global) layout.
+
+### Using templates
+
+If you'll look through `hello_world.rb`, you should find these little lines:
+
+    host templates: Root.join('templates').to_s,
+        # public: Root.join('public').to_s,
+        assets: Root.join('assets').to_s
+
+These lines set some common options for our global host. Yes, since you wondered, Plezi supports virtual hosts, each with their own settings and unique - or shared - routes.
+
+As we can see, our application already has a `templates` folder setup, so all we need is to write our layout and content templates and update our Controller to use them.
+
+#### The updated controller
+
+To use templates in our controller, we will leverage the `HelloController#render` method (didn't know we had one, did you? - well, we do). Just like the `HelloController#redirect_to` method which we used, this method was also "injected" into our controller when Plezi inherited our code.
+
+The method accepts a number of common options such as `:layout`, `:type` and `:locale`.
+
+#### The layout
+
+I will be using the `ERB` (embeded ruby) engine for this demo, but on my own applications I usually go with [`Slim`](http://slim-lang.com). You can use Slim too, just add it to your gemfile. It's supported right out of the box.
+
+Our html layout file will be saved as `layout.html.erb` and it looks something like this:
+
+    <!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="utf-8">
+            <title><%= @title || "Hello World" %></title>
+        </head>
+        <body>
+            <%= yeild %>
+        </body>
+    </html>
+
+If you're using [Slim](http://slim-lang.com), maybe you saved the layout as `layout.html.slim`, and it might have looked like this:
+
+    doctype html
+    html
+        head
+            meta charset="utf-8"
+            title= @title || "Hello World"
+        body
+            == yield
+
+#### The content template
+
+The content is super short for "Hello World", let's
 [todo: write]
 
 ## Handling errors more gracefully

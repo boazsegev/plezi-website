@@ -40,7 +40,7 @@ Notice the difference between [localhost:3000/users/foo](http://localhost:3000/u
 
 (todo: write documentation)
 
-## Virtual folder
+## The Controller as a virtual folder
 
 (todo: write documentation)
 
@@ -48,4 +48,135 @@ Notice the difference between [localhost:3000/users/foo](http://localhost:3000/u
 
 (todo: write documentation)
 
+## Helper methods and objects
+
+(todo: write documentation)
+
+### `request`
+
+Read more at the <a href='http://www.rubydoc.info/gems/iodine/Iodine/Http/Request' target='_blank'>YARD documentation for the Request object</a>.
+
+(todo: write documentation)
+
+### `response`
+
+Read more at the <a href='http://www.rubydoc.info/gems/iodine/Iodine/Http/Response' target='_blank'>YARD documentation for the Response object</a>.
+
+(todo: write documentation)
+
+### `params`
+
+(todo: write documentation)
+
+### `cookies`
+
+(todo: write documentation)
+
+### `flash` (Http)
+
+The `flash` object is a little bit of a magic hash that sets and reads temporary cookies. these cookies will live for one successful request to a Controller and will then be removed.
+
+Use it like a Hash, using `flash[:key]` to read or `flash[:key]=value` to set.
+
+### `session`
+
+The session object is a LOCAL storage (unlike Rails which stors the data in a cookie) with a Hash like interface.
+
+The session's lifetime is variable.
+
+The client side identification should remain valid until the browser is restarted. BUT, the identification can still be used until the session's local storage had been cleared.
+
+When using Redis, the local storage persists for up to 24 hours between connections.
+
+When falling back on temp-file storage (no Redis), the local storage will persists until the server clears it's tmp folder. Usually, the tmp folder is cleared between restarts. It's possible to set the interval between tmp-folder cleanup to a different value (which is often the practice with web servers).
+
+Be aware that Session hijacking is a serious threat and avoid trusting the session data before exposing private information on the web (i.e. require re-authentication before exposing private information).
+
+The session object will be either Plezi's Redis session object (syncing local data when scaling) or the local <a target='_blank' href='http://www.rubydoc.info/gems/iodine/Iodine/Http/SessionManager/FileSessionStorage/SessionObject'>Tempfile session storage object that comes bundled with Iodine</a>. They both share the same API.
+
+(todo: write documentation)
+
+### `render`
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#render-instance_method' target='_blank'>YARD documentation for this method</a>.
+
+(todo: write documentation)
+
+### `send_data` (Http)
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#send_data-instance_method' target='_blank'>YARD documentation for this method</a>.
+
+(todo: write documentation)
+
+### `requested_method`
+
+(todo: write documentation)
+
+### `redirect_to` (Http)
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#redirect_to-instance_method' target='_blank'>YARD documentation for this method</a>.
+
+(todo: write documentation)
+
+### `url_for`
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#url_for-instance_method' target='_blank'>YARD documentation for this method</a>.
+
+(todo: write documentation)
+
+### `full_url_for`
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#full_url_for-instance_method' target='_blank'>YARD documentation for this method</a>.
+
+(todo: write documentation)
+
+### `host_params`
+
+(todo: write documentation)
+
+### `write` (Websockets)
+
+(todo: write documentation)
+
+### `unicast` (Websockets)
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#unicast-instance_method' target='_blank'>YARD documentation for this method</a>.
+
+(todo: write documentation)
+
+### `broadcast` (Websockets)
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#broadcast-instance_method' target='_blank'>YARD documentation for this method</a>.
+
+(todo: write documentation)
+
+### `multicast` (Websockets)
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#multicast-instance_method' target='_blank'>YARD documentation for this method</a>.
+
+(todo: write documentation)
+
+### `multicast` (Websockets)
+
+(todo: write documentation)
+
+### `register_as` (Websockets)
+
+(todo: write documentation)
+
+### `notify` (Websockets)
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#notify-instance_method' target='_blank'>YARD documentation for this method</a>.
+
+(todo: write documentation)
+
+### `registered?` (Websockets)
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#registered%3F-instance_method' target='_blank'>YARD documentation for this method</a>.
+
+(todo: write documentation)
+
+### `placebo?` (Websockets)
+
+(todo: write documentation)
 

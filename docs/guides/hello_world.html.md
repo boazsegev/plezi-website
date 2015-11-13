@@ -237,6 +237,26 @@ To use templates in our controller, we will leverage the `HelloController#render
 
 The method accepts a number of common options such as `:layout`, `:type` and `:locale`.
 
+Here's a bit of an updated controller... while we're at it, we should probably sanitize any incoming data, who knows what our users might do when our application's security is tested in the big wild internet:
+
+    class HelloController
+        def index
+            redirect_to :World
+        end
+        def show
+            @location = ::ERB::Util.html_escape params[:id]
+            @previous = ::ERB::Util.html_escape flash[:hello]
+            flash[:hello] = params[:id]
+            render :hello, layout: :layout
+        end
+        def atlantis
+            @location ="Dude! It sunk!"
+            @previous = ::ERB::Util.html_escape flash[:hello]
+            render :hello, layout: :layout            
+        end
+    end
+
+
 #### The layout
 
 I will be using the `ERB` (embeded ruby) engine for this demo, but on my own applications I usually go with [`Slim`](http://slim-lang.com). You can use Slim too, just add it to your gemfile. It's supported right out of the box.
@@ -266,8 +286,15 @@ If you're using [Slim](http://slim-lang.com), maybe you saved the layout as `lay
 
 #### The content template
 
-The content is super short for "Hello World", let's
-[todo: write]
+The content is super short for "Hello World", it's a one or two paragraph long file called `hello.html.erb`:
+
+    <% if @previous -%>
+    <p>We just arrived from <%= @previous %>, we welcome you!</p>
+    <% end -%>
+    <p>Hello <%= @location %>!</p>
+
+
+Cool. Let's see it in action, this time visiting [localhost:3000/Berlin](http://localhost:3000/Berlin), [localhost:3000/Paruge](http://localhost:3000/Paruge) and [localhost:3000/Atlantis](http://localhost:3000/Atlantis).
 
 ## Handling errors more gracefully
 

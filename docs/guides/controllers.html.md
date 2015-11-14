@@ -195,11 +195,15 @@ Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMag
 
 ### The `host_params` hash
 
-(todo: write documentation)
+This property allows access to the parameters Hash used to setup the host. There is little, if any, use for it, although it allows you to store host global data to be accessed by the controller (allowing the same controller to behave differently on different hosts).
 
 ### Using `write` to write to a Websocket
 
-(todo: write documentation)
+After a websocket connection is established, it is possible to use `write` to write data to the websocket directly.
+
+Using `write` before a websocket connection was established will append the data to the Http response, leading to possible errors.
+
+(todo: add YARD link... at the moment, the YARD documentation doesn't expose this method)
 
 ### The `unicast` method (Websockets)
 
@@ -221,21 +225,54 @@ Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject
 
 ### The `register_as` Identity method (Websockets)
 
-(todo: write documentation)
+Registers the current connection under an unique Identity, creating a message queue that will expire after set lifetime (currently defaults to 7 days).
+
+An Identity has a limited number of connections it can use. That number defaults to 1 (a single connection at a time), but can be expended to any number.
+
+A single connection can register as a number of Identities, allowing varying lifetimes for different Identity message queues.
+
+Example use:
+
+    register_as "#{session.id}_daily", lifetime: 60*60*24, max_connections: 4
+    register_as "#{session.id}_hourly", lifetime: 60*60, max_connections: 4
+
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/InstanceMethods#register_as-instance_method' target='_blank'>YARD documentation for this method</a>.
+
+**A note about the Identity API**:
+
+It is true that the Identity API allows Identities with extremely large number of allowed connections to be used as broadcast "channels" for multiple "subscribers".
+
+However, use of the Identity API where the same Identity has a large number of connections is NOT recommended for performance reasons.
+
+Consider using an 'opt-out' system, leveraging the `broadcast` method, when you expect most of the websocket connections to listen for a certain event.
 
 ### The `notify` Identity method (Websockets)
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#notify-instance_method' target='_blank'>YARD documentation for this method</a>.
+Sends a message / notification to a specific Identity.
 
-(todo: write documentation)
+The message will wait in a message queue until the Identity is online or the Identity's message queue expires.
+
+Use:
+
+    notify "identity_value", :event_method, arg1, arg2, ...
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#notify-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 ### The `registered?` Identity method (Websockets)
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#registered%3F-instance_method' target='_blank'>YARD documentation for this method</a>.
+This method checks if a certain Identity is valid (is registered and it's lifetime had not expired).
 
-(todo: write documentation)
+Example use:
+
+    registered? "identity_value"
+
+Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#registered%3F-instance_method' target='_blank'>YARD documentation for this method</a>.
 
 ### The `placebo?` method (Websockets)
 
-(todo: write documentation)
+This method should return `false` unless this controller is a Placebo controller, as related to the Placebo API.
 
+The Placebo API allows you to connect the Plize application to a remote, non-Plezi process using a Redis server. Use cases include connecting a Plezi application to a Plezi worker process or a Rails application that opted not to use Plezi directly.
+
+In the (hopefuly close) future, a guide will be published about this API.

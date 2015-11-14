@@ -87,8 +87,31 @@ No we know a bit about what Websockets are and how to initiate a websocket conne
 
 ## Communicating between the application and clients
 
-(todo: yes, it's obvious and well known, but it should still be written here)
+A Plezi application can handle multiple websocket connection controller, allowing you to use different connections for different tasks (such as file uploading on one connection while getting real-time updates on another).
 
+For a route to accept websocket connects, it's controller must respond to the `on_message(data)` callback.
+
+To send raw data to the client using the websocket, use the method `write(data)`.
+
+If the data being sent is a UTF-8 encoded String, it will be sent as a text message. If it's a binary encoded String the data will be sent in binary mode.
+
+i.e., a websocket echo server using Plezi:
+
+  class MyEcho
+    def on_message data
+      write data
+    end
+  end
+
+  route '/', MyEcho
+
+To use the JSON format for websocket messages, you will need to parse and format the data using Ruby's `JSON.parse(data)` and `{my: :data}.to_json` as well as the Javascipt `JSON.parse(e.data)` and `JSON.stringify({my: "data"})`.
+
+That's it. It really is all it takes to accept websocket connections and communicate with a websocket client.
+
+You can see a more complete example, including the use of JSON, in the [Plezi chatroom tutorial](./hello_chat).
+
+Remember to set the javascript connection(s) path to the path of your websocket route(s).
 
 ## Communicating between different Websocket clients
 

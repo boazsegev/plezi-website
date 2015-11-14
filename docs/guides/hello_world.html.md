@@ -21,7 +21,7 @@ To make things more interesting, we're going to:
 
 Hmmm... I'm still thinking about more ideas, but this seems like a fun start.
 
-[todo: write the damn thing ;-)]
+<!-- [todo: finish writing the damn thing ;-)] -->
 
 ## Create a starter application
 

@@ -270,7 +270,7 @@ Our html layout file will be saved as `layout.html.erb` and it looks something l
             <title><%= @title || "Hello World" %></title>
         </head>
         <body>
-            <%= yeild %>
+            <%= yield %>
         </body>
     </html>
 
@@ -288,9 +288,9 @@ If you're using [Slim](http://slim-lang.com), maybe you saved the layout as `lay
 
 The content is super short for "Hello World", it's a one or two paragraph long file called `hello.html.erb`:
 
-    <% if @previous -%>
+    <% if @previous %>
     <p>We just arrived from <%= @previous %>, we welcome you!</p>
-    <% end -%>
+    <% end %>
     <p>Hello <%= @location %>!</p>
 
 
@@ -298,7 +298,87 @@ Cool. Let's see it in action, this time visiting [localhost:3000/Berlin](http://
 
 ## Handling errors more gracefully
 
-[todo: write]
+I showed my friend our amazing "Hello World" app, and he decided to visit [localhost:3000/Miami/Beach](http://localhost:3000/Miami/Beach)...
+
+Since our controller only answers to requests that look like `"/(:id)"` and since his request looked like `"/(:id)/Beach"`, this brought up a blue sceen with the famous Http 404 (not found) error.
+
+I think our application could have handled the error more gracefully, keeping everything "in house", as it were.
+
+The same goes for handling internal server errors (error code 500). We don't want anything to look as if our application isn't the one in control.
+
+### A graceful 404 error
+
+Looking at the files in our `hello_world` applications, we can find a template called `404.html.erb`. The 404 (not found) error seems to be routed to the `404.html.erb` tamplate. 
+
+We have a number of ways to deal with the error more gracefully... Personally, I'm an advocate for the lazy method, which we will use when dealing with the 500 (internal error) error.
+
+For now, leats head to our `hello_world.rb` file and add a "catch-all" route at the end of our file, after out home page route.
+
+A catch-all route doesn't have an `:id` appended to it, so our Controller only needs to implement one method: `index`.
+
+First, let's create a Controller, We'll call it `Err404Ctrl` and save it in a file in our `app` folder. Let's name the file `app/err404.rb`:
+
+    class Err404Ctrl
+        def index
+            @previous = flash[:hello]
+            @location = "Nowhere (error 404 - location not found)"
+            render :hello, layout: :layout
+        end
+    end
+
+Now, let's update out `hello_world.rb` file. We will add the following line at the end of our file:
+
+    Plezi.route '*', Err404Ctrl
+
+Maybe you looked at the line above the one we just added and saw that it read:
+
+    route '/', HelloController
+
+
+Wonder why we write `Plezi.route` instead of `route`? - No special reason, except to show where the `route` method actually comes from.
+
+Cool, we now handle the 404 not found error way more gracefuly. Try it: [localhost:3000/Miami/Beach](http://localhost:3000/Miami/Beach)
+
+### a graceful 500 error
+
+Now, 500 errors also creep up sometimes and that's when the s**t really hit's the fan.
+
+Let's make sure we get an 500 error whenever we want one by adding the following method to our HelloController class:
+
+    class HelloController
+        # ... all our existing code is here
+        def fail
+            raise "HELL!"
+        end
+    end
+
+Now (remember to restart the application), if we visit [localhost:3000/fail](http://localhost:3000/fail) we should get the `500.html.erb` template.
+
+Here we might have to get creative... but no worries, Plezi has us covered. You see, Plezi uses a class called ErrorCtrl to render the error template... By it's name, yap, you guessed it, it's a controller!
+
+This means that our error templates are rendered within the context of a controller class and we have full access to all of our favorite helper methods, including `render`, `redirect_to`... the whole bunch.
+
+Let's update our `500.html.erb` template file, so it reads:
+
+    <%=
+        @previous = flash[:hello]
+        @location = "Nowhere... we had an internal error. Sorry"
+        render :hello, layout: :layout
+    %>
+
+If we're feeling adventurous, we can update it even a little further:
+
+    <%=
+        @previous = flash[:hello]
+        @location = "Nowhere... we had an internal error. Sorry"
+        render :hello, layout: :layout
+    %>
+    <%=
+        # We can use Ruby's global "last exception backtrace" variable.
+        $@.join("<br/><br/>") if request.base_url =~ /localhost/
+    %>
+
+Done! Now restart the application and visit [localhost:3000/fail](http://localhost:3000/fail) - ain't managing errors easy?
 
 ## What about AJAX-JSON clients?
 

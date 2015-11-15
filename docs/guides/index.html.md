@@ -37,4 +37,4 @@ This website and the guides are fairly new and we're still writing everything do
 
 We need editor to edit the existing documentation, writers to add more interesting tutorials and good people who are happy to help - even fixing taipos (someone, please fix this one!).
 
-[This website's source and all the guides are hosted with Github](https://github.com/boazsegev/plezi-website). Please fork, edit and create pull requests!
+[This website's source and all the guides are hosted with Github. Please fork, edit and create pull requests!](https://github.com/boazsegev/plezi-website)

@@ -7,7 +7,7 @@ class DocsController
 	end
 	def show
 		page = render ['guides', params[:id]]
-		@title = (page.scan(/\<h1[^\>]*>([^\<]+)/) {|m| break m})[0]
+		@title = (page.scan(/\<h1[^\>]*>([^\<]+)/) {|m| break m})[0] rescue nil # shouldn't happen... but...
 		render(:layout) { page }
 	end
 end

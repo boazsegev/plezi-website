@@ -1,6 +1,4 @@
-  <%
-      # starting with Plezi 0.12.10, we can do this:
-      response.flash[:notice] = "Internal error (500) on request for: #{request[:original_path]}"
-      response['location'] = '/'
-      response.status = 302
-  %>
+<%=
+  flash[:notice] = "Internal error (500) on request for: #{request[:original_path]}"
+  render :welcome, layout: :layout
+%><% flash[:notice] = nil %>

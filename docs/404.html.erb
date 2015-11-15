@@ -1,0 +1,4 @@
+<%=
+  flash[:notice] = "#{request.original_path} can't be found"
+  render :welcome, layout: :layout
+%><% flash[:notice] = nil %>

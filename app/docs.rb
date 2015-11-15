@@ -6,7 +6,9 @@ class DocsController
 		render :guides_index, layout: :layout
 	end
 	def show
-		render ['guides', params[:id]], layout: :layout
+		page = render ['guides', params[:id]]
+		@title = (page.scan(/\<h1[^\>]*>([^\<]+)/) {|m| break m})[0]
+		render(:layout) { page }
 	end
 end
 

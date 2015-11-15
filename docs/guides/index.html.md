@@ -15,14 +15,26 @@ With Plezi, you can easily:
 
 To your left you will find a menu with the list of available guides and demo code.
 
-To start up, make sure you [installed Plezi](/guides/install). Next, read [the Getting Started overview](/guides/basics) and try the demo code as you follow along.
+To start up, make sure you [installed Plezi](/guides/install).
 
-If you prefer to start writing code right away, read through our [Hello World](/guides/hello_world) tutorial, as it contains much more than a simple "Hello World".
+Next, read [the Getting Started overview](/guides/basics) and try the demo code as you follow along.
 
-If you feel adventurous and want to start playing around with Websocket, feel free to try out the [Websocket chatroom](/guides/hello_chat) tutorial and follow along.
+To learn more about using templates, Controllers and graceful error handling for Plezi's RESTful and Http features, read through our [Hello World OVERKILL](/guides/hello_world) tutorial, as it contains much more than a simple "Hello World".
 
-This should get your apetite running and you'll be peeking at our more in-depth guides in no-time.
+Our [Websocket chatroom](/guides/hello_chat) tutorial will explain the code you saw on the landing page and show you how to leverage JSON on both the client and the server.
+
+This should get your apetite running and you'll be peeking at our more in-depth documentation in no-time.
 
 ## The table of contents
 
 To your right you'll find a floating "Table of Contents" for the document your reading. Hover above it with your mouse (or touch it) if you want to skip between sections of the same document.
+
+## Please excuse us while we write
+
+This website and the guides are fairly new and we're still writing everything down...
+
+...and when I say that "we" are still writing everything down, it's because I invite you to join in on the writing and help document Plezi's different features.
+
+We need editor to edit the existing documentation, writers to add more interesting tutorials and good people who are happy to help - even fixing taipos (someone, please fix this one!).
+
+[This website's source and all the guides are hosted with Github](https://github.com/boazsegev/plezi-website). Please fork, edit and create pull requests!

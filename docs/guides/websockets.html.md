@@ -97,13 +97,13 @@ If the data being sent is a UTF-8 encoded String, it will be sent as a text mess
 
 i.e., a websocket echo server using Plezi:
 
-  class MyEcho
-    def on_message data
-      write data
+    class MyEcho
+      def on_message data
+        write data
+      end
     end
-  end
 
-  route '/', MyEcho
+    route '/', MyEcho
 
 To use the JSON format for websocket messages, you will need to parse and format the data using Ruby's `JSON.parse(data)` and `{my: :data}.to_json` as well as the Javascipt `JSON.parse(e.data)` and `JSON.stringify({my: "data"})`.
 

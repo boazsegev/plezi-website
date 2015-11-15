@@ -564,11 +564,13 @@ body.dark, .dark input
     }
     #client_code
     {
+        background-color: rgb(64,64,64);
         background-color: rgba(64,64,64,0.80);
     }
     .toc
     {
-        background-color: rgba(64, 64, 64, 94);
+        background-color: rgb(64, 64, 64);
+        background-color: rgba(64, 64, 64, 0.94);
         &:after
         {
 

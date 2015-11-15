@@ -47,7 +47,8 @@ host templates: Root.join('docs').to_s,
 # end
 
 # Add your routes and controllers by order of priority.
-route '/guides', GuidesController
+route '/docs', DocsController
+route '/guides', DocsController
 route '/', HomeController
 
 class Err404

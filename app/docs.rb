@@ -7,7 +7,8 @@ class DocsController
 	end
 	def show
 		page = render ['guides', params[:id]]
-		@title = (page.scan(/\<h1[^\>]*>([^\<]+)/) {|m| break m})[0] rescue nil # shouldn't happen... but...
+		# Sometimes an encoding error would visit for no aparent reason... shouldn't happen... but...
+		@title = (page.scan(/\<h1[^\>]*>([^\<]+)/) {|m| break m})[0] rescue nil
 		render(:layout) { page }
 	end
 end

@@ -15,7 +15,7 @@ end
 class NewPageLinksMDRenderer < Redcarpet::Render::HTML
 	# Other methods where we don't return only a specific argument
 	def link(link, title, content)
-		"<a href=\"#{link}\" #{"target='_blank' " unless link[0] =~ /[\/\.]/}title=\"#{title}\">#{content}</a>"
+		"<a href=\"#{link}\"#{" target='_blank'" unless link[0] =~ /[\/\.]/}#{" title=\"#{title}\"" if title}>#{content}</a>"
 	end
 end
 

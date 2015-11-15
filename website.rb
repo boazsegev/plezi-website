@@ -50,11 +50,3 @@ host templates: Root.join('docs').to_s,
 route '/docs', DocsController
 route '/guides', DocsController
 route '/', HomeController
-
-class Err404
-	def index
-		redirect_to '/', notice: "#{request.original_path} can't be found"
-	end
-end
-route '*', Err404
-

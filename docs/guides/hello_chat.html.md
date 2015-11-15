@@ -1,6 +1,6 @@
 # A Plezi chatroom using Websockets
 
-Just like the ["Hello World" tutorial](./hello_world) was used to explore some of what Plezi had to offer us in the world of Http and RESTful routing, this Chatroom tutorial can be used to explore what Plezi can do for us when it comes to websockets.
+Just like the ["Hello World" tutorial](./hello_world) was used to explore some of what Plezi had to offer us in the world of Http and RESTful routing, this Chatroom tutorial can be used to explore some of what Plezi can do for us when it comes to websockets.
 
 In the landing page you have noticed a working demonstration for a fully working chatroom application, with a few lines of code executed through the `irb` terminal.
 

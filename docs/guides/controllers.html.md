@@ -57,13 +57,13 @@ The following properties and methods are accessible from within your Controller 
 
 The request object is a Hash like object, containing the request's information and some helper methods.
 
-Read more at the <a href='http://www.rubydoc.info/gems/iodine/Iodine/Http/Request' target='_blank'>YARD documentation for the Request object</a>.
+Read more at the [YARD documentation for the Request object](http://www.rubydoc.info/gems/iodine/Iodine/Http/Request).
 
 ### `response`
 
 The response object allows more control of the response, such as setting headers, streaming the response etc'.
 
-Read more at the <a href='http://www.rubydoc.info/gems/iodine/Iodine/Http/Response' target='_blank'>YARD documentation for the Response object</a>.
+Read more at the [YARD documentation for the Response object](http://www.rubydoc.info/gems/iodine/Iodine/Http/Response).
 
 ### The `params` hash
 
@@ -105,7 +105,7 @@ To set a cookie's value, simply:
 
     cookies[:name] = "value"
 
-It's also possible to set the <a target='_blank' href='http://www.rubydoc.info/gems/iodine/Iodine/Http/Response#set_cookie-instance_method'>`response.set_cookie` options</a> when setting the value. i.e.:
+It's also possible to set the [`response.set_cookie` options](http://www.rubydoc.info/gems/iodine/Iodine/Http/Response#set_cookie-instance_method) when setting the value. i.e.:
 
     cookies[:name] = {value: "value", secure: true}
 
@@ -131,7 +131,7 @@ When falling back on temp-file storage (no Redis), the local storage will persis
 
 Be aware that Session hijacking is a serious threat and avoid trusting the session data before exposing private information on the web (i.e. require re-authentication before exposing private information).
 
-The session object will be either Plezi's Redis session object (syncing local data when scaling) or the local <a target='_blank' href='http://www.rubydoc.info/gems/iodine/Iodine/Http/SessionManager/FileSessionStorage/SessionObject'>Tempfile session storage object that comes bundled with Iodine</a>. They both share the same API.
+The session object will be either Plezi's Redis session object (syncing local data when scaling) or the local [Tempfile session storage object that comes bundled with Iodine](http://www.rubydoc.info/gems/iodine/Iodine/Http/SessionManager/FileSessionStorage/SessionObject). They both share the same API.
 
 ### The `render` method
 
@@ -145,7 +145,7 @@ or, for example, to render the file `message.json.slim`
 
     render :message, format: 'json'
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#render-instance_method' target='_blank'>YARD documentation for this method</a>.
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#render-instance_method).
 
 ### The `send_data` method (Http)
 
@@ -155,7 +155,7 @@ This is usful for sending 'attachments' (data to be downloaded) rather then a re
 
 This is also useful for offering a file name for the browser to “save as”.
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#send_data-instance_method' target='_blank'>YARD documentation for this method</a>.
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#send_data-instance_method).
 
 ### The `requested_method` method
 
@@ -177,7 +177,7 @@ Unless `url` is a String, the controller will attempt to guess the URL using the
 
     redirect_to :index, notice: "my message"
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#redirect_to-instance_method' target='_blank'>YARD documentation for this method</a>.
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#redirect_to-instance_method).
 
 ### The `url_for` URL builder
 
@@ -186,12 +186,12 @@ The controller will attempt to guess the URL used to reach any path within it's 
 url_for :index # the root of the controller
 url_for id: 1, _method: :delete # the DELETE method emulation for RESTful ID 1.
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#url_for-instance_method' target='_blank'>YARD documentation for this method</a>.
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#url_for-instance_method).
 
 ### The `full_url_for` URL builder
 
 Same as `url_for`, but attempts to rebuild the full url (inluding the schema, port and domain name).
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#full_url_for-instance_method' target='_blank'>YARD documentation for this method</a>.
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#full_url_for-instance_method).
 
 ### The `host_params` hash
 
@@ -207,19 +207,19 @@ Using `write` before a websocket connection was established will append the data
 
 ### The `unicast` method (Websockets)
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#unicast-instance_method' target='_blank'>YARD documentation for this method</a>.
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#unicast-instance_method).
 
 (todo: write documentation)
 
 ### The `broadcast` method (Websockets)
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#broadcast-instance_method' target='_blank'>YARD documentation for this method</a>.
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#broadcast-instance_method).
 
 (todo: write documentation)
 
 ### The `multicast` method (Websockets)
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#multicast-instance_method' target='_blank'>YARD documentation for this method</a>.
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#multicast-instance_method).
 
 (todo: write documentation)
 
@@ -237,7 +237,7 @@ Example use:
     register_as "#{session.id}_hourly", lifetime: 60*60, max_connections: 4
 
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/InstanceMethods#register_as-instance_method' target='_blank'>YARD documentation for this method</a>.
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/InstanceMethods#register_as-instance_method).
 
 **A note about the Identity API**:
 
@@ -257,7 +257,7 @@ Use:
 
     notify "identity_value", :event_method, arg1, arg2, ...
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#notify-instance_method' target='_blank'>YARD documentation for this method</a>.
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#notify-instance_method).
 
 ### The `registered?` Identity method (Websockets)
 
@@ -267,7 +267,7 @@ Example use:
 
     registered? "identity_value"
 
-Read more at the <a href='http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#registered%3F-instance_method' target='_blank'>YARD documentation for this method</a>.
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#registered%3F-instance_method).
 
 ### The `placebo?` method (Websockets)
 

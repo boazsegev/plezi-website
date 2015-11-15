@@ -1,6 +1,6 @@
 # The Hello World OVERKILL!
 
-If you read [the overview](/guides/basics), you know that a "Hello World" Plezi applicationonly needs two line (three, if you're using `irb` instead of a ruby script)... remember?
+If you read [the overview](./basics), you know that a "Hello World" Plezi applicationonly needs two line (three, if you're using `irb` instead of a ruby script)... remember?
 
     require 'plezi'
     route('*') { "Hello World!" }

@@ -15,13 +15,13 @@ With Plezi, you can easily:
 
 To your left you will find a menu with the list of available guides and demo code.
 
-To start up, make sure you [installed Plezi](/guides/install).
+To start up, make sure you [installed Plezi](/docs/install).
 
-Next, read [the Getting Started overview](/guides/basics) and try the demo code as you follow along.
+Next, read [the Getting Started overview](/docs/basics) and try the demo code as you follow along.
 
-To learn more about using templates, Controllers and graceful error handling for Plezi's RESTful and Http features, read through our [Hello World OVERKILL](/guides/hello_world) tutorial, as it contains much more than a simple "Hello World".
+To learn more about using templates, Controllers and graceful error handling for Plezi's RESTful and Http features, read through our [Hello World OVERKILL](/docs/hello_world) tutorial, as it contains much more than a simple "Hello World".
 
-Our [Websocket chatroom](/guides/hello_chat) tutorial will explain the code you saw on the landing page and show you how to leverage JSON on both the client and the server.
+Our [Websocket chatroom](/docs/hello_chat) tutorial will explain the code you saw on the landing page and show you how to leverage JSON on both the client and the server.
 
 This should get your apetite running and you'll be peeking at our more in-depth documentation in no-time.
 

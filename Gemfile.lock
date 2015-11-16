@@ -1,7 +1,6 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    github-markup (1.4.0)
     iodine (0.1.16)
     plezi (0.12.16)
       iodine (~> 0.1.16)
@@ -17,7 +16,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  github-markup
   plezi (~> 0.12.7)
   redcarpet
   sass

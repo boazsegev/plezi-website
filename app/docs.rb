@@ -7,7 +7,8 @@ class DocsController
 	end
 	def show
 		page = render ['guides', params[:id]]
-		# Sometimes an encoding error would visit for no aparent reason... shouldn't happen... but...
+		return false unless page
+		# Sometimes an encoding error would pop up for no aparent reason... rescue shouldn't happen... but...
 		@title = (page.scan(/\<h1[^\>]*>([^\<]+)/) {|m| break m})[0] rescue nil
 		render(:layout) { page }
 	end
@@ -22,11 +23,6 @@ class NewPageLinksMDRenderer < Redcarpet::Render::HTML
 	end
 end
 
-
-# # register the Github makrdown flavor renderer
-# ::Plezi::Renderer.register :md do |filename, context, &block|
-# 	Plezi.cache_needs_update?(filename) ? Plezi.cache_data( filename, ::GitHub::Markup.render(filename) )  : (Plezi.get_cached filename)
-# end
 
 MD_RENDERER = Redcarpet::Markdown.new NewPageLinksMDRenderer.new(with_toc_data: true), autolink: true, fenced_code_blocks: true, no_intra_emphasis: true, tables: true, footnotes: true
 # MD_RENDERER = Redcarpet::Markdown.new Redcarpet::Render::HTML.new( with_toc_data: true), autolink: true, fenced_code_blocks: true, no_intra_emphasis: true, tables: true, footnotes: true

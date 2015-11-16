@@ -1,5 +1,6 @@
 # encoding: UTF-8
 
+ENV['ENV'] ||= ENV['RACK_ENV'] || 'production'
 ## Set working directory, load gems and create logs
 	## Using pathname extentions for setting public folder
 	require 'pathname'

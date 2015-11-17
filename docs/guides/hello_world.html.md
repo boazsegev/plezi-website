@@ -66,7 +66,7 @@ Let's take a quick look over the files:
 
 * `hello_world` - This is a cool short-cut for unix based systems, such as Mac OS X. You can double click this file to start your application - ain't that cool?
 
-* `hello_world.rb' - This is our actual application. We should look into this file as we change things.
+* `hello_world.rb` - This is our actual application. We should look into this file as we change things.
 
 * `Procfile` - Some PaaS providers, such as Heroku, use a Procfile to decide how to start our application and how many instances to run etc'... This is here to help us with a quick deployment.
 

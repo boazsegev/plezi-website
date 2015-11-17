@@ -1,5 +1,7 @@
 //media only screen and (max-device-width : 768px)
 
+@media only screen and (max-device-width : 768px) {
+
 body
 {
     &:after
@@ -55,7 +57,7 @@ code, pre
 #logo
 {
     top:0.3em;
-    border-radius: 1em;
+    @include border-radius;
     // background-color: rgb(240,240,240);
     // background-color: rgba(240, 240, 240, 0.64);
 }
@@ -83,7 +85,7 @@ code, pre
         box-sizing: border-box;
         padding: 0.3em 0.5em;
         text-align: center;
-        border-radius: 1em;
+        @include border-radius;
         background-color: rgb(128,128,128);
         background-color: rgba(64, 64, 64, 0.64);
         position: absolute;
@@ -265,4 +267,6 @@ body.dark
         background-color: rgb(32,32,32);
         background-color: rgba(32, 32, 32, 0.9);
     }
+}
+
 }

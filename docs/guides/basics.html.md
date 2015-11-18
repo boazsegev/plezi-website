@@ -212,7 +212,7 @@ Plezi allows us to use different host-names for different routes. i.e.:
     route('/') {"this is only for the IP!"}
     exit
 
-Each host has it's own settings for a public folder, asset rendering, templates etc'. This is great for just a single host and even better when using an "admin" subdomain, for example:
+Each host has it's own settings for a public folder, asset rendering, templates etc'. This is great for just a single host and even better when using a distinctly different subdomain such as "admin", "blog" etc'. For example:
 
     require 'plezi'
 
@@ -258,4 +258,4 @@ Each host has it's own settings for a public folder, asset rendering, templates 
     # start the server
     exit
 
-Plezi supports ERB (i.e. `template.html.erb`), Slim (i.e. `template.html.slim`), Haml (i.e. `template.html.haml`), CoffeeScript (i.e. `asset.js.coffee`) and Sass (i.e. `asset.css.scss`) right out of the box... and it's even extendible using the `Plezi::Renderer.register` and `Plezi::AssetManager.register`
+Plezi supports ERB (i.e. `template.html.erb`), Slim (i.e. `template.html.slim`), Haml (i.e. `template.html.haml`), CoffeeScript (i.e. `asset.js.coffee`) and Sass (i.e. `asset.css.scss`) right out of the box... and it's even extendible using the `Plezi::Renderer.register` and `Plezi::AssetManager.register`.

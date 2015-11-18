@@ -382,18 +382,146 @@ Done! Now restart the application and visit [localhost:3000/fail](http://localho
 
 ## What about AJAX-JSON clients?
 
-[todo: write]
+Managing the format of the response with Plezi is super easy.
 
-### Using re-write routes to format the response
+First, I'll demonstrate the concept and than we'll do it the right way.
 
-[todo: write]
+Keep the aplication running, for now we won't change even a single line of code.
+
+Add the following to files to your template's folder: `layout.json.erb` and `hello.json.erb`
+
+`layout.json.erb` might look (for now) something like this:
+
+    <%= yield %>
+
+`hello.json.erb` might look something like this:
+
+    <%=
+    {
+        from: @previous,
+        location: @location
+    }.to_json
+    %>
+
+Now, run the app and visit any location while adding at the end of the path `?format=json` (we'll fix this later). i.e.: [localhost:3000/Miami?format=json](http://localhost:3000/Miami?format=json)
+
+Wow! Plezi automatically recognized the request is for a different format and chose the correct templates - sweet (`:format` and `:locale` are often used this way, so Plezi recognizes this convention).
+
+But, the whole `?format=json` doesn't really look nice. Let's fix that.
+
+### Using re-write routes to re-format the request
+
+Plezi has this really cool feature that's called "rewrite routes". It allows us to extract parameters from the **beginning** of the request and make them available for all the other routes.
+
+Rewrite routes also rewrite the request path, so future routes don't see the original request (available with `request.original_path`). This way, our routes work exacly the same as if the parameters were added using the ugly way (we don't need to update them in any way).
+
+All we need is to create a route and pass `false` as our controller - easy.
+
+This allows us to set the language for all our routes by adding a single rewrite route such as:
+
+    route '/(:locale){en|it|ru}', false
+
+This also allows us to support JSON across the board with a single rewrite route and a few templates.
+
+We will add the `route "/(:format){html|json}" , false`  rewrite route as the **first** route - remember, routes have priority by order of creation... so we want our request to be re-written before it's reviewed by our other routes.
+
+Our routing code, in `hello_world.rb` should now look like this:
+
+    host templates: Root.join('templates').to_s,
+        assets: Root.join('assets').to_s
+    route "/(:format){html|json}" , false
+    route '/(:id)', HelloController
+    Plezi.route '*', Err404Ctrl
+
+That's it! restart the app and go to [localhost:3000/json/London]([http://localhost:3000/json/london)
+
+Notice how the old path, [localhost:3000/London]([http://localhost:3000/London), gracefully remains intact, rendering our html (the default format for the web).
 
 ### Sending the data in JSON format
 
-[todo: write]
+But wait... there's a reason we use a layout.
+
+Even when using JSON, there is usually some common data we will want to send together with all our responses.
+
+Now, we know `render` returns the text that was rendered, so how do we combine both of the strings to return a single JSON stream?
+
+Here's one way (the simple way) - we render the JSON in the template and parse it in the layout before adding it to our layout object.
+
+If we do that, our JSON might look something like this:
+
+    <%=
+    {
+        app: 'hello world',
+        version: '1',
+        request: request.original_path,
+        response: JSON.parse(yield)
+    }.to_json
+    %>
+
+But... this isn't very effective as far as performance goes.
+
+Another way is to "hack" the JSON format.
+
+We know what a simple Hash looks like in JSON (`'{"key":"value"}'`) - why not simply edit the string directly by cutting the end of the string (so we have `'{"key":`), adding the Hash (so we have `'{"key":{"key":"value"}`) and than closing it back with a `'}'`?
+
+This did require a bit of knowledge about JSON, but now you know it and you can use it too. So let's update our layout to make it perform better (yes, even this can be improved quite a bit):
+
+    <%=
+    {
+        app: 'hello world',
+        version: '1',
+        request: request.original_path,
+        response: ''
+    }.to_json[0..-4] + yield + '}'
+    %>
+
+Supporting other formats with Plezi is easy.
 
 ## Hello Markdown - Using a custom render engine
 
-[todo: write]
+If you decide to look at [the code for plezi.io's website](https://github.com/boazsegev/plezi-website), you'd probably come across a few interesting facts.
+
+1. You would probably notice that all the guides are written in Markdown, meaning they must be dynamically rendered to Html.
+
+2. You would notice that there are no templates for the table of contents at the top of each of the guides, but that one is always present. This could have been achieved "client-side" as well (SEO aside), but it obviously wasn't... so the rendering engine must have been costumized to do that.
+
+3. You would notice that the markdown files and the table of contents are all rendered using a single command: `render`.
+
+This customization is the product of the following few lines that were misplaced an an obscure file called `docs.rb`:
+
+
+    # create a single gloabl renderer for all markdown files.
+    MD_RENDERER = Redcarpet::Markdown.new NewPageLinksMDRenderer.new(with_toc_data: true), autolink: true, fenced_code_blocks: true, no_intra_emphasis: true, tables: true, footnotes: true
+    # was: MD_RENDERER = Redcarpet::Markdown.new Redcarpet::Render::HTML.new( with_toc_data: true), autolink: true, fenced_code_blocks: true, no_intra_emphasis: true, tables: true, footnotes: true
+
+    # create a single gloabl renderer for all markdown TOC.
+    MD_RENDERER_TOC = Redcarpet::Markdown.new Redcarpet::Render::HTML_TOC.new()
+
+    # register the Makrdown renderer with some Github flavors (but not the official Github Renderer)
+    ::Plezi::Renderer.register :md do |filename, context, &block|
+        data = IO.read filename
+        Plezi.cache_needs_update?(filename) ? Plezi.cache_data( filename, "<div class='toc'>#{MD_RENDERER_TOC.render(data)}</div>\n#{::MD_RENDERER.render(data)}" )  : (Plezi.get_cached filename)
+    end
+
+This code I decided to use is highly customized, since I wanted to both add and style a table of contents for each of the pages and even wanted to distinguish local links (that open in the same window) from remote links (that should open in a new windows tab)... Anyway, a simplified version would look like this:
+
+    # a global render engine
+    MD_RENDERER = Redcarpet::Markdown.new Redcarpet::Render::HTML.new( with_toc_data: true),
+            autolink: true, fenced_code_blocks: true, no_intra_emphasis: true,
+            tables: true, footnotes: true
+
+    # register the `md` extention (Makrdown) to be rendered using Plezi's `render`.
+    ::Plezi::Renderer.register :md do |filename, context, &block|
+        data = IO.read filename
+        if Plezi.cache_needs_update?(filename)
+            Plezi.cache_data ::MD_RENDERER.render(data)
+        else
+            Plezi.get_cached filename
+        end
+    end
+
+Wow! We discovered that Plezi has caching helpers (even one that checks if the file that initiated the cache was updated since we cached our data) AND that Plezi's `render` method can be extended to render any extention we want.
+
+As an excersize, try and complete this one yourself: update your Html `hello` template to use markdown instead of ERB of Slim. What do you think should change (notice the difference between `erb` and `slim` usage?
 
 

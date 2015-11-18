@@ -11,6 +11,40 @@ With Plezi, you can easily:
 
 3. Create an easily scalable backend for your SPA.
 
+You can start exploring demo code, guides and documentation using the links in the menu to your left. If you're using a small screen (i.e., mobile), you will need to click the top-left menu button to show the links.
+
+## Where Plezi comes from
+
+The original inspiration for Plezi came to me when I was working with a friend on a game that used socket.io for the real-time communication.
+
+Not only do I find Ruby is much more fun to work with, I also find some of socket.io's features to be quite vexing. I wanted more control over what was happening and most of all I wanted to avoid Javascript.
+
+Plezi's goal were:
+
+1. Support client to server and server to client communication in real-time.
+
+	Since I had the model of an interactive game in my head, it was important that updates could be sent to the players in real-time and that the plays could push updates to the server without nagotiating a new connection for each update.
+
+2. Support client-(server)-client real-time communication. 
+
+	As games go, it was important that the player's "moves" could be made known to other players - maybe to one more player, maybe a group of specific players and maybe all the players, but this communication of messages between different connections had to be there.
+
+3. Support easy scalability.
+
+	I was really hoping my friend's game would be a wonderful success... and I wanted to think that all the games or applications that will be written using Plezi would also find success. It was important to me that the applications written using Plezi would be easy to scale as more users enjoyed them.
+
+4. Allow easy fallback to AJAX when websockets wasn't accessible... BUT without taking away from the programmer's control over the choice of mechanism. 
+
+	At the time, websockets weren't as common or as well supported as today. For this reason, I wanted it to be easy to use the same code for both types of communication and keep things a bit more DRY.
+
+	This is why there aren't "websocket-controllers" and "http-controllers" - a controller can do both and also use it's Http methods for websocket data and events.
+
+Another thing that was important for me was to have a 'diet-Rails' alternative. As Ruby on Rails was getting more mature it was also getting more complicated and bloated.
+
+I wanted Plezi to be easy... and it is.
+
+Plezi is so easy, you can write and run an whole application with just the `irb` terminal - try doing that with Rails or Sinatra, see where that gets you ;-)
+
 ## Start exploring
 
 To your left you will find a menu with the list of available guides and demo code.

@@ -1,4 +1,4 @@
-* [Guide index](/docs)
+* [Overview](/docs)
 * [Installing Plezi](/docs/install)
 * 
 * [Getting started](/docs/basics)

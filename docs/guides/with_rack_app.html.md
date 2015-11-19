@@ -2,7 +2,7 @@
 
 Plezi can play well together with your existing Rack application, so we can run Plezi within our existing Rails/Sinatra/Rack application, adding websocket support to our existing code.
 
-Plezi's server, [Iodine](https://github.com/boazsegev/iodine), isn't a [Rack](http://rack.github.io) server when Plezi uses it, but it _can_ be a Rack server as well... even at the same time.
+Plezi's server, [Iodine](https://github.com/boazsegev/iodine), isn't a [Rack](http://rack.github.io) server when Plezi uses it, but it _can_ be a Rack server as well... even while being used by Plezi at the same time.
 
 This means that we can use Plezi for all our needs (Websockets, RESTful API, whatever), and still use our existing Rack application for anything we didn't implement in our Plezi code.
 

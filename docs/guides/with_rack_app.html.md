@@ -44,6 +44,7 @@ i.e., in my Rails app I added a `plezi.rb` file to the `config/initializers` fol
             write data
         end
     end
+    # remember our route for websocket connections.
     route '/:token', NewsPublisher
 
 Since both applications share the same code base, this example leveraged the model's `User#auth` to authenticate the connection using a temporary token.

@@ -11,4 +11,6 @@
 * [ASync helpers](/docs/async_helpers)
 * [Logging helpers](/docs/logging)
 * 
+* [Plezi with Rails/Sinatra/Rack](/docs/with_rack_app)
+* 
 * [YARD Documentation](http://www.rubydoc.info/gems/plezi)

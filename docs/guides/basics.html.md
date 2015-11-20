@@ -157,11 +157,12 @@ To share an API, Plezi only asks that the Http route respond using the `response
 
         # this is an Http public route - must have default values
         def time forward = nil, from = nil
-            response << ({msg: :time, data: Plezi.time, to: uuid, from: from}).to_json
             # for the demo, we can also send te time to someone else
             # using unicasting:
             forward ||= params[:for]
             unicast forward, :time if forward
+            # we send the response using `response <<` instead of a string.
+            response << ({msg: :time, data: Plezi.time, to: uuid, from: from}).to_json
         end
 
         def on_message data

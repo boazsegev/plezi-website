@@ -6,7 +6,7 @@ Plezi augmentes Iodine by adding auto-Redis support for scaling and automaticall
 
 Reading through this document, you should remember that Plezi's websocket connections are object oriented - they are instances of Controller classes that answer a specific url/path in the Plezi application. More than one type of connection (Controller instance) could exist in the same application.
 
-## A short intro to Websockets (skip this if you can)
+## What are Websockets? (skip if you know)
 
 In a very broad sense, Websockets allow the browser communicate with the server in a bi-directional manner. This overcomes some of the limitations imposed by Http alone, allowing (for instance) to push real-time data, such as chat messages or stock quotes, directly to the browser.
 
@@ -22,7 +22,7 @@ The server responds: "Sure thing, let's talk".
 
 Than they start their websocket conversation, keeping the connection between them open. The server can also answer "no thanks", but than there's no websocket connection and the Http connection will probably die out (unless it's Http/2).
 
-### initiating a websocket connection
+### Establishing the connection (client)
 
 The websocket connection is initiated by the browser using `Javascript`.
 
@@ -81,15 +81,13 @@ In our example the script sent a message: `"Hello there!"`. It's up to your code
 
 When data comes in from the browser, the `onmessage` event is raised. It's up to your script to decypher the meaning of that message within the `onmessage` callback.
 
-###
-
-No we know a bit about what Websockets are and how to initiate a websocket connection to send and receive data... next up, how to get Plezi to answer (or refuse) websocket requests?
+Now that we know a bit about what Websockets are and how to initiate a websocket connection to send and receive data... next up, how to get Plezi to answer (or refuse) websocket requests?
 
 ## Communicating between the application and clients
 
 A Plezi application can handle multiple websocket connection controller, allowing you to use different connections for different tasks (such as file uploading on one connection while getting real-time updates on another).
 
-For a route to accept websocket connects, it's controller must respond to the `on_message(data)` callback.
+For a route **to accept websocket connections**, it's controller **must** respond to the `on_message(data)` callback.
 
 To send raw data to the client using the websocket, use the method `write(data)`.
 
@@ -109,7 +107,7 @@ To use the JSON format for websocket messages, you will need to parse and format
 
 That's it. It really is all it takes to accept websocket connections and communicate with a websocket client.
 
-You can see a more complete example, including the use of JSON, in the [Plezi chatroom tutorial](./hello_chat).
+You can see a more complete example, including the use of JSON, in the [Plezi chatroom tutorial](./hello_chat) as well as in the [getting started guide](./basics)
 
 Remember to set the javascript connection(s) path to the path of your websocket route(s).
 

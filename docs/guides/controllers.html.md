@@ -1,4 +1,4 @@
-# Plezi Controllers
+# Plezi&#39;s Controllers
 
 In the core of Plezi's framework is a smart Object Oriented Router which acts like a "virtual folder" with RESTful routing and Websocket support.
 

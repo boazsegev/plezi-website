@@ -1,4 +1,4 @@
-# Plezi's Logging
+# Plezi&#39;s Logging
 
 Inside Plezi's core code is a pure Ruby IO reactor called [Iodine](https://github.com/boazsegev/iodine), a wonderful Asynchronous Workflow Engine that allows us to enjoy both Multi-Threading and Multi-Processing.
 

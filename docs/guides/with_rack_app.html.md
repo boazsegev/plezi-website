@@ -37,7 +37,8 @@ i.e., in my Rails app I added a `plezi.rb` file to the `config/initializers` fol
             register_as @user.id
         end
         def on_message data
-            # ignore, we only use the connection to send, not to receive.
+            # we have to include an `on_message` callback to accept websocket connections.
+            # read the getting started and websockets guides for more info about websocket callbacks.
         end
         protected
         def publish data

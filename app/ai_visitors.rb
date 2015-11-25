@@ -30,6 +30,8 @@ class AIConnection
 		"YO :-)",
 		"I'm here!",
 		"eat THIS, node.js :p",
+		"go bears!",
+		"test",
 		"I think I saw someone with my handle! Not fair!",
 		"Anybody there?",
 		"I'm GOD!",
@@ -40,7 +42,7 @@ class AIConnection
 		"I know you're there!",
 		"I know you can read this"
 		]
-	MESSAGES[0..24].each {|m| MESSAGES << m}
+	MESSAGES[0..24].each {|m| MESSAGES << m} # make common messages more common.
 	def initialize
 		@name = NAMES.sample
 		HomeController.broadcast :print, "#{@name} joind the chat."
@@ -57,11 +59,11 @@ class AIConnection
 		Iodine.run_after(pause) { leave }
 	end
 	def pause
-		rand(8..24)/4.0
+		rand(8..24)/2.0
 	end
 	def leave
 		HomeController.broadcast :print, "#{@name} left the chat."
 	end
 end
 
-Iodine.run_every(32) { AIConnection.new }
+Iodine.run_every(60) { AIConnection.new }

@@ -1,6 +1,6 @@
 # The Hello World OVERKILL!
 
-If you read [the overview](./basics), you know that a "Hello World" Plezi applicationonly needs two line (three, if you're using `irb` instead of a ruby script)... remember?
+If you read [the getting started guide](./basics), you know that a "Hello World" Plezi applicationonly needs two line (three, if you're using `irb` instead of a ruby script)... remember?
 
     require 'plezi'
     route('*') { "Hello World!" }
@@ -13,21 +13,19 @@ To make things more interesting, we're going to:
 * Start up using a small application template, for easy deployment.
 * Leverage a Controller class for our "Hello World".
 * Use a template file to render our data.
-* Use a layout for all our Html rendered pages (yes, there will be only one).
+* Use a layout for all our Html rendered pages.
 * Handle 404 errors gracefully.
 * Add an AJAX JSON rewite-route to set our reponse format.
 * Send the response in JSON format when requested (using the power of templates and layouts).
 * Install Github's render engine and use that instead of our original render engine (but we will keep the layout).
 
-Hmmm... I'm still thinking about more ideas, but this seems like a fun start.
-
-<!-- [todo: finish writing the damn thing ;-)] -->
+Get ready to write the most bloated, feature rich, "hello world" application and discover how easy it can be to support all these features when using Plezi.
 
 ## Create a starter application
 
 Plezi provides us with a jump start, so that we can begin coding straight away and not spend time on creating folders and writing the same stuff over and over again.
 
-We and use either:
+We can use either:
 
     $ plezi mini appname
 
@@ -487,7 +485,7 @@ If you decide to look at [the code for plezi.io's website](https://github.com/bo
 
 3. You would notice that the markdown files and the table of contents are all rendered using a single command: `render`.
 
-This customization is the product of the following few lines that were misplaced an an obscure file called `docs.rb`:
+This customization is the product of the following few lines that were misplaced an an obscure file called `render_markdown.rb`:
 
 
     # create a single gloabl renderer for all markdown files.

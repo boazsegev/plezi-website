@@ -310,7 +310,7 @@ Looking at the files in our `hello_world` applications, we can find a template c
 
 We have a number of ways to deal with the error more gracefully... Personally, I'm an advocate for the lazy method, which we will use when dealing with the 500 (internal error) error.
 
-For now, leats head to our `hello_world.rb` file and add a "catch-all" route at the end of our file, after out home page route.
+For now, lets update our `hello_world.rb` file and add a "catch-all" route at the end of our file, after our home page route.
 
 A catch-all route doesn't have an `:id` appended to it, so our Controller only needs to implement one method: `index`.
 

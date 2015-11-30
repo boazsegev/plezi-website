@@ -22,7 +22,7 @@ The server responds: "Sure thing, let's talk".
 
 Than they start their websocket conversation, keeping the connection between them open. The server can also answer "no thanks", but than there's no websocket connection and the Http connection will probably die out (unless it's Http/2).
 
-### Establishing the connection (client)
+### Establishing the connection (generic client)
 
 The websocket connection is initiated by the browser using `Javascript`.
 
@@ -54,7 +54,7 @@ Here is a common enough example of a script designed to open a websocket:
           // maybe send a message?
           websocket.send("Hello there!");
           // a common practice is to use JSON
-          var msg = JSON.stringify({msg: 'chat', data: 'Hello there!'})
+          var msg = JSON.stringify({event: 'chat', data: 'Hello there!'})
           websocket.send(msg);
       };
 
@@ -85,11 +85,17 @@ Now that we know a bit about what Websockets are and how to initiate a websocket
 
 ## Communicating between the application and clients
 
-A Plezi application can handle multiple websocket connection controller, allowing you to use different connections for different tasks (such as file uploading on one connection while getting real-time updates on another).
+A Plezi application can handle multiple websocket connection controllers, allowing you to use different connections for different tasks (such as file uploading on one connection while getting real-time updates on another).
 
-For a route **to accept websocket connections**, it's controller **must** respond to the `on_message(data)` callback.
+For a route **to accept websocket connections**, it's controller **must** respond to the `on_message(data)` callback **OR** be an `auto_dispatch` enabled controller (more about this soon).
+
+### Raw Websocket data communication
+
+By default, Plezi allows us to use raw websocket data communication - which means that binary data (i.e. file upload data) as well as text data (i.e. JSON data) can be used.
 
 To send raw data to the client using the websocket, use the method `write(data)`.
+
+When using raw websocket communication, no data will be sent unless explicitly sent using `write(data)` or `request << data`.
 
 If the data being sent is a UTF-8 encoded String, it will be sent as a text message. If it's a binary encoded String the data will be sent in binary mode.
 
@@ -105,11 +111,200 @@ i.e., a websocket echo server using Plezi:
 
 To use the JSON format for websocket messages, you will need to parse and format the data using Ruby's `JSON.parse(data)` and `{my: :data}.to_json` as well as the Javascipt `JSON.parse(e.data)` and `JSON.stringify({my: "data"})`.
 
-That's it. It really is all it takes to accept websocket connections and communicate with a websocket client.
+That's it. It really is all it takes to accept websocket connections and communicate with a websocket client using raw websockets.
 
 You can see a more complete example, including the use of JSON, in the [Plezi chatroom tutorial](./hello_chat) as well as in the [getting started guide](./basics)
 
 Remember to set the javascript connection(s) path to the path of your websocket route(s).
+
+### Websocket JSON Auto-Dispatch
+
+It is very common for websocket applications to use json messages to "emit" "events" and map these events to class methods or javascript callbacks.
+
+This practice is also used to unify AJAX and Websocket APIs, when using the method's default argument value to indicated if the request was AJAX or Websocket in it's source.
+
+Because this is so common, Plezi offers both a Client and a Controller automation flag that will automate the process, so that we doing have to write an `on_message` callback to route our events.
+
+#### Leveraging the Plezi Client
+
+Plezi provids a basic Websocket client that allows us to leverage the auto-dispatch "feel" and style also for our client side code.
+
+The client is available when using the application template, using the path `/assets/plezi_client.js` (for the mini application starter) or `/assets/javascript/plezi_client.js` (for the larger, default application starter).
+
+To open a websocket connection to the current location (i.e, "https://example.com/path" => "wss://example.com/path"), use:
+
+      var client = new PleziClient();
+
+Notice that SSL preference will be preserved. This means that if we access the server using SSL, the websocket connection will also require SSL (using `wss`). If we access the server using an unencrypted connection, the websocket connection will NOT be encrypted (using `ws`).
+
+To open a connection to a different path for the original server, use:
+
+      var client = new PleziClient(PleziClient.origin + "/path");
+
+i.e., to open a connection to the root ("/"), use:
+
+      var client = new PleziClient(PleziClient.origin + "/");
+
+To open a connection to a different URL or path, use:
+
+      var client = new PleziClient("ws://full.url.com/path");
+
+To automatically renew the connection when disconnections are reported by the browser, use:
+
+      client.reconnect = true;
+      client.reconnect_interval = 250; // sets how long to wait before reconnection attempts.
+
+The automatic renew flag can be used when creating the client, using:
+
+      var client = new PleziClient(PleziClient.origin + "/path", true);
+      client.reconnect_interval = 250; // Or use the default 50 ms.
+
+The default `reconnect_interval` value is 50 ms.
+
+To set up event handling, directly set an `on<event name>` callback. i.e., for an event called `chat`:
+
+      client.onchat = function(event) { "..." };
+
+When unknown JSON messages arrive, it's possible to handle them using the `unknown` callback which will be called whenever there is no method that handles the event or an event is not specified in the JSON message. i.e.:
+
+      client.unknown = function(event) { "..." };
+
+To send / emit an event in JSON format, use the `emit` method:
+
+      client.emit({event: "chat", data: "the message"});
+
+To sent raw websocket data, use the `send` method. This will cause disconnetions if Plezi's controller uses `@auto_dispatch` and the message isn't a valid JSON string. i.e. sending a raw string:
+
+      client.send("string");
+
+Manually closing the connection will prevent automatic reconnections:
+
+      client.close();
+
+#### Writing an Auto-Dispatch Controller
+
+To automatically map all incoming websocket JSON `event` messages to controller methods, use the `@auto_dispatch` flag.
+
+Public methods will accept both AJAX and Websocket events. Protected methods will only be used for websocket JSON events.
+
+Non JSON messages sent by the client will cause automatic disconnection.
+
+Unknown events will be either answered with an `err` event or sent to the `unknown_event` callback, if defined.
+
+Here's a quick JSON echo server:
+
+    class MyEcho
+      # enable auto_dispatch
+      @auto_dispatch = true
+      # define the unknown event callback
+      def unknown_event event = nil
+        unless event
+          # this is an AJAX request
+          event = {event: "err", status: 404, request: params.dup}
+          event[:request][:event] = event[:request].delete :id
+        end
+        event.to_json
+      end
+    end
+    route '/', MyEcho
+
+Notice how a default value of `nil` allowed us to use the method also for AJAX requests (where the `:id` parameter replaces the `:event` parameter in JSON).
+
+Also notice that the method returned a String and that String was automatically send to the websocket. This is very different than Raw websocket communication and it will only occure when using the auto-dispatch (i.e., it will not occure for broadcasting).
+
+The reson for the different design was to allow, specifically, auto-dispatched events to behave the same as AJAX events, so thet the API could easily be unified, allowing also to easily use template rendering for the response.
+
+#### An Advanced Auto-Dispatch Example
+
+Here is a more complex example that you can't run in the terminal (it references a model code which you might not have handy), but it explores a few powerful concepts such as AJAX and Websocket API unity as well as websocket broadcasting using a recursive method call:
+
+    class MyAPI
+      # enable auto_dispatch
+      @auto_dispatch = true
+      # define the publish event
+      def publish event = nil, is_broadcast = false
+        if is_broadcast
+          # notice that we have to
+          # explicitly send data when
+          # using broadcasting
+          return write(event.to_json)
+        end
+        unless event
+          # this is an AJAX request
+          auth()
+          return false unless @user
+          event = {event: 'publish',
+            content: params[:content],
+            title: params[:title]}
+        end
+        event[:author] = @user.id
+        # now do the actual publishing
+        # ...
+        # next, broadcast the news to all
+        # the websocket clients
+        broadcast :publish, event, true
+        event.to_json
+      end
+      def echo event = nil
+        (event || params).to_json
+        # # Or, even more interesting:
+        # event ||= params
+        # render :echo, format: 'json'
+      end
+      protected
+      def auth event = nil
+        is_ajax = event && true
+        event = params unless event
+        @user = User.where token: event[:token]
+        close unless @user || is_ajax
+      end
+
+      def chat event, is_broadcast = true
+        return write(event.to_json) if is_broadcast
+        return ({event: :err,
+          msg: 'authenticate first using the "auth" event',
+          status: 400}.to_json) unless @user
+        event[:from] = @user.name
+        event[:from_id] = @user.id
+        broadcast :chat, event, true
+        render :chatmessage, format: 'ajax'
+      end
+    end
+    route '/(:id){publish}/(:title)', MyAPI
+    route '/(:id){echo}/(:message)/(:data)', MyAPI
+
+Here are a few things to notice about the example above:
+
+* Using recursion in the example above allows us to avoid exposing a method to the auto-dispatcher, keeping all the logic of the event in the same event-mathod.
+
+* Using the `protected` keyword, we disable AJAX access to the `chat` and `auth` events.
+
+* We also limit access to AJAX methods by using the routing system.
+
+* We have two routes for the same controller, allowing us to set different inline AJAX parameters (although the `:publish` event is probably expecting POST data rather than GET data).
+
+* We can use `render`, exactly the same for both AJAX and Websocket messages. 
+
+We can use the PleziClient to communicate with our server. i.e.:
+
+    var connection = new PleziClient();
+    connection.onopen = function(e) {
+      connection.emit(event: 'auth', token: "my_token");
+      connection.emit(event: 'chat', message: "Hi everyone!");
+      connection.emit(event: 'echo', data: "echo echo echo...");
+      connection.emit(event: 'publish', title: 'Hmmm', content: "blah blah...");
+    }
+    connection.onchat = function(e) {
+      alert("Chat from: " e.from + "\n" + e.message)
+    }
+    connection.onecho = function(e) {
+      console.log(e);
+    }
+    connection.onpublish = function(e) {
+      console.log(e);
+    }
+
+Notice that the client follows the Javascript convention and prefixes the callback with the `'on'` indicator. 
 
 ## Communicating between different Websocket clients
 

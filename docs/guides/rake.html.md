@@ -25,3 +25,18 @@ For instance, [Capistrano](http://capistranorb.com) extends the Rake DSL to help
 This means that we should add the `require 'plezi/rake'` also within Capistrano's files (i.e. in the `config/deploy.rb` file).
 
 Alternatively, we can use `Iodine.protocol = false` directly for any specific tasks.
+
+## With Rails
+
+Rails uses it's own script for opening a console and running certain tasks.
+
+As JokerCatz (GitHub) suggested in a discussion related to Plezi, the following code can help Rails behave nicely when using Rake or the console. Add the following code to the `config/application.rb` file:
+
+```ruby
+if Rails.const_defined?('API') || Rails.const_defined?('Console')
+    Iodine.protocol = nil
+elsif Rails.const_defined?('Server')
+    # # require the plezi application... if not already included.
+    # require_relative  '../app/path/to/plezi/app.rb'
+end
+```

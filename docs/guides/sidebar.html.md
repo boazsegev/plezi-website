@@ -12,5 +12,6 @@
 * [Logging helpers](/docs/logging)
 * 
 * [Plezi with Rails/Sinatra/Rack](/docs/with_rack_app)
+* [Plezi with Rake](/docs/rake)
 * 
 * [YARD Documentation](http://www.rubydoc.info/gems/plezi)

@@ -437,7 +437,7 @@ This also shows you how many options we really face.
 
 For instance, we can move the conncetion listings to a side elemnt. We can also tell Plezi to react to a 'join' message by telling the original connection who's already here. Than, we can use that data (remember the uuid?) to send private messages to one user and not the others... We can even start using Plezi's Identity API to send messages to users who went off-line these messages will wait for a while, so if the user reconnects, they'll see what private messages they missed.
 
-## Leveraging Plezi's Auto-Dispatch
+## Leveraging Plezi&#39;s Auto-Dispatch
 
 The JSON `on_message` and `onmessage` callbacks we used are essencially a dispatch system that routes websocket `events` to methods in our Controller or Javascript client.
 

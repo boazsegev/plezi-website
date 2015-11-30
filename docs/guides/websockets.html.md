@@ -135,6 +135,8 @@ Plezi supports three models of communication:
 
       This uses a unique UUID that contains both the target server's information and the unique connection identifier. This allows a message to be sent to any connected websocket across multiple application instances when using Redis, minimizing network activity and server load as much as effectively possible.
 
+      When using `unicast`, it's also possible to define a `failed_unicast` Class callback that is unique to the Class of the object **sending** the unicast and accepts the following arguments `failed_unicast(target_id, event_name, args)` where `target_id` is the target's uuid, `event_name` is the websocket event name and `args` is a Array of the arguments send.
+
       Again, exacly like when using multicasting, any connection targeted by the message is expected to implemnt a method matching the name of the event, which will accept (as arguments) the data sent.
 
 For instance, when using:
@@ -148,6 +150,16 @@ The receiving websocket controller is expected to have a protected method named 
         protected
         def event_name str, options_hash
             #...
+        end
+    end
+
+And the Sending controller can, optionally, have a class callback like so:
+
+    class MyController
+        #...
+        def self.failed_unicast target, method, args
+            #...
+            # args == ["string", {:and => :hash}]
         end
     end
 

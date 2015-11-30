@@ -197,6 +197,7 @@ Here's a quick JSON echo server:
       # enable auto_dispatch
       @auto_dispatch = true
       # define the unknown event callback
+      # this will be used to echo everything JSON
       def unknown_event event = nil
         unless event
           # this is an AJAX request
@@ -210,13 +211,31 @@ Here's a quick JSON echo server:
 
 Notice how a default value of `nil` allowed us to use the method also for AJAX requests (where the `:id` parameter replaces the `:event` parameter in JSON).
 
+The resone for the default value is that AJAX requests will call the method without providing ANY arguments (just like all Http requests, there are no arguments, only the `params` Hash). On the other hand, the auto-dispatcher will call the method while passing the event Hash data as a single argument.
+
 Also notice that the method returned a String and that String was automatically send to the websocket. This is very different than Raw websocket communication and it will only occure when using the auto-dispatch (i.e., it will not occure for broadcasting).
 
 The reson for the different design was to allow, specifically, auto-dispatched events to behave the same as AJAX events, so thet the API could easily be unified, allowing also to easily use template rendering for the response.
 
 #### An Advanced Auto-Dispatch Example
 
-Here is a more complex example that you can't run in the terminal (it references a model code which you might not have handy), but it explores a few powerful concepts such as AJAX and Websocket API unity as well as websocket broadcasting using a recursive method call:
+Here is a more complex example that you can't run in the terminal (it references a model code which you might not have handy), but it explores a few powerful concepts such as AJAX and Websocket API unity as well as websocket broadcasting using a recursive method call.
+
+Here are a few things to notice about the example we're about to explore:
+
+* Using recursion in the example above allows us to avoid exposing a method to the auto-dispatcher, keeping all the logic of the event in the same event-mathod.
+
+     We are leveraging the fact that AJAX requests will call the method without providing ANY arguments and the auto-dispatcher will call the method while passing the event Hash data as a single argument. This means that only the broadcasting API allows us to set the second argument.
+
+* Using the `protected` keyword, we disable AJAX access to the `chat` and `auth` events.
+
+* We also limit access to AJAX methods by using the routing system.
+
+* We have two routes for the same controller, allowing us to set different inline AJAX parameters (although the `:publish` event is probably expecting POST data rather than GET data).
+
+* We can use `render`, exactly the same for both AJAX and Websocket messages. 
+
+The example controller code:
 
     class MyAPI
       # enable auto_dispatch
@@ -273,19 +292,19 @@ Here is a more complex example that you can't run in the terminal (it references
     route '/(:id){publish}/(:title)', MyAPI
     route '/(:id){echo}/(:message)/(:data)', MyAPI
 
-Here are a few things to notice about the example above:
+We can use the PleziClient to communicate with our server.
 
-* Using recursion in the example above allows us to avoid exposing a method to the auto-dispatcher, keeping all the logic of the event in the same event-mathod.
+As we read through the client, notice:
 
-* Using the `protected` keyword, we disable AJAX access to the `chat` and `auth` events.
+* We only `emit` events AFTER the connection was established (otherwise the `emit` will fail and return a `false` value).
 
-* We also limit access to AJAX methods by using the routing system.
+* We use the `on&lt;event name&gt;` callback for the javascript auto-dispatcher. This uses Javascript conventions while the Ruby controller code is geared towards performance and Ruby conventions.
 
-* We have two routes for the same controller, allowing us to set different inline AJAX parameters (although the `:publish` event is probably expecting POST data rather than GET data).
+* We use the `unknown` callback (without the `on` perfix) to handle unknown JSON messages.
 
-* We can use `render`, exactly the same for both AJAX and Websocket messages. 
+     The `on` is missing to allow both for writing an `unknown` event (which will invoke the `onunknown` javascript callback) and since the JSON message isn't an event - it's an unrecognized JSON message.
 
-We can use the PleziClient to communicate with our server. i.e.:
+The example client code:
 
     var connection = new PleziClient();
     connection.onopen = function(e) {
@@ -303,8 +322,9 @@ We can use the PleziClient to communicate with our server. i.e.:
     connection.onpublish = function(e) {
       console.log(e);
     }
-
-Notice that the client follows the Javascript convention and prefixes the callback with the `'on'` indicator. 
+    connection.unknown = function(e) {
+      console.log(e);
+    }
 
 ## Communicating between different Websocket clients
 

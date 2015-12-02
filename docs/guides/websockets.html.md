@@ -218,15 +218,15 @@ When unknown JSON messages arrive, it's possible to handle them using the `unkno
 
 #### `client.emit(event, callback, timeout)`
 
-To emit (send) an event in JSON format, use the `emit` method:
+To emit an event in JSON format (send the JSON event to the Controller), use the `emit` method:
 
       client.emit({event: "chat", data: "the message"})
 
-The emitted event will invoke the Controller method on the Plezi server. When using an Auto-Dispatch Controller the event will invoke a method with the same name. When using a raw websocket controller, the event will be forwarded as a JSON String to the Controller's `on_message` callback.
+The emitted event will invoke the Controller's method on the server. When using an Auto-Dispatch Controller the event will invoke a method with the same name. When using a raw websocket controller, the event will be forwarded as a JSON String to the Controller's `on_message` callback.
 
 It's possible to set a timeout and a local callback for the emitted event. The callback will only be called if the timeout was reached - no `_ack_` was received before the timeout (in miliseconds) specified.
 
-Notice that this uses Plezi's Auto-Dispatch's protocol with regards to the event ID (the `_EID_` property will be overwritten) and the`_ack_` event to set a timeout once the event is sent (and cancel it when the `_ack_` is received):
+Notice that this uses Plezi's Auto-Dispatch's protocol with regards to the event ID (the `_EID_` property will be overwritten) and the`_ack_` event to set a timeout once the event is sent (and cancel it when the `_ack_` is received).
 
       client.emit({event: "ping"},
         function(event, client){

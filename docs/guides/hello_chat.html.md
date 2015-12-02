@@ -439,15 +439,39 @@ For instance, we can move the conncetion listings to a side elemnt. We can also 
 
 ## Leveraging Plezi&#39;s Auto-Dispatch
 
-The JSON `on_message` and `onmessage` callbacks we used are essencially a dispatch system that routes websocket `events` to methods in our Controller or Javascript client.
+The JSON `on_message` and `onmessage` callbacks we used are essentially a dispatch system that routes websocket `events` to methods in our Controller or Javascript client.
 
 This use-case is so common, that Plezi includes an easy to use Auto Dispatch feature both for our Controller and our Client.
+
+The auto-dispatch defines the following JSON "sub-protocol":
+
+* All websockets much contain "stringified" JSON dictionary (Hash) objects. Plezi will close the connection if it receives a non JSON message on a path that uses this auto-dispatch.
+
+* The JSON object's property `'event'`, is routed to the method with the same name on the server (both on the Ruby server and the Javascript client).
+
+    i.e. an event named `'auth'` will invoke the method `auth` and pass the method `auth` a single parameter containing the JSON data.
+
+    Ruby:
+
+        def auth msg
+            msg['event'] == 'auth'
+        end
+
+    Javascript:
+
+        client.auth = function(msg) {
+            msg.event == 'auth'
+        }
+
+* JSON valid messages that do not contain an `'event'` property or that map to a non-existing method are routed to a callback named `unknown` (if it exists). By default (unless a the `unknown` callback exists), unknown events will be ignored by the client while the server will respond with a generic error message.
+
+* JSON valid messages that contain the `_EID_` property (event ID), will be invoke an `_ack_` event upon receipt. The `_ack_` event's JSON data will contain only the `_EID_` sent. This is also used internally by Plezi's client API.
 
 Let's re-write our application to leverage this wonderful feature.
 
 ### The Auto-Dispatch Controller
 
-This is about to be a pretty minor rewite, we're mostly getting rid of code that is used to route the websocket `chat` event to the `handle_chat` method (which we will neet to rename).
+This is about to be a pretty minor rewite, we're mostly getting rid of code that is used to route the websocket `chat` event to the `handle_chat` method (which we will simply rename).
 
 Let's start with a clean and empty controller. We'll just do one thing for now - we'll set the `@auto_dispatch` class flag to `true`, so that the controller uses the Auto Dispatcher.
 
@@ -519,11 +543,11 @@ Notice how we don't need an `on_message` callback or any complicated dispatching
 
 But... what happens when we get a message with a request we don't implement. Well, Plezi will automatically send an error response for unknown JSON requests and it will hang up the connection if the websocket message isn't valid JSON.
 
-We can customize the error response by writing a callback called `unknown_event`. This will allow us to handle unknown JSON messages (Plezi will always disconnect when a non-JSON message is received). i.e.
+We can customize the error response by writing a callback called `unknown`. This will allow us to handle unknown JSON messages (Plezi will always disconnect when a non-JSON message is received). i.e.
 
     class ChatServer
         protected
-        def unknown_event msg
+        def unknown msg
             # by returning a string, it's automatically sent as a websocket message,
             # auto-dispatch methods behave the same as AJAX/Http methods, so it's easy to unify
             # our code for both Websockets and AJAX.
@@ -531,7 +555,7 @@ We can customize the error response by writing a callback called `unknown_event`
         end
     end
 
-Notice that unlike normal (raw) websocket methods (`on_open`, `on_close`, `on_message`), the auto-dispatch methods allow us to return a string that will be written to the websocket automatically. This makes auto-dispatch methods act the same as Http methods, allowing us to write and API that is valid for both AJAX and Websockets with a single method.
+Notice that unlike normal (raw) websocket methods (`on_open`, `on_close`, `on_message`), the auto-dispatch methods allow us to return a String (or a Hash) that will be written to the websocket automatically. This makes auto-dispatch methods act the same as Http methods, allowing us to write an API that is valid for both AJAX and Websockets with a single method.
 
 Here is the whole of our controller code:
 
@@ -578,7 +602,7 @@ Here is the whole of our controller code:
                 event: 'chat',
                 data: ::ERB::Util.html_escape(msg['data'])
         end
-        def unknown_event msg
+        def unknown msg
             # by returning a string, it's automatically sent as a websocket message,
             # auto-dispatch methods behave the same as AJAX/Http methods, so it's easy to unify
             # our code for both Websockets and AJAX.
@@ -588,19 +612,27 @@ Here is the whole of our controller code:
 
 Next, we'll use a similar approach on our client-side Javascript.
 
+### Serving the Auto-Dispatch Client
+
+Plezi's Auto-Dispatch has a websocket javascript client that gets updated along with Plezi.
+
+The client is also part of the application template and can be served as a static file / asset... but, this means that the client isn't updated when Plezi is updated.
+
+To server the updated Plezi Auto-Dispatch javascript client we'll create a `:client` route, using the path of our choice. Add the following route at the end of the routes in our hello_chat application script:
+
+    Plezi.route '/websocket/javascript/client.js', :client
+
+Remember to restart the application whenever editing anything that isn't an asset of a template, such as the Ruby code (Controllers, Models, Routes, etc').
+
 ### The Auto-Dispatch PleziClient
 
 Plezi provids a basic Websocket client that allows us to leverage the auto-dispatch "feel" and style also for our client side code.
 
-The client is available when using the application template, using the path `/assets/plezi_client.js` (for the mini application starter) or `/assets/javascript/plezi_client.js` (for the larger, default application starter).
+To include the PleziClient from the route we just wrote, we will need to add the following line to out `head`
 
-Since we started with a `mini` template, we need to update our client Html to include this file and we need to update our javascript to utilize the new PleziClient dispatcher.
+    <script src="/websocket/javascript/client.js"></script>
 
-To include the PleziClient, we will need to add the following line to out `head`
-
-    <script src="/assets/plezi_client.js"></script>
-
-Next, we will want to create a client and define the handlers for the different client side events. Since Javascript has different conventions (as well as for improving server-side performance), the javascript event callbacks start with `on` and than the event name. i.e., our client will look something like this:
+Next, we will want to create a client and define the handlers for the different client side events. For this we simply add callbacks to each of the event-names (the websocket events will start with the `on`). i.e., our client code will look something like this:
 
     client = new PleziClient(PleziClient.origin + "/" + $('#text')[0].value);
     client.onopen = function(e) {
@@ -611,10 +643,10 @@ Next, we will want to create a client and define the handlers for the different 
         $('#text')[0].placeholder = 'nickname';
         $('#text')[0].value = handle
     }
-    client.onchat = function(msg) {
+    client.chat = function(msg) {
         output(msg.from + ": " + msg.data);
     }
-    client.onjoined = function(msg) {
+    client.joined = function(msg) {
         output(msg.from + " joined the chat :-)");
     }
     // ...
@@ -652,16 +684,16 @@ This will be the whole of our updated client:
                         $('#text')[0].placeholder = 'nickname';
                         $('#text')[0].value = handle
                     }
-                    client.onchat = function(msg) {
+                    client.chat = function(msg) {
                         output(msg.from + ": " + msg.data);
                     }
-                    client.onjoined = function(msg) {
+                    client.joined = function(msg) {
                         output(msg.from + " joined the chat :-)");
                     }
-                    client.onleft = function(msg) {
+                    client.left = function(msg) {
                         output(msg.from + " left the chat :-/");
                     }
-                    client.onwelcome = function(msg) {
+                    client.welcome = function(msg) {
                         output("Welcome, " + msg.from + " :-)");
                     }
                     client.unknown = function(msg) {

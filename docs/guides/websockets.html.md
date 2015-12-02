@@ -119,17 +119,72 @@ Remember to set the javascript connection(s) path to the path of your websocket 
 
 ### Websocket JSON Auto-Dispatch
 
-It is very common for websocket applications to use json messages to "emit" "events" and map these events to class methods or javascript callbacks.
+It is very common for websocket applications to use json messages to "emit" JSON "events" and map these events to class methods or javascript callbacks.
 
-This practice is also used to unify AJAX and Websocket APIs, when using the method's default argument value to indicated if the request was AJAX or Websocket in it's source.
+This use-case is so common, that Plezi includes an easy to use Auto Dispatch feature both the Controller and a Javascript client (PleziClient).
 
-Because this is so common, Plezi offers both a Client and a Controller automation flag that will automate the process, so that we doing have to write an `on_message` callback to route our events.
+The auto-dispatch defines and uses the following JSON "sub-protocol":
+
+* All websockets much contain a "stringified" JSON dictionary (Hash) object as the root object. Plezi will close the connection if it receives a non JSON message on a path that uses this auto-dispatch.
+
+* The JSON object's property `'event'`, is routed to a method with the same name on the server (both on the Ruby server and the Javascript client).
+
+    i.e. an event named `'auth'` will invoke the method `auth` and pass the method `auth` a single parameter containing the JSON data.
+
+    Ruby:
+
+        def auth msg
+            msg['event'] == 'auth'
+        end
+        # to use for both Websockets AND AJAX, make sure
+        # the method is public and add a default value. i.e.
+        def auth msg = nil
+            if msg
+              # is Websockets
+              msg['event'] == 'auth'
+            else
+              # is JSON
+            end
+            # this will write a JSON response for both
+            # AJAX and Websockets
+            {event: :connnection, token: "token"}.to_json
+        end
+
+    Javascript:
+
+        client.auth = function(msg) {
+            msg.event == 'auth'
+        }
+
+* JSON valid messages that do not contain an `'event'` property or that map to a non-existing method are routed to a callback named `unknown` (if it exists). By default (unless a the `unknown` callback exists), unknown events will be ignored by the client while the server will respond with a generic error message.
+
+* JSON valid messages that contain the `_EID_` property (event ID), will be invoke an `_ack_` event upon receipt. The `_ack_` event's JSON data will contain only the `_EID_` sent. This is also used internally by Plezi's client API.
+
+This sub-protocol allows to easily unify AJAX and Websocket APIs, when using the method's default argument value to indicated the request's source.
+
+When using the Auto-Dispatch, there is no need to write an on_message callback.
+
+### Serving the Auto-Dispatch client
+
+Plezi's Auto-Dispatch has a websocket javascript client that gets updated along with Plezi.
+
+The use of the javascript client is **optional**, but it does make writing the client side code somewhat easier when writing for a browser.
+
+The client is part of the application template and can be served as a static file / asset... but, this means that the client isn't updated when Plezi is updated.
+
+To server the updated Plezi Auto-Dispatch javascript client (the client version matching the active Plezi version), it's possible to create a `:client` route, using any available path:
+
+    Plezi.route '/client.js', :client
+    # or any other path
+    Plezi.route 'a/very/unique/path/to/the/pl_client.js', :client
+
+The client is also available when using the application template. The client's path is `/assets/plezi_client.js` for the mini application template and `/assets/javascript/plezi_client.js` for the larger, default application template.
 
 #### Leveraging the Plezi Client
 
 Plezi provids a basic Websocket client that allows us to leverage the auto-dispatch "feel" and style also for our client side code.
 
-The client is available when using the application template, using the path `/assets/plezi_client.js` (for the mini application starter) or `/assets/javascript/plezi_client.js` (for the larger, default application starter).
+#### Creating the client
 
 To open a websocket connection to the current location (i.e, "https://example.com/path" => "wss://example.com/path"), use:
 
@@ -149,37 +204,91 @@ To open a connection to a different URL or path, use:
 
       var client = new PleziClient("ws://full.url.com/path");
 
-To automatically renew the connection when disconnections are reported by the browser, use:
+#### Event callbacks
 
-      client.reconnect = true;
-      client.reconnect_interval = 250; // sets how long to wait before reconnection attempts.
+To set up event handling, directly set an `<event name>` callback. i.e., for an event called `chat`:
 
-The automatic renew flag can be used when creating the client, using:
+      client.chat = function(event) { "..." }
 
-      var client = new PleziClient(PleziClient.origin + "/path", true);
-      client.reconnect_interval = 250; // Or use the default 50 ms.
-
-The default `reconnect_interval` value is 50 ms.
-
-To set up event handling, directly set an `on<event name>` callback. i.e., for an event called `chat`:
-
-      client.onchat = function(event) { "..." };
+#### `client.unknown(event)`
 
 When unknown JSON messages arrive, it's possible to handle them using the `unknown` callback which will be called whenever there is no method that handles the event or an event is not specified in the JSON message. i.e.:
 
-      client.unknown = function(event) { "..." };
+      client.unknown = function(event) { "..." }
 
-To send / emit an event in JSON format, use the `emit` method:
+#### `client.emit(event, callback, timeout)`
 
-      client.emit({event: "chat", data: "the message"});
+To emit (send) an event in JSON format, use the `emit` method:
 
-To sent raw websocket data, use the `send` method. This will cause disconnetions if Plezi's controller uses `@auto_dispatch` and the message isn't a valid JSON string. i.e. sending a raw string:
+      client.emit({event: "chat", data: "the message"})
 
-      client.send("string");
+The emitted event will invoke the Controller method on the Plezi server. When using an Auto-Dispatch Controller the event will invoke a method with the same name. When using a raw websocket controller, the event will be forwarded as a JSON String to the Controller's `on_message` callback.
+
+It's possible to set a timeout and a local callback for the emitted event. The callback will only be called if the timeout was reached - no `_ack_` was received before the timeout (in miliseconds) specified.
+
+Notice that this uses Plezi's Auto-Dispatch's protocol with regards to the event ID (the `_EID_` property will be overwritten) and the`_ack_` event to set a timeout once the event is sent (and cancel it when the `_ack_` is received):
+
+      client.emit({event: "ping"},
+        function(event, client){
+          // notice that the client is accessible using the second argument
+          console.log("The "+ event.event +" event timed out", event, client)
+        },
+        3000);
+
+#### `client.emit_timeout=` &amp; `client.ontimeout(event)`
+
+It's also possible to set a default timeout that will be used whenever a specific timeout wasn't specified
+
+      client.emit_timeout = 3000;
+      client.emit({event: "ping"},
+        function(event, client){
+          // notice that the client is accessible using the second argument
+          console.log("The "+ event.event +" event timed out", event, client)
+        });
+
+
+It's also possible to set the client's `ontimeout` callback when using a single timout logic for some (or all) of the events.
+
+      client.emit_timeout = 3000;
+      client.ontimeout = function(event){
+          // notice that `this` refers to the client
+          console.log("The "+ event.event +" event timed out", event, this)
+        };
+      client.emit({event: "ping"});
+
+#### Auto-reconnection
+
+To automatically renew the connection when disconnections are reported by the browser, use:
+
+      client.autoreconnect = true;
+      client.reconnect_interval = 200; // sets how long to wait before reconnection attempts.
+
+The automatic reconnection flag can be used when creating the client, using:
+
+      var client = new PleziClient(PleziClient.origin + "/path", true);
+      client.reconnect_interval = 100; // Or use the default 200 ms.
+
+The default `reconnect_interval` value is 200 ms.
+
+#### `client.reconnect()`
+
+It's possible to manually reestablish a lost connection using:
+
+      client.reconnect()
+
+This will NOT close the existing connection (if still open), so that pending responses would be received... however, this could cause multiple open connections unless used with care.
+
+#### `client.sendraw(data)`
+
+To sent raw websocket data, use the `sendraw` method. This will cause disconnetions if Plezi's controller uses `@auto_dispatch` and the message isn't a valid JSON string. i.e. sending a raw string:
+
+      client.sendraw("string")
+
+#### `client.close()`
 
 Manually closing the connection will prevent automatic reconnections:
 
-      client.close();
+      client.close()
 
 #### Writing an Auto-Dispatch Controller
 
@@ -189,7 +298,7 @@ Public methods will accept both AJAX and Websocket events. Protected methods wil
 
 Non JSON messages sent by the client will cause automatic disconnection.
 
-Unknown events will be either answered with an `err` event or sent to the `unknown_event` callback, if defined.
+Unknown events will be either answered with an `err` event or sent to the `unknown` callback, if defined.
 
 Here's a quick JSON echo server:
 
@@ -198,7 +307,7 @@ Here's a quick JSON echo server:
       @auto_dispatch = true
       # define the unknown event callback
       # this will be used to echo everything JSON
-      def unknown_event event = nil
+      def unknown event = nil
         unless event
           # this is an AJAX request
           event = {event: "err", status: 404, request: params.dup}
@@ -298,11 +407,9 @@ As we read through the client, notice:
 
 * We only `emit` events AFTER the connection was established (otherwise the `emit` will fail and return a `false` value).
 
-* We use the `on&lt;event name&gt;` callback for the javascript auto-dispatcher. This uses Javascript conventions while the Ruby controller code is geared towards performance and Ruby conventions.
+* We use the `&lt;event name&gt;` callback for the javascript auto-dispatcher. This allows us to use the same code conventions for both our server and our client.
 
 * We use the `unknown` callback (without the `on` perfix) to handle unknown JSON messages.
-
-     The `on` is missing to allow both for writing an `unknown` event (which will invoke the `onunknown` javascript callback) and since the JSON message isn't an event - it's an unrecognized JSON message.
 
 The example client code:
 
@@ -313,13 +420,13 @@ The example client code:
       connection.emit(event: 'echo', data: "echo echo echo...");
       connection.emit(event: 'publish', title: 'Hmmm', content: "blah blah...");
     }
-    connection.onchat = function(e) {
+    connection.chat = function(e) {
       alert("Chat from: " e.from + "\n" + e.message)
     }
-    connection.onecho = function(e) {
+    connection.echo = function(e) {
       console.log(e);
     }
-    connection.onpublish = function(e) {
+    connection.publish = function(e) {
       console.log(e);
     }
     connection.unknown = function(e) {

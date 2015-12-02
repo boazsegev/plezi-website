@@ -192,6 +192,21 @@ Here's a more powerful example of a route with a block of code, this time using 
 
     exit
 
+
+### The Plezi Client Route
+
+Plezi's Auto-Dispatch has a websocket javascript client that gets updated along with Plezi.
+
+The client is also part of the application template and can be served as a static file / asset... but, this means that the client isn't updated when Plezi is updated.
+
+To server the updated Plezi Auto-Dispatch javascript client (the client version matching the active Plezi version), Plezi allows the creation of a `:client` route, using the path of our choice:
+
+    Plezi.route '/client.js', :client
+    # or any other path
+    Plezi.route 'a/very/unique/path/to/the/pl_client.js', :client
+
+More information about the Auto-Dispatch controller and client can be found in the [websockets guides](./websockets)
+
 ## The next step
 
 Now that we have learned more about the power of Plezi's routing system, it's time to [learn more about what Controller classes can do for us](./controllers).

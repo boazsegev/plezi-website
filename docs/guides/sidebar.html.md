@@ -8,6 +8,7 @@
 * [Routing with Plezi](/docs/routes)
 * [Using controllers](/docs/controllers)
 * [Websockets](/docs/websockets)
+* [JSON Websockets](/docs/json-autodispatch)
 * [ASync helpers](/docs/async_helpers)
 * [Logging helpers](/docs/logging)
 * 

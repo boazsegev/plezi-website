@@ -443,31 +443,11 @@ The JSON `on_message` and `onmessage` callbacks we used are essentially a dispat
 
 This use-case is so common, that Plezi includes an easy to use Auto Dispatch feature both for our Controller and our Client.
 
-The auto-dispatch defines the following JSON "sub-protocol":
-
-* All websockets much contain "stringified" JSON dictionary (Hash) objects. Plezi will close the connection if it receives a non JSON message on a path that uses this auto-dispatch.
-
-* The JSON object's property `'event'`, is routed to the method with the same name on the server (both on the Ruby server and the Javascript client).
-
-    i.e. an event named `'auth'` will invoke the method `auth` and pass the method `auth` a single parameter containing the JSON data.
-
-    Ruby:
-
-        def auth msg
-            msg['event'] == 'auth'
-        end
-
-    Javascript:
-
-        client.auth = function(msg) {
-            msg.event == 'auth'
-        }
-
-* JSON valid messages that do not contain an `'event'` property or that map to a non-existing method are routed to a callback named `unknown` (if it exists). By default (unless a the `unknown` callback exists), unknown events will be ignored by the client while the server will respond with a generic error message.
-
-* JSON valid messages that contain the `_EID_` property (event ID), will be invoke an `_ack_` event upon receipt. The `_ack_` event's JSON data will contain only the `_EID_` sent. This is also used internally by Plezi's client API.
+This allows us to replace out general purpuse `on_message` callback with event related methods which will be automatically invoked whenever the client "emits" an event. (we have a single `chat` event, but it's a start).
 
 Let's re-write our application to leverage this wonderful feature.
+
+You can read more about about it in the [JSON websocket event Auto-Dispatch guide](json-autodispatch).
 
 ### The Auto-Dispatch Controller
 

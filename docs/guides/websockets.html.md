@@ -367,13 +367,19 @@ This is done by setting the `Plezi::Settings.redis_channel_name` to a unique (sh
 
 By default, the `redis_channel_name` is automatically set using the name of the application script. i.e., for an application script called `chat` (or `chat.rb`), the default channel will be: `"chat_redis_channel"`.
 
-### The Redis Scaling Protocol
+### How websocket scaling is achieved
 
-To enable vertical scaling using Redis, each application instance (each server) connects to two pub/sub Redis channels.
+The following information explains some of Plezi's internal workings.
 
-Plezi listens to global events using the global channel and each server also listens to `unicasting` events sent specifically to it's private channel.
+The following protocol is used by Plezi to send messages through a Redis Pub/Sub server, allowing Plezi websocket services to scale vertically (adding servers).
 
-The following information can be used when sending messages to a Plezi application from a non-Ruby application (i.e. from Python, PHP, node.js, C, etc').
+The message format is published here to be used when sending messages to a Plezi application from a non-Ruby application (i.e. from Python, PHP, node.js, C, etc').
+
+When Redis is enabled (the gem included and the `PL_REDIS_URL` set), each application instance (each server) connects to two pub/sub Redis channels - a global channel and a private channel.
+
+Plezi listens to global events using the global channel set by the `Plezi::Settings.redis_channel_name`.
+
+Each application instance also listens to `unicasting` events sent specifically to it's private channel. The unique private channel name is dynamically allocated on start-up and cannot be pre-determined.
 
 Messages are published using the following protocol/data stracture:
 

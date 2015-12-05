@@ -244,6 +244,11 @@ The example controller code:
     class MyAPI
       # enable auto_dispatch
       @auto_dispatch = true
+      # define an Http only method
+      # (no arguments, auto-dispatch will fail to call this method)
+      def http
+        {event: 'http', data: "this is available only for Http"}.to_json
+      end
       # define the publish event
       def publish event = nil, is_broadcast = false
         if is_broadcast

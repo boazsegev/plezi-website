@@ -20,7 +20,7 @@ The auto-dispatch defines and uses the following JSON "sub-protocol":
 
     Ruby:
 
-        @autodispatch = true
+        @auto_dispatch = true
         def auth msg
             msg['event'] == 'auth'
         end
@@ -52,10 +52,10 @@ The auto-dispatch defines and uses the following JSON "sub-protocol":
 
 This sub-protocol allows to easily unify AJAJ (AJAX with JSON) and Websocket APIs, when using the method's default argument value to indicated the request's source.
 
-When using the Auto-Dispatch, there is no need to write an `on_message` callback. But the controller must set the class variable `@autodispatch` to `true`. i.e.
+When using the Auto-Dispatch, there is no need to write an `on_message` callback. But the controller must set the class variable `@auto_dispatch` to `true`. i.e.
 
     class Demo
-        @autodispatch = true
+        @auto_dispatch = true
         #...
     end
 

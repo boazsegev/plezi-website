@@ -202,10 +202,10 @@ This use-case is so common, that Plezi includes an easy to use Auto-Dispatch fea
 
 To learn more about the JSON websocket Auto-Dispatch read the [JSON Websocket Auto-Dispatch guide](json-autodispatch)
 
-When using the Auto-Dispatch, there is no need to write an `on_message` callback. But the controller must set the class variable `@autodispatch` to `true`. i.e.:
+When using the Auto-Dispatch, there is no need to write an `on_message` callback. But the controller must set the class variable `@auto_dispatch` to `true`. i.e.:
 
     class JSONDemo
-        @autodispatch = true
+        @auto_dispatch = true
         # then define events
         protected
         def event1 data

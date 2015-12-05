@@ -345,3 +345,52 @@ It's also possible to `register_as` the same identity for more than one connecti
       register_as user.id, max_connections: 5
     end
 
+## Scaling Websocket Services
+
+Plezi supports easy websocket services scaling with Redis.
+
+This allows applications to run multiple servers, where all the websocket and session data is synchronized using a shared Redis server.
+
+To use Redis for scaling, simply tell Plezi the URL for the Redis server, by using the environment variable `PL_REDIS_URL`. i.e.:
+
+    ENV['PL_REDIS_URL'] ||=  "redis://user:password@redis.example.com:9999"
+
+It's also possible to manage load balancing and seperation of interests by writing a number of different applications that all sync together using Redis, each application in charge of a different aspect of the whole design.
+
+This approach is used by the Placebo API to seperate the websocket backend (using Plezi websockets) from an existing Rails/Sinatra application (allowing different servers to be used by each application).
+
+To use Redis scaling across multiple **different applications** (i.e, when using the Placebo API), the shared Plezi channel should be set across all the applications.
+
+This is done by setting the `Plezi::Settings.redis_channel_name` to a unique (shared) name. i.e.:
+
+    Plezi::Settings.redis_channel_name = 'chat_ffeda1b2c3d4'
+
+By default, the `redis_channel_name` is automatically set using the name of the application script. i.e., for an application script called `chat` (or `chat.rb`), the default channel will be: `"chat_redis_channel"`.
+
+### The Redis Scaling Protocol
+
+To enable vertical scaling using Redis, each application instance (each server) connects to two pub/sub Redis channels.
+
+Plezi listens to global events using the global channel and each server also listens to `unicasting` events sent specifically to it's private channel.
+
+The following information can be used when sending messages to a Plezi application from a non-Ruby application (i.e. from Python, PHP, node.js, C, etc').
+
+Messages are published using the following protocol/data stracture:
+
+* Messages are safe [YAML](http://yaml.org) formatted objects (only core Ruby objects can be passed through, such as String, Fixnum, Symbol, Date, Time, Range, `true`, `false`, `nil` and Arrays/Hashes/Sets containing these core objects).
+
+* Messages contain a root object that is a Hash/Dictionary.
+
+* The root's optional `:type` field will contain a String with the class of the receiving Controller OR the Symbol `:all` (when multicasting).
+
+* The root's optional `:target` field will contain a String with the connection's **local** id (this is the second part of the connection's `uuid`).
+
+    This field will designate a message used for unicating and it should be sent to the server's private channel (or else, risk target name conflicts).
+
+    The `:target` **local** id is the part of a connection's `uuid` that appears after the `Plezi::Settings.uuid`. Depending on the Ruby implementation, usually `Plezi::Settings.uuid.length == 36`. This should mean that the local `:target` should be equal to `target.uuid[36..-1]`
+
+* The root's `:method` field will contain a Symbol identifying the method designated to handle the broadcast.
+
+* The root's `:data` field will contain an Array (can be empty) of the arguments that will be passed along to the designated method.
+
+* If neither a `:type` or `:target` are present or if either the `:method` or `:data` are missing, Plezi will either ignore the broadcasted message or forward it to the Controller's `:on_broadcast(data)` callback (if it exsits).

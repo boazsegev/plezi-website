@@ -37,15 +37,151 @@ Notice the difference between [localhost:3000/users/foo](http://localhost:3000/u
 
 ## RESTful methods
 
-(todo: write documentation)
+Plezi contains special support for CRUD operations (Create, Read, Update, Delete) and RESTful requests through the use of the `:id` parameter (`params[:id]`) and the following reserverd method names: `index`, `new`, `save`, `show`, `update`, `delete`, `before` and `after`.
+
+By reviewing the Http request type (GET, POST, DELETE) the `:id` parameter (absent? `new`?) and the optional `:_method` parameters, Plezi will route RESTful requests to the correct CRUD method:
+
+
+* `index` will be called when the request is GET and the `:id` parameter is missing.
+
+    This method is often used to display a list (full or partial) of existing objects.
+
+* `new` will be called when the `:id` parameter is set to `'new'` and the request type is GET (unless the `:_method` parameter emulates `DELETE`).
+
+    This method is often used to display a form that allows the creation of a new object.
+
+* `show` will be called when the request is GET and the `:id` parameter is present and isn't `new`.
+
+    This method is often used to display a list (full or partial) of existing objects.
+
+    There is no specific method used to display the `edit` form (which is often the same as the `new` form). It is recommended to use `show` for both tasks.
+
+    Using `show` for "inline editing" and a better user experience is the recommeneded approach.
+
+    Using `show` with an added query parameter i.e.: `?_method=edit` is also recommended when displaying the whole of the object's data form (same form used for the `new` method).
+
+    A third approach is to seperate the "Display"/Public controller from the "Edit"/Admin controller using authentication and the `before` callback method (see more details later on). This approach allows us to display a totally different `index` and `show` result when the user is authenticated.
+
+* `save` will be called when the `:id` parameter is missing, or is set to `'new'` and the request type is POST.
+
+    This method is often used to post a form with the content of a new object. Once the object is created, the same view as the `:show` method will often be displayed. If there were errors while trying to create the object (saving had failed), it is common to redisplay the `new` form with any error data.
+
+* `update` will be called when the `:id` parameter is set and the request type is POST (unless the `:_method` parameter emulates `DELETE`).
+
+    This method is often used to update (save) data in an existing object.
+
+* `delete` will be called when the `:id` parameter is set and the request type is DELETE **or** the `:_method` parameter emulates a `DELETE` request.
+
+    To emulate a DELETE Http request, set the `:_method` parameter to `delete`, so that `params[:_method] == 'delete'`.
+
+    To so so, use the `url_for` helper method or simply add the following to the URL query string `?_method=delete`.
+
+* `before` (if exists) will be called before ANY request handled by the controller.
+
+    It's recommended to use the `requested_method` when requiring authentication exemptions for specific methods (i.e `:index` and `:show`).
+
+    If this method returns false (not nil), the request body is cleared, the controller exists and routes continue searching for the next applicable route (allowing the seperation of Editing/Admin Controllers from Viewing/Public Controllers).
+
+* `after` (if exists) will be called after ANY request handled by the controller. Behaves the same as `before`, allowing cancellation of the response after the data had been processed.
+
+### A sample CRUD Controller
+
+Here's a sample Controller for CRUD RESTful requests:
+
+    class CRUDCtrl
+
+        # every request that routes to this controller will create a new instance
+        def initialize
+        end
+
+        # called when request is GET and params[:id] isn't defined
+        def index
+            "Listing all objects..."
+        end
+
+        # called when request is GET and params[:id] exists
+        def show
+            "nothing to show for id - #{params[:id]} - with parameters: #{params.to_s}"
+        end
+
+        # called when request is GET and params[:id] == "new" (used for the "create new object" form).
+        def new
+            "Should we make something new?"
+        end
+
+        # called when request is POST or PUT and params[:id] isn't defined or params[:id] == "new" 
+        def save
+            "save called - creating a new object."
+        end
+
+        # called when request is POST or PUT and params[:id] exists and isn't "new"
+        def update
+            "update called - updating #{params[:id]}"
+        end
+
+        # called when request is DELETE (or params[:_method] == 'delete') and request.params[:id] exists
+        def delete
+            "delete called - deleting object #{params[:id]}"
+        end
+
+        # called before request is called
+        #
+        # if method returns false (not nil), controller exists
+        # and routes continue searching
+        def before
+            true
+        end
+        # called after request is completed
+        #
+        # if method returns false (not nil), the request body is cleared,
+        # the controller exists and routes continue searching
+        def after
+            true
+        end
+    end
+    # a simple RESTful path - all paths are assumed to be RESTful
+    route '/object', CRUDCtrl
+    # OR, to allow inline _method request parameter
+    route '/object/(:id)/(:_method)', CRUDCtrl
+
+For using the `route` paths to add different request parameters, refer to the [routes guide](routes).
 
 ## The Controller as a virtual folder
 
-(todo: write documentation)
+As already demonstrated by the RESTful API design, the `:id` parameter is used to route the request to a specific CRUD method.
+
+However, the `:id` parameter can also be used to GET or POST data to custom methods, so that a Controller can act as a "virtual API folder" or to group together a group of resources.
+
+The perfect example is the "Root" path and it's related pages. i.e.:
+
+    def RootCtrl
+        def index
+            "Welcome..."
+        end
+        def sitemap
+            "/ - welcome page\n/sitemap - this page"
+        end
+        def echo
+            request.to_s
+        end
+    end
+    route '/', RootCtrl
+
+This is a very powerful feature, especially when writing a backend with a Websocket API and an AJAJ (AJAX + JSON) fallback API (see the [JSON websocket Auto-Dispatch guide](json-autodispatch)).
+
+(todo: complete documentation)
 
 ## Websocket Callbacks
 
-(todo: write documentation)
+Controllers can also be used for Websocket connections.
+
+The same controller can answer Websocket connections as well as  CRUD, RESTful or AJAX (AJAJ when using JSON) requests.
+
+This allows to easily write an API that serves both Websocket clients and AJAX/AJAJ cliects.
+
+In order to answer Websocket connections, Plezi defines the following reserved callback methods: `pre_connect`, `on_open`, `on_message(data)`, `on_close` and `on_shutdown`.
+
+To learn more about these callbacks and about Websockets, read the [websockets guide](websockets).
 
 ## Helper methods and objects
 
@@ -160,6 +296,8 @@ Read more at the [YARD documentation for this method](http://www.rubydoc.info/ge
 ### The `requested_method` method
 
 This method review's the request and returns the name of the controller method that was invoked.
+
+This method can be useful within the `before` and `after` callbacks, allowing for authentication requirements or exemptions.
 
 ### The `redirect_to` method (Http)
 

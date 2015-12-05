@@ -461,7 +461,7 @@ Let's start with a clean and empty controller. We'll just do one thing for now -
 
 What are we keeping? We're keeping the authentication we wrote., So lets put that back in... but there is something we should change first.
 
-The Auto-Dispatch will route any JSON `event` to a public or protected method. This allows us to expose some of our API both as Websocket events (using the JSON `event` property) or as AJAX requests (using the `params[:id]` to route the request to the Http method). The protected methods will only be available as websocket events.
+The Auto-Dispatch will route any JSON `event` to a public or protected method. This allows us to expose some of our API both as Websocket events (using the JSON `event` property) or as AJAJ (AJAX with JSON) requests (using the `params[:id]` to route the request to the Http method). The protected methods will only be available as websocket events.
 
 But...
 
@@ -529,13 +529,13 @@ We can customize the error response by writing a callback called `unknown`. This
         protected
         def unknown msg
             # by returning a string, it's automatically sent as a websocket message,
-            # auto-dispatch methods behave the same as AJAX/Http methods, so it's easy to unify
-            # our code for both Websockets and AJAX.
+            # auto-dispatch methods behave the same as AJAX(AJAJ)/Http methods, so it's easy to unify
+            # our code for both Websockets and AJAJ.
             {event: :err, status: 404, data: 'unknown request', request: msg}.to_json
         end
     end
 
-Notice that unlike normal (raw) websocket methods (`on_open`, `on_close`, `on_message`), the auto-dispatch methods allow us to return a String (or a Hash) that will be written to the websocket automatically. This makes auto-dispatch methods act the same as Http methods, allowing us to write an API that is valid for both AJAX and Websockets with a single method.
+Notice that unlike normal (raw) websocket methods (`on_open`, `on_close`, `on_message`), the auto-dispatch methods allow us to return a String (or a Hash) that will be written to the websocket automatically. This makes auto-dispatch methods act the same as Http methods, allowing us to write an API that is valid for both AJAJ and Websockets with a single method.
 
 Here is the whole of our controller code:
 
@@ -584,8 +584,8 @@ Here is the whole of our controller code:
         end
         def unknown msg
             # by returning a string, it's automatically sent as a websocket message,
-            # auto-dispatch methods behave the same as AJAX/Http methods, so it's easy to unify
-            # our code for both Websockets and AJAX.
+            # auto-dispatch methods behave the same as AJAX(AJAJ)/Http methods, so it's easy to unify
+            # our code for both Websockets and AJAJ.
             {event: :err, status: 404, data: 'unknown request', request: msg}.to_json
         end
     end

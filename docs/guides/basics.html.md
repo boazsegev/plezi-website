@@ -146,9 +146,9 @@ Just tell Plezi how to acess your Redis server and Plezi will make sure that you
 
 ## Our first Http-Websocket API
 
-Often, when writing our applications, we want to be able to access the same data both using websockets AND using Http. In more common terms, we want to write an API for our service and we want it to support both XHR/AJAX and Websockets.
+Often, when writing our applications, we want to be able to access the same data both using websockets AND using Http. In more common terms, we want to write an API for our service and we want it to support both XHR/AJAX (AJAJ actually) and Websockets.
 
-Socket.io forces us to certain restrictions to achive this shared API. With Plezi, it's easy to opt-in - allowing use to decide which API will be available for websockets, which will be available for AJAX and which will be shared by both websockets and AJAX.
+Socket.io forces us to certain restrictions to achive this shared API. With Plezi, it's easy to opt-in - allowing use to decide which API will be available for websockets, which will be available for AJAX/AJAJ and which will be shared by both websockets and AJAX/AJAJ.
 
 To share an API, Plezi only asks that the Http route respond using the `response` object instead of using a String as a return value. For example:
 

@@ -14,6 +14,8 @@ The auto-dispatch defines and uses the following JSON "sub-protocol":
 
 * The JSON object's property `'event'`, is routed to a method with the same name on the server (both on the Ruby server and the Javascript client).
 
+    This means that the `'event'` property for websocket messages is mostly equivilant to the `params[:id]` property for Http requests ([both will invoke the same method](http://www.plezi.io/docs/routes#the-id-parameter)) - allowing use to easily support a graceful fallback to Asynchronous Javascript and JSON (AJAJ).
+
     i.e. an event named `'auth'` will invoke the method `auth` and pass the method `auth` a single Hash parameter containing the JSON data.
 
     Ruby:
@@ -22,19 +24,19 @@ The auto-dispatch defines and uses the following JSON "sub-protocol":
         def auth msg
             msg['event'] == 'auth'
         end
-        # to use for both Websockets AND AJAX, make sure
+        # to use for both Websockets AND AJAX(AJAJ), make sure
         # the method is public and add a default value. i.e.
         def auth msg = nil
             if msg
               # is Websockets
               msg['event'] == 'auth'
             else
-              # is AJAX
+              # is AJAJ
               params[:id] == 'auth'
               msg = params.dup
             end
             # this will write a JSON response for both
-            # AJAX and Websockets
+            # AJAJ and Websockets
             {event: :connnection, token: "token"}.to_json
         end
 
@@ -48,7 +50,7 @@ The auto-dispatch defines and uses the following JSON "sub-protocol":
 
 * JSON valid messages that contain the `_EID_` property (event ID), will be invoke an `_ack_` event upon receipt. The `_ack_` event's JSON data will contain only the `_EID_` sent. This is also used internally by Plezi's client API.
 
-This sub-protocol allows to easily unify AJAX and Websocket APIs, when using the method's default argument value to indicated the request's source.
+This sub-protocol allows to easily unify AJAJ (AJAX with JSON) and Websocket APIs, when using the method's default argument value to indicated the request's source.
 
 When using the Auto-Dispatch, there is no need to write an `on_message` callback. But the controller must set the class variable `@autodispatch` to `true`. i.e.
 
@@ -187,7 +189,7 @@ Manually closing the connection will prevent automatic reconnections:
 
 To automatically map all incoming websocket JSON `event` messages to controller methods, use the `@auto_dispatch` flag.
 
-Public methods will accept both AJAX and Websocket events. Protected methods will only be used for websocket JSON events.
+Public methods will accept both AJAJ (AJAX+JSON) and Websocket events. Protected methods will only be used for websocket JSON events.
 
 Non JSON messages sent by the client will cause automatic disconnection.
 
@@ -202,7 +204,7 @@ Here's a quick JSON echo server:
       # this will be used to echo everything JSON
       def unknown event = nil
         unless event
-          # this is an AJAX request
+          # this is an AJAJ request
           event = {event: "err", status: 404, request: params.dup}
           event[:request][:event] = event[:request].delete :id
         end
@@ -211,13 +213,13 @@ Here's a quick JSON echo server:
     end
     route '/', MyEcho
 
-Notice how a default value of `nil` allowed us to use the method also for AJAX requests (where the `:id` parameter replaces the `:event` parameter in JSON).
+Notice how a default value of `nil` allowed us to use the method also for AJAJ requests (where the `:id` parameter replaces the `:event` parameter in JSON).
 
-The resone for the default value is that AJAX requests will call the method without providing ANY arguments (just like all Http requests, there are no arguments, only the `params` Hash). On the other hand, the auto-dispatcher will call the method while passing the event Hash data as a single argument.
+The reason for the default value is that AJAJ requests will call the method without providing ANY arguments (just like all Http requests, there are no arguments, only the `params` Hash). On the other hand, the auto-dispatcher will call the method while passing the event Hash data as a single argument.
 
 Also notice that the method returned a String and that String was automatically send to the websocket. This is very different than Raw websocket communication and it will only occure when using the auto-dispatch (i.e., it will not occure for broadcasting).
 
-The reson for the different design was to allow, specifically, auto-dispatched events to behave the same as AJAX events, so thet the API could easily be unified, allowing also to easily use template rendering for the response.
+The reson for the different design was to allow, specifically, auto-dispatched events to behave the same as AJAJ events, so thet the API could easily be unified, allowing also to easily use template rendering for the response.
 
 ## An Advanced Auto-Dispatch Example
 
@@ -227,15 +229,15 @@ Here are a few things to notice about the example we're about to explore:
 
 * Using recursion in the example above allows us to avoid exposing a method to the auto-dispatcher, keeping all the logic of the event in the same event-mathod.
 
-     We are leveraging the fact that AJAX requests will call the method without providing ANY arguments and the auto-dispatcher will call the method while passing the event Hash data as a single argument. This means that only the broadcasting API allows us to set the second argument.
+     We are leveraging the fact that AJAJ (AJAX+JSON) requests will call the method without providing ANY arguments and the auto-dispatcher will call the method while passing the event Hash data as a single argument. This means that only the broadcasting API allows us to set the second argument.
 
-* Using the `protected` keyword, we disable AJAX access to the `chat` and `auth` events.
+* Using the `protected` keyword, we disable AJAJ access to the `chat` and `auth` events.
 
-* We also limit access to AJAX methods by using the routing system.
+* We demonstrate how to limit access to AJAJ methods by using the routing system.
 
-* We have two routes for the same controller, allowing us to set different inline AJAX parameters (although the `:publish` event is probably expecting POST data rather than GET data).
+* We have two routes for the same controller, allowing us to set different inline AJAJ parameters (although the `:publish` event is probably expecting POST data rather than GET data).
 
-* We can use `render`, exactly the same for both AJAX and Websocket messages. 
+* We can use `render`, exactly the same for both AJAJ and Websocket messages. 
 
 The example controller code:
 

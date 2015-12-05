@@ -33,7 +33,7 @@ Plezi's goal were:
 
 	I was really hoping my friend's game would be a wonderful success... and I wanted to think that all the games or applications that will be written using Plezi would also find success. It was important to me that the applications written using Plezi would be easy to scale as more users enjoyed them.
 
-4. Allow easy fallback to AJAX when websockets wasn't accessible... BUT without taking away from the programmer's control over the choice of mechanism. 
+4. Allow easy fallback to AJAX (AJAJ actually) when websockets wasn't accessible... BUT without taking away from the programmer's control over the choice of mechanism. 
 
 	At the time, websockets weren't as common or as well supported as today. For this reason, I wanted it to be easy to use the same code for both types of communication and keep things a bit more DRY.
 

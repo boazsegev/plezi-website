@@ -65,7 +65,7 @@ If the order of precedence were not to exist, we couldn't create a catch-all rou
 
 ### The `:id` parameter
 
-In order to manage route "groups", Plezi's router attmpt to add an optional `:id` parameter at the end of the route. This is only possible when the route doesn't end with a catch-all (if a catch-all exists, the `:id` parameter can't be isolated).
+In order to manage route "groups", Plezi's router attmpts to add an optional `:id` parameter at the end of the route. This is only possible when the route doesn't end with a catch-all (if a catch-all exists, the `:id` parameter can't be isolated).
 
 So, the following two routes are identical:
 

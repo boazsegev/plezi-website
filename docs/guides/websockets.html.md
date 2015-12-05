@@ -117,11 +117,88 @@ You can see a more complete example, including the use of JSON, in the [Plezi ch
 
 Remember to set the javascript connection(s) path to the path of your websocket route(s).
 
+#### Websocket Callbacks
+
+When using Websockets, the following callbacks (if defined) are available:
+
+* `pre_connect` is called **before** the websocket connection is accepted. If the method returns `false`, the connection will be refused.
+
+    Websocket connections start as Http connections with an `upgrade` request. This callback is called before answering the Http request, while it's still possible to set any Cookie data required.
+
+    This method is the recommended authentication "gateway" (authenticate before connecting), as websocket messages cannot be sent nor received at this point.
+
+ * `on_open` is called **after** the websocket connection is accepted. It's also possible to use this method for authentication.
+
+ * `on_message(data)` is called whenever the client sends data through the websocket. the `data` is the raw data, allowing for binary data as well as text/JSON data.
+
+* `on_close` is called **after** the websocket connection was closed.
+
+* `on_shutdown` is called **before** the websocket connection is closed, as part of the server's graceful shutdown process. This allows a special notification to be sent before closing the websocket connection.
+
+    `on_close` will still be called after the connection was closed, assuming a graceful shutdown.
+
+* `self.failed_unicast(target, method, arguments_array)` a CLASS level callback that will be called when a unicast doesn't find it's target. More about unicasting later on.
+
+#### A sample Websocket Controller 
+
+The following is a sample Websocket controller, showcasing all the available callbacks as well as an Http `index` method (to show that Controllers can be used for both):
+
+    class WebsocketSample
+      # every request that routes to this controller will create a new instance
+      def initialize
+      end
+      # Http methods are available
+      def index
+        "Hello World!"
+      end
+      # RESTful methods are available
+      def show
+        "showing object with id: #{params[:id]}..."
+      end
+      # called before the protocol is swithed from HTTP to WebSockets.
+      #
+      # this allows setting headers, cookies and other data (such as authentication)
+      # prior to opening a WebSocket.
+      #
+      # if the method returns false, the connection will be refused and the remaining routes will be attempted.
+      def pre_connect
+        true
+      end
+      # called immediately after a WebSocket connection has been established.
+      # it blocks all the connection's actions until the `on_open` initialization is finished.
+      def on_open
+      end
+      # called when new data is recieved
+      #
+      # data is a string that contains binary or UTF8 (message dependent) data.
+      def on_message data
+        Plezi.info "Websocket got: #{data}"
+      end
+      # called once, AFTER the connection was closed.
+      def on_close
+      end
+      # called once, during **server shutdown**, BEFORE the connection is closed.
+      # this will only be called for connections that are open while the server is shutting down.
+      def on_shutdown
+      end
+      # called when using Iodine's raw websocket broadcasting instead
+      # of Plezi's scalable broadcasting system.
+      def on_broadcast data
+      end
+      # a CLASS level callback that will be called when a unicast doesn't find it's target.
+      #
+      # the lack of this callback being called does NOT imply that the unicast was processed without errors,
+      # it's only called if the target itself wasn't found.
+      def self.failed_unicast target, method, arguments_array
+      end
+    end
+    route '/', WebsocketSample
+
 ### Websocket JSON Auto-Dispatch
 
 It is very common for websocket applications to use json messages to "emit" JSON "events" and map these events to class methods or javascript callbacks.
 
-This use-case is so common, that Plezi includes an easy to use Auto Dispatch feature both the Controller and a Javascript client (PleziClient).
+This use-case is so common, that Plezi includes an easy to use Auto-Dispatch feature for the Controller and an Auto-Dispatch Javascript client (PleziClient).
 
 To learn more about the JSON websocket Auto-Dispatch read the [JSON Websocket Auto-Dispatch guide](json-autodispatch)
 
@@ -129,7 +206,8 @@ When using the Auto-Dispatch, there is no need to write an `on_message` callback
 
     class JSONDemo
         @autodispatch = true
-        # than define events
+        # then define events
+        protected
         def event1 data
             #...
         end

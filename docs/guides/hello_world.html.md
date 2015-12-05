@@ -15,7 +15,7 @@ To make things more interesting, we're going to:
 * Use a template file to render our data.
 * Use a layout for all our Html rendered pages.
 * Handle 404 errors gracefully.
-* Add an AJAX JSON rewite-route to set our reponse format.
+* Add an AJAX JSON (AJAJ) rewite-route to set our reponse format.
 * Send the response in JSON format when requested (using the power of templates and layouts).
 * Install Github's render engine and use that instead of our original render engine (but we will keep the layout).
 
@@ -411,7 +411,7 @@ But, the whole `?format=json` doesn't really look nice. Let's fix that.
 
 Plezi has this really cool feature that's called "rewrite routes". It allows us to extract parameters from the **beginning** of the request and make them available for all the other routes.
 
-Rewrite routes also rewrite the request path, so future routes don't see the original request (available with `request.original_path`). This way, our routes work exacly the same as if the parameters were added using the ugly way (we don't need to update them in any way).
+Rewrite routes also rewrite the request path, so future routes don't see the original request's path (available as `request.original_path`). This way, our routes work exacly the same as if the parameters were added using the ugly way (we don't need to update them in any way).
 
 All we need is to create a route and pass `false` as our controller - easy.
 

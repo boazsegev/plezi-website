@@ -6,7 +6,7 @@ If you read [the getting started guide](./basics), you know that a "Hello World"
     route('*') { "Hello World!" }
     exit # <- this exits the terminal and starts the server
 
-So... instead of writing the __shortest__ hello world tutorial, we're going to write the most __bloated__ hello world application ever, allowing up to explore some of the more powerful and common features Plezi has to offer.
+So... instead of writing the __shortest__ hello world tutorial, we're going to write the most __bloated__ hello world application ever, allowing us to explore some of the more powerful and common features Plezi has to offer.
 
 To make things more interesting, we're going to:
 
@@ -17,7 +17,7 @@ To make things more interesting, we're going to:
 * Handle 404 errors gracefully.
 * Add an AJAX JSON (AJAJ) rewite-route to set our reponse format.
 * Send the response in JSON format when requested (using the power of templates and layouts).
-* Install Github's render engine and use that instead of our original render engine (but we will keep the layout).
+* Install a Markdown render engine and use that instead of our original html render engine (but we will keep the layout).
 
 Get ready to write the most bloated, feature rich, "hello world" application and discover how easy it can be to support all these features when using Plezi.
 
@@ -52,6 +52,7 @@ You should get a response on your terminal, something along these lines:
         wrote ./templates/welcome.html.erb
         created ./assets
         wrote ./assets/websocket.js
+        wrote ./assets/plezi_client.js
     done.
 
     please change directory into the app directory: cd hello_world
@@ -78,11 +79,11 @@ Let's take a quick look over the files:
 
 * `assets/websocket.js` - This is stub code for websocket connections. We can update this code and include it in our Html for a quick websocket client.
 
-Now double click on the `hello_world` to start our application (or run `./hello_world` from your terminal).
+Now, let's double click on the `hello_world` to start our application (or run `./hello_world` from our terminal).
 
-Next, open a new browser window or two and visit [localhost:3000](http://localhost:3000) to see what we've got. You can use two broser windows to chat with yourself...
+Next, open a new browser window or two and visit [localhost:3000](http://localhost:3000) to see what we've got. We can use two browser windows to chat with ourselves...
 
-Congratualations! You've created a Plezi application. It's a chat room and we want it to be something different, so let's move on.
+Congratualations! We've created a Plezi application. It's a chat room and we want it to be something different, but it's a start :-)
 
 ## Saying Hello directly from the Controller
 

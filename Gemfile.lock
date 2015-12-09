@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     iodine (0.1.19)
-    plezi (0.12.20)
+    plezi (0.12.21)
       iodine (~> 0.1.19)
     redcarpet (3.3.3)
     sass (3.4.19)

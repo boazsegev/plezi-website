@@ -130,7 +130,7 @@ Notice that this uses Plezi's Auto-Dispatch's protocol with regards to the event
         },
         3000);
 
-#### `client.emit_timeout=` &amp; `client.ontimeout(event)`
+#### Timeout defaults
 
 It's also possible to set a default timeout that will be used whenever a specific timeout wasn't specified
 
@@ -184,6 +184,53 @@ To sent raw websocket data, use the `sendraw` method. This will cause disconneti
 Manually closing the connection will prevent automatic reconnections:
 
       client.close()
+
+#### AJAJ - `client.ajaj`
+
+AJAJ (AJAX with JSON instead of XML), can be used either as a websocket fallback position or for HTTP RESTful requests.
+
+The following object is the gateway for performing AJAJ requests.
+
+      client.ajaj
+
+AJAJ responses are routed to the Auto-Dispatch as if they were Websocket events. This allows for easy AJAJ polling. i.e.:
+
+      client.ajaj.add.token = 'my_token' // will be added to any AJAJ event.
+      setInterval( function() {
+        client.ajaj.emit({event: 'poll'})
+        }, 3000);
+
+#### AJAJ fallback - `client.ajaj.auto`
+
+To automatically have any websocket sent events gracefully fallback to AJAJ after timeout had occured, set the `client.ajaj.auto` value to true. i.e.
+
+      client.ajaj.auto = true
+
+When using automatic fallback, the `client.ontimeout` will only be called if the AJAJ request failed - meaning an AJAJ fallback will be attempted before calling the default failure callback.
+
+#### AJAJ persist data - `client.ajaj.add`
+
+AJAJ requests aren't persistent. On the other hand, websocket connections are persistent.
+
+To overcome this difference, Plezi's client allows you to store data that will be added to any AJAJ emitted event.
+
+This allows storage of tokens or other authentication data that will be sent along with every AJAJ request, allowing for a semi-"persistent" state.
+
+i.e., to add a token to any AJAJ emitted event, use:
+
+      client.ajaj.add.token = "my_token"
+
+Another option (perhaps a more secure option) is storing data in Plezi's `session` storage.
+
+#### AJAJ emit - `client.ajaj.emit(event, callback)`
+
+This method behaves in a similar fasion to the websocket version (`client.emit`). i.e.
+
+      client.ajaj.emit({event: 'auth', token: 'my_token'})
+
+The callback will be called only if the event **wasn't** sent.
+
+The event will be sent as an Http POST request and the event's details will be available on the server using the controller's `params` Hash.
 
 ## Writing an Auto-Dispatch Controller
 

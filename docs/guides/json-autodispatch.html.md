@@ -75,6 +75,8 @@ To server the updated Plezi Auto-Dispatch javascript client (the client version 
 
 The client is also available when using the application template. The client's path is `/assets/plezi_client.js` for the mini application template and `/assets/javascript/plezi_client.js` for the larger, default application template.
 
+The clien't [source code is available on GitHub](https://github.com/boazsegev/plezi/blob/master/resources/plezi_client.js). Contributions are welcome.
+
 ### Leveraging the Plezi Client
 
 Plezi provids a basic Websocket client that allows us to leverage the auto-dispatch "feel" and style also for our client side code.

@@ -1,7 +1,7 @@
 /!
 	<PageMap>
 		<DataObject type="document">
-			<Attribute name="title">Plezi - a Ruby framework for real-time web applications</Attribute>
+			<Attribute name="title">Plezi - a Ruby framework for real-time web applications, with native Websockets, RESTful routing and CRUD support</Attribute>
 			<Attribute name="author">Bo (Myst)</Attribute>
 			<Attribute name="description">
 				#{SCHEMA_ABOUT}
@@ -50,7 +50,6 @@ javascript:
 				$('#output')[0].scrollHeight }, "slow");
 	}
 h1#tagline Websockets for Ruby made easy
-/ h1#tagline the Ruby framework for realtime web-apps
 div#demo
 	div#client
 		div class='bordered'
@@ -59,6 +58,8 @@ div#demo
 				li Easier than Faye, more fun than socket.io.
 				li Works on it's own or with Rack/Rails/Sinatra.
 			p A real-time Websocket Chat Room? It's the new "Hello World"!
+			p
+				a href='/docs/basics'  Get started now.
 			form#form
 				input type='text' id='text' name='text' placeholder='nickname' autocomplete="off"
 				input type='submit' value='send'
@@ -146,19 +147,10 @@ div id='client_code'
 						}
 					&lt;/script&gt;
 				&lt;/head&gt;&lt;body&gt;
-					&lt;p&gt; Websockets? AJAX? RESTful Http? - Plezi.&lt;/p&gt;
-					&lt;ul&gt;
-						&lt;li&gt; Easier than Faye, more fun than socket.io.&lt;/li&gt;
-						&lt;li&gt; Works on it's own or with Rack/Rails/Sinatra.&lt;/li&gt;
-					&lt;/ul&gt;
-					&lt;p&gt; A real-time Websocket Chat Room? It's the new "Hello World"!&lt;/p&gt;
-					&lt;p&gt;Websockets? AJAX? RESTful Http? - Plezi.&lt;/p&gt;
-					&lt;p&gt;A real-time Websocket Chat Room? It's the new "Hello World"!&lt;/p&gt;
 					&lt;form id='form'&gt;
 						&lt;input type='text' id='text' name='text' placeholder='nickname'&gt;&lt;/input&gt;
 						&lt;input type='submit' value='send'&gt;&lt;/input&gt;
 					&lt;/form&gt;
 					&lt;script&gt; $('#form')[0].onsubmit = onsubmit &lt;/script&gt;
 					&lt;ul id='output'&gt;&lt;/ul&gt;
-					&lt;p&gt;* Plezi can work together with Rack/Rails/Sinatra.&lt;/p&gt;
 				&lt;/body&gt;

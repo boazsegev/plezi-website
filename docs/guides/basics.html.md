@@ -1,3 +1,17 @@
+<!--<PageMap>
+    <DataObject type="document">
+        <Attribute name="title">Getting started with Plezi</Attribute>
+        <Attribute name="author">Bo (Myst)</Attribute>
+        <Attribute name="description">
+            In this tutorial we explore how to quickly write web applications with full support for Websocket, RESTful routes and CRUD operations using the Plezi Ruby framework.
+        </Attribute>
+    </DataObject>
+    <DataObject type="thumbnail">
+        <Attribute name="src" value="http://localhost:3000/images/logo_thick_dark.png" />
+        <Attribute name="width" value="656" />
+        <Attribute name="height" value="256" />
+    </DataObject>
+</PageMap>-->
 # Getting started with Plezi
 
 Here we will explore a bit about starting up with Plezi.

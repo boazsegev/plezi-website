@@ -9,7 +9,6 @@ SCHEMA_ORG = {
   "@type" => "WebSite",
   url: 'http://www.plezi.io',
   name: "Plezi",
-  about: SCHEMA_ABOUT,
   description: SCHEMA_ABOUT,
   keywords: "websockets, websocket, ruby, framework, realtime, real-time, http, rest, restful, crud, easy",
   image: 'http://www.plezi.io/images/logo_thick_dark.png',

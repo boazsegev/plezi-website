@@ -1,3 +1,17 @@
+<!--<PageMap>
+    <DataObject type="document">
+        <Attribute name="title">A Ruby RESTful Hello World application with Plezi</Attribute>
+        <Attribute name="author">Bo (Myst)</Attribute>
+        <Attribute name="description">
+            In this tutorial we explore how leverage Plezi to easily write a Ruby application that utilizes RESTful routing (greate for CRUD operations) and response templates (for Html/JSON responses).
+        </Attribute>
+    </DataObject>
+    <DataObject type="thumbnail">
+        <Attribute name="src" value="http://localhost:3000/images/logo_thick_dark.png" />
+        <Attribute name="width" value="656" />
+        <Attribute name="height" value="256" />
+    </DataObject>
+</PageMap>-->
 # The Hello World OVERKILL!
 
 If you read [the getting started guide](./basics), you know that a "Hello World" Plezi applicationonly needs two line (three, if you're using `irb` instead of a ruby script)... remember?

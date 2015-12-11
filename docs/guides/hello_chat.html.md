@@ -1,3 +1,17 @@
+<!--<PageMap>
+    <DataObject type="document">
+        <Attribute name="title">A Ruby Websocket Chat with Plezi</Attribute>
+        <Attribute name="author">Bo (Myst)</Attribute>
+        <Attribute name="description">
+            In this tutorial we explore how to quickly write a Ruby websocket chatroom applications using Plezi.
+        </Attribute>
+    </DataObject>
+    <DataObject type="thumbnail">
+        <Attribute name="src" value="http://localhost:3000/images/logo_thick_dark.png" />
+        <Attribute name="width" value="656" />
+        <Attribute name="height" value="256" />
+    </DataObject>
+</PageMap>-->
 # A Plezi chatroom using Websockets
 
 Just like the ["Hello World" tutorial](./hello_world) was used to explore some of what Plezi had to offer us in the world of Http and RESTful routing, this Chatroom tutorial can be used to explore some of what Plezi can do for us when it comes to websockets.

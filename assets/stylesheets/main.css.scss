@@ -200,6 +200,17 @@ code
             @include border-radius;
             color: #020202;
             text-decoration: none;
+            &:visited
+            {
+                &:after
+                {
+                    display: block;
+                    position: absolute;
+                    top: 0; left:0;
+                    content: '√';
+                    padding: 0.2em 0;
+                }
+            }
             &:hover
             {
                 color: #000;
@@ -211,6 +222,11 @@ code
                     content: '>';
                     padding: 0.2em 0;
                 }
+                text-shadow: -3px 3px 2px rgba(150, 150, 150, 0.72);
+            }
+            &:active
+            {
+                text-shadow: -3px 0px 2px rgba(150, 150, 150, 0.72);
             }
         }
     }

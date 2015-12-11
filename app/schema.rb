@@ -1,19 +1,46 @@
 # The Schema.org data
 
+# Description
+SCHEMA_ABOUT = %q{Websockets and REST for Ruby - Plezi is a Ruby framework for realtime web applications. Easier than Faye, more fun than socket.io. Works with Rails, Sintra, Rack and on it's own.}
+
+# Schema JSON
 SCHEMA_ORG = {
   "@context" => "http://schema.org",
-  "@type" => "Organization",
-  name: "Plezi",
+  "@type" => "WebSite",
   url: 'http://www.plezi.io',
-  description: %q{Websockets and REST for Ruby - Plezi is a Ruby framework for realtime web applications. Easier than Faye, more fun than socket.io. Works with Rails, Sintra, Rack and on it's own.},
-  logo: 'http://www.plezi.io/images/logo_thick_dark.png',
+  name: "Plezi",
+  about: SCHEMA_ABOUT,
+  description: SCHEMA_ABOUT,
+  keywords: "websockets, websocket, ruby, framework, realtime, real-time, http, rest, restful, crud, easy",
   image: 'http://www.plezi.io/images/logo_thick_dark.png',
-  email: "bo(at)plezi.io",
-  member: [
+  # potentialAction: {
+  #     "@type" => "SearchAction",
+  #     target: "http://example.com/search?&q={query}",
+  #     "query-input" => "required",
+  #   },
+  author: [
     {
       "@type" => "Person",
       name: "Bo (Myst)",
-      url: 'http://stackoverflow.com/users/4025095/myst'
+      url: 'http://stackoverflow.com/users/4025095/myst',
+      email: "bo(at)plezi.io",
     }
   ],
-	}.to_json
+  sourceOrganization: {
+    "@context" => "http://schema.org",
+    "@type" => "Organization",
+    name: "Plezi",
+    url: 'http://www.plezi.io',
+    description: SCHEMA_ABOUT,
+    logo: 'http://www.plezi.io/images/logo_thick_dark.png',
+    image: 'http://www.plezi.io/images/logo_thick_dark.png',
+    email: "bo(at)plezi.io",
+    member: [
+      {
+        "@type" => "Person",
+        name: "Bo (Myst)",
+        url: 'http://stackoverflow.com/users/4025095/myst'
+      }
+    ],
+  },
+}.to_json

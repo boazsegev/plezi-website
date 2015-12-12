@@ -486,12 +486,12 @@ Plezi can be used to create virtual hosts for the same service, allowing you to 
 
 Now visit:
 
-* [http://127.0.0.1:3000/]( http://127.0.0.1:3000/ )
-* [http://localhost:3000/]( http://localhost:3000/ )
-* [http://127.0.0.1:3000/shared]( http://127.0.0.1:3000/shared ) - won't show, becuse this host was created AFTER the route was declered.
-* [http://localhost:3000/shared]( http://localhost:3000/shared )
-* [http://127.0.0.1:3000/humans.txt]( http://127.0.0.1:3000/humans.txt )
-* [http://localhost:3000/humans.txt]( http://localhost:3000/humans.txt )
+* [http://127.0.0.1:3000/](http://127.0.0.1:3000/)
+* [http://localhost:3000/](http://localhost:3000/)
+* [http://127.0.0.1:3000/shared](http://127.0.0.1:3000/shared) - won't show, becuse this host was created AFTER the route was declered.
+* [http://localhost:3000/shared](http://localhost:3000/shared)
+* [http://127.0.0.1:3000/humans.txt](http://127.0.0.1:3000/humans.txt)
+* [http://localhost:3000/humans.txt](http://localhost:3000/humans.txt)
 * notice: `localhost2` will only work if it was defined in your OS's `hosts` file.
 
 ## Plezi Logging

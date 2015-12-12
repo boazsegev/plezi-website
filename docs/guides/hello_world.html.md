@@ -446,9 +446,9 @@ Our routing code, in `hello_world.rb` should now look like this:
     route '/(:id)', HelloController
     Plezi.route '*', Err404Ctrl
 
-That's it! restart the app and go to [localhost:3000/json/London]([http://localhost:3000/json/london)
+That's it! restart the app and go to [localhost:3000/json/London](http://localhost:3000/json/london)
 
-Notice how the old path, [localhost:3000/London]([http://localhost:3000/London), gracefully remains intact, rendering our html (the default format for the web).
+Notice how the old path, [localhost:3000/London](http://localhost:3000/London), gracefully remains intact, rendering our html (the default format for the web).
 
 ### Sending the data in JSON format
 

@@ -37,7 +37,7 @@ On MacOS or linux, simply double click the `appname` script file to start the se
     $ cd appname
     $ ./appname # ( or: plezi s )
 
-See it work: [http://localhost:3000/](http://localhost:3000/)
+See it work: [localhost:3000/](http://localhost:3000/)
 
 ## Plezi is so easy, we can code an app in the terminal!
 
@@ -80,7 +80,7 @@ Let's copy and paste this into our `irb` terminal:
     route '/', MyDemo
     exit
 
-Now visit [index](http://localhost:3000/) and [foo](http://localhost:3000/foo) or request an id, i.e. [http://localhost:3000/1](http://localhost:3000/1).
+Now visit [index](http://localhost:3000/) and [foo](http://localhost:3000/foo) or request an id, i.e. [localhost:3000/1](http://localhost:3000/1).
 
 Did you notice how the controller has natural access to the request's `params`?
 

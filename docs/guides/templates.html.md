@@ -450,7 +450,7 @@ now visit:
 * [http://localhost:3000/post/12/1.3/1](http://localhost:3000/post/12/1.3/1)
 * [http://localhost:3000/post/12/1](http://localhost:3000/post/12/1)
 
-**[please see the `route` documentation for more information on routes](./docs/routes.md)**.
+**[please see the `route` documentation for more information on routes](/docs/routes)**.
 
 ## Plezi Virtual Hosts
 

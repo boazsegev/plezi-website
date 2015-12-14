@@ -200,8 +200,6 @@ It is very common for websocket applications to use json messages to "emit" JSON
 
 This use-case is so common, that Plezi includes an easy to use Auto-Dispatch feature for the Controller and an Auto-Dispatch Javascript client (PleziClient).
 
-To learn more about the JSON websocket Auto-Dispatch read the [JSON Websocket Auto-Dispatch guide](json-autodispatch)
-
 When using the Auto-Dispatch, there is no need to write an `on_message` callback. But the controller must set the class variable `@auto_dispatch` to `true`. i.e.:
 
     class JSONDemo
@@ -213,6 +211,8 @@ When using the Auto-Dispatch, there is no need to write an `on_message` callback
         end
         #...
     end
+
+To learn more about the JSON websocket Auto-Dispatch read the [JSON Websocket Auto-Dispatch guide](json-autodispatch)
 
 ## Communicating between different Websocket clients
 

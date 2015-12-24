@@ -38,7 +38,8 @@ SCHEMA_ORG = {
       {
         "@type" => "Person",
         name: "Bo (Myst)",
-        url: 'http://stackoverflow.com/users/4025095/myst'
+        url: 'http://stackoverflow.com/users/4025095/myst',
+        email: "bo(at)plezi.io",
       }
     ],
   },

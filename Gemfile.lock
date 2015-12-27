@@ -3,7 +3,7 @@ GEM
   specs:
     iodine (0.1.20)
     plezi (0.12.21)
-      iodine (~> 0.1.19)
+      iodine (~> 0.1.20)
     redcarpet (3.3.3)
     sass (3.4.20)
     slim (3.0.6)
@@ -22,4 +22,4 @@ DEPENDENCIES
   slim
 
 BUNDLED WITH
-   1.10.6
+   1.11.2

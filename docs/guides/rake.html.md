@@ -1,8 +1,8 @@
-# Using Rake with Plezi
+# Using or Deploying Plezi with Rake
 
-When adding rake tasks to your application, you might find that the Plezi server automatically starts, distrupting Rake's flow.
+When adding rake tasks to your application, you might find that the Plezi server automatically starts, distrupting Rake's flow. This could prevent tasks (including deplyment tests) from exiting after completion.
 
-To use Plezi with rake, make sure to require Plezi's rake support using
+To use Plezi with rake, make sure to require Plezi's rake support in your `rakefile`:
 
 ```ruby
 require 'plezi/rake'

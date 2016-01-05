@@ -86,4 +86,4 @@ i.e.
 
 Easy!
 
-As a last note: It's very likely that your Rack/Sinatra/Rack application is using Rake for it's tasks. Once you're done adding Plezi to your application, remember to edit the `rakefile` as mentioned in out guide about [Plezi with Rake](rack).
+**As a last note**: It's very likely that your Rack/Sinatra/Rack application is using Rake for it's tasks. Once you're done adding Plezi to your application, remember to edit the `rakefile` as mentioned in out guide about [Plezi with Rake](rake).

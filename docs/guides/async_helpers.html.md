@@ -101,9 +101,9 @@ You can also add data to the array while 'looping', which allows you to use the 
 `Iodine`'s core is built with simplicity in mind, making the programmer happy. With this in mind, Iodine offers a single and simple method that allow us to easily queue code execution.
 
 
-#### `Iodine.run`
+#### `Plezi.run`
 
-`Iodine.run(arg1, arg2, arg3...) {block}` takes arguments to be passed to a block of code prior to execution. This allows us to seperate the `Proc` object creation fron the data handling and possibly (but not always) optimize our code.
+`Plezi.run { block }` (inherited for Iodine) takes a block of code and adds it to the task queue for asynchronous execution.
 
 For example:
 
@@ -111,31 +111,9 @@ For example:
 
     class MyController
         def index
-            # Plezi.run automatically defers to Iodine.run
-            Plezi.run(Time.now) {|t| puts "Someone poked me at: #{t}" } # maybe send an email?
+            t = Time.now
+            Plezi.run { puts "Someone poked me at: #{t}" } # maybe send an email?
             "Hello World"
-        end
-    end
-
-
-    route '/', MyController
-
-    exit
-
-This might be optimized like so:
-
-    require 'plezi'
-
-    class MyController
-        def index
-            Iodine.run Time.now, &self.class.action_proc
-            "Hello World"
-        end
-
-        protected
-
-        def self.action_proc
-            @proc ||= Proc.new {|t| puts "Someone poked me at: #{t}" } # maybe send an email?
         end
     end
 
@@ -145,24 +123,22 @@ This might be optimized like so:
 
 ### Timed events
 
-Sometimes we want to schedule something to be done in a while, ormaybe we want a task to repeat every certain intevral...
+Sometimes we want to schedule something to be done in a while, or maybe we want a task to repeat every certain interval...
 
-In come Iodine's TimedEvents: `Iodine.run_after` and `Iodine.run_every`
+In come Iodine's TimedEvents: `Plezi.run_after` and `Plezi.run_every`
 
-#### `Iodine.run_every`
+#### `Plezi.run_every`
 
-`Iodine.run_every(seconds, arg1, arg2...) {|arg1, arg2..., timed_event| block }` is very similar to the `Iodine.run`, except it automatically injects an argument to our block, the timed even itself, as the last (optional) parameter. This allows us to stop the repeating event should the need arise.
+`Plezi.run_every(milliseconds) { block }` is very similar to the `Plezi.run`, except it repeats the task (endlessly) every time the specified timeout (in milliseconds) had been reached.
 
     require 'plezi'
 
     class MyController
         def index
             counter = 0
-            # Plezi.run_every automatically defers to Iodine.run_every
-            Plezi.run_every(1, "Counting: %i") do |str, timer|
+            Plezi.run_every(1000) do
                 counter +=1
-                puts(str % counter)
-                timer.stop! if counter >= 3
+                puts("Counting %d" % counter)
             end
             "Hello World"
         end
@@ -173,28 +149,11 @@ In come Iodine's TimedEvents: `Iodine.run_after` and `Iodine.run_every`
 
     exit
 
-A similar approach could have been accomplished by setting a repeat limit:
+Iodine directly links these timers to the system's native API (epoll/kqueue) and they take the same resources a single connection would take. These timers tasks persist for the lifetime of the application.
 
-    require 'plezi'
+#### `Plezi.run_after`
 
-    class MyController
-        def index
-            timer = Iodine.run_every(1, "Counting down: %i") do |str, timer|
-                puts(str % timer.repeat_limit)
-            end
-            timer.repeat_limit = 3
-            "Hello World"
-        end
-    end
-
-
-    route '/', MyController
-
-    exit
-
-#### `Iodine.run_after`
-
-`Iodine.run_after(seconds, arg1, arg2...) {|arg1, arg2..., timed_event| block}` is very similar to the `Iodine.run_every`, except it is designed to "self destruct" after only only execution.
+`Plezi.run_after(milliseconds) { block }` is very similar to the `Plezi.run_every`, except it is designed to "self destruct" after a single execution. This way, even though precious resources are used, they are released immediately once the task is complete.
 
 The timed event allows us to create a new event with the same job, if we wish to.
 
@@ -203,16 +162,14 @@ The timed event allows us to create a new event with the same job, if we wish to
     class MyController
         def index
             counter = 0
-            # Plezi.run_after automatically defers to Iodine.run_after
-            Iodine.run_after(1, "Counting: %i") do |str, timer|
+            task = Plezi.run_after(1000)
                 counter +=1
-                puts(str % counter)
-                Iodine.run_after(1, str, &timer.job) if counter < 3
+                puts "Counting #{counter}/3"
+                Plezi.run_after(1000, &task) if (counter < 3)
             end
             "Hello World"
         end
     end
-
 
     route '/', MyController
 
@@ -222,11 +179,10 @@ The timed event allows us to create a new event with the same job, if we wish to
 
 Sometimes we want to run certain code only when the application is shutting down.
 
-`Iodine.on_shutdown` is a reverse shutdown task queue (LIFO).
+`Plezi.on_shutdown` is a reverse shutdown task queue (LIFO).
 
 At any point while running the application (except during the shutdown process itself), whether initializing the application or running it, we can set up a shutdown task like so:
 
-    Iodine.on_shutdown do
-       Iodine.info "This is a shutdown task - check it out as the application quits ;-)"
+    Plezi.on_shutdown do
+       puts "This is a shutdown task - check it out as the application quits ;-)"
     end
-    

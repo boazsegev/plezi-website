@@ -88,61 +88,63 @@ By reviewing the Http request type (GET, POST, DELETE) the `:id` parameter (abse
 
 Here's a sample Controller for CRUD RESTful requests:
 
-    class CRUDCtrl
+```
+class CRUDCtrl
 
-        # every request that routes to this controller will create a new instance
-        def initialize
-        end
-
-        # called when request is GET and params[:id] isn't defined
-        def index
-            "Listing all objects..."
-        end
-
-        # called when request is GET and params[:id] exists
-        def show
-            "nothing to show for id - #{params[:id]} - with parameters: #{params.to_s}"
-        end
-
-        # called when request is GET and params[:id] == "new" (used for the "create new object" form).
-        def new
-            "Should we make something new?"
-        end
-
-        # called when request is POST or PUT and params[:id] isn't defined or params[:id] == "new" 
-        def save
-            "save called - creating a new object."
-        end
-
-        # called when request is POST or PUT and params[:id] exists and isn't "new"
-        def update
-            "update called - updating #{params[:id]}"
-        end
-
-        # called when request is DELETE (or params[:_method] == 'delete') and request.params[:id] exists
-        def delete
-            "delete called - deleting object #{params[:id]}"
-        end
-
-        # called before request is called
-        #
-        # if method returns false (not nil), controller exists
-        # and routes continue searching
-        def before
-            true
-        end
-        # called after request is completed
-        #
-        # if method returns false (not nil), the request body is cleared,
-        # the controller exists and routes continue searching
-        def after
-            true
-        end
+    # every request that routes to this controller will create a new instance
+    def initialize
     end
-    # a simple RESTful path - all paths are assumed to be RESTful
-    route '/object', CRUDCtrl
-    # OR, to allow inline _method request parameter
-    route '/object/(:id)/(:_method)', CRUDCtrl
+
+    # called when request is GET and params[:id] isn't defined
+    def index
+        "Listing all objects..."
+    end
+
+    # called when request is GET and params[:id] exists
+    def show
+        "nothing to show for id - #{params[:id]} - with parameters: #{params.to_s}"
+    end
+
+    # called when request is GET and params[:id] == "new" (used for the "create new object" form).
+    def new
+        "Should we make something new?"
+    end
+
+    # called when request is POST or PUT and params[:id] isn't defined or params[:id] == "new"
+    def save
+        "save called - creating a new object."
+    end
+
+    # called when request is POST or PUT and params[:id] exists and isn't "new"
+    def update
+        "update called - updating #{params[:id]}"
+    end
+
+    # called when request is DELETE (or params[:_method] == 'delete') and request.params[:id] exists
+    def delete
+        "delete called - deleting object #{params[:id]}"
+    end
+
+    # called before request is called
+    #
+    # if method returns false (not nil), controller exists
+    # and routes continue searching
+    def before
+        true
+    end
+    # called after request is completed
+    #
+    # if method returns false (not nil), the request body is cleared,
+    # the controller exists and routes continue searching
+    def after
+        true
+    end
+end
+# a simple RESTful path - all paths are assumed to be RESTful
+route '/object', CRUDCtrl
+# OR, to allow inline _method request parameter
+route '/object/(:id)/(:_method)', CRUDCtrl
+```
 
 For using the `route` paths to add different request parameters, refer to the [routes guide](routes).
 
@@ -322,7 +324,7 @@ Read more at the [YARD documentation for this method](http://www.rubydoc.info/ge
 The controller will attempt to guess the URL used to reach any path within it's parameters, setting query parameters if the parameters are not part of the route's path parameters. i.e.:
 
 url_for :index # the root of the controller
-url_for id: 1, _method: :delete # the DELETE method emulation for RESTful ID 1.
+url_for id: 1, \_method: :delete # the DELETE method emulation for RESTful ID 1.
 
 Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#url_for-instance_method).
 
@@ -335,13 +337,29 @@ Read more at the [YARD documentation for this method](http://www.rubydoc.info/ge
 
 This property allows access to the parameters Hash used to setup the host. There is little, if any, use for it, although it allows you to store host global data to be accessed by the controller (allowing the same controller to behave differently on different hosts).
 
+## Websocket specific helpers
+
+Some Controller helper methods are only relevant after a Websocket connection was established.
+
 ### Using `write` to write to a Websocket
 
 After a websocket connection is established, it is possible to use `write` to write data to the websocket directly.
 
+[`write`](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/InstanceMethods#write-instance_method) writes data to the websocket, framing the data as stated by the Websocket protocol.
+
+`data` should be a String object.
+
+If the String is Binary encoded, the data will be sent as binary data (according to the Websockets protocol), otherwise the data will be sent as a UTF8 string data.
+
 Using `write` before a websocket connection was established will append the data to the Http response, leading to possible errors.
 
-(todo: add YARD link... at the moment, the YARD documentation doesn't expose this method)
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/InstanceMethods#write-instance_method).
+
+### The `close` method (Websockets)
+
+[`close`](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/InstanceMethods#close-instance_method) closes the websocket connection after sending the Websocket's appropriate frame.
+
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/InstanceMethods#close-instance_method).
 
 ### The `unicast` method (Websockets)
 

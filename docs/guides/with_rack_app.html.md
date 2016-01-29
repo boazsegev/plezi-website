@@ -86,4 +86,14 @@ i.e.
 
 Easy!
 
+## A note about multi-threading
+
+Plezi is designed to serve multiple concurrent connections and perform concurrent tasks - this is especially important when supporting websockets.
+
+To achive this cuncurrency, Plezi uses Iodine, which is a multi-threaded and (optionally) a multi-process server.
+
+Hence, it's not only important that we take care to keep the application's code (and any gems the app is using) thread-safe, but it's often important that we take care to disable any middleware of features that prevent concurrency, such as the `Rack::Lock` middleware.
+
+## A note about Rake
+
 **As a last note**: It's very likely that your Rack/Sinatra/Rack application is using Rake for it's tasks. Once you're done adding Plezi to your application, remember to edit the `rakefile` as mentioned in out guide about [Plezi with Rake](rake).

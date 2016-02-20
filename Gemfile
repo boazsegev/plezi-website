@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 # core gems
 
 # include the basic plezi framework and server
-gem 'plezi', '~> 0.12.7'
+gem 'plezi', '~> 0.13.0'
 gem 'sass'
 gem 'slim'
 gem 'redcarpet'

@@ -51,3 +51,8 @@ host templates: Root.join('docs').to_s,
 route '/docs', DocsController
 route '/guides', DocsController
 route '/', HomeController
+
+require 'logger'
+class ::Logger; alias_method :write, :<<; end
+Plezi.middleware Rack::ShowExceptions
+Plezi.middleware Rack::CommonLogger, ::Logger.new(STDERR)

@@ -47,16 +47,11 @@ class AIConnection
 		@name = NAMES.sample
 		HomeController.broadcast :print, "#{@name} joind the chat."
 		Iodine.run_after(pause) { post_message }
-		# options = {}
-		# options[:on_open] = Proc.new { Iodine.run_after(pause) { write MESSAGES.sample; rand(1..7).even? ? (Iodine.run_after(pause) { close }) : Iodine.run_after(pause) {on_open} } }
-		# options[:on_message] = Proc.new {|data| }
-		# options[:url] = "ws://localhost:#{Iodine.port}/#{name}"
-		# Iodine::Http.ws_connect options
 	end
 	def post_message
 		HomeController.broadcast :print, "#{@name}: #{MESSAGES.sample}"
-		return Iodine.run_after(pause) { post_message } unless rand(1..7).even? # last?
-		Iodine.run_after(pause) { leave }
+		return Plezi.run_after(pause) { post_message } unless rand(1..7).even? # last?
+		Plezi.run_after(pause) { leave }
 	end
 	def pause
 		rand(8..24)/2.0
@@ -66,4 +61,6 @@ class AIConnection
 	end
 end
 
-Iodine.run_every(60) { AIConnection.new }
+Plezi.on_start do
+	Plezi.run_every(60_000) { AIConnection.new }
+end

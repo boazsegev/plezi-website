@@ -153,7 +153,7 @@ The following is a sample Websocket controller, showcasing all the available cal
       end
       # RESTful methods are available
       def show
-        "showing object with id: #{params[:id]}..."
+        "showing object with id: #{params['id']}..."
       end
       # called before the protocol is swithed from HTTP to WebSockets.
       #

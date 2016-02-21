@@ -76,7 +76,7 @@ Let's copy and paste this into our `irb` terminal:
         end
         # show is RESTful, it will answer '/(:id)'
         def show
-            "Are you looking for: #{params[:id]}?"
+            "Are you looking for: #{params['id']}?"
         end
     end
 
@@ -114,14 +114,14 @@ Here's a websocket chat-room server using Plezi, comeplete with minor authentica
     class MyDemo
         def on_open
             # there's a better way to require a user handle, but this is good enough for now.
-            close unless params[:id]
+            close unless params['id']
         end
         def on_message data
             # sanitize the data.
             data = ERB::Util.html_escape data
             # broadcast to everyone else (NOT ourselves):
             # this will have every connection execute the `chat_message` with the following argument(s).
-            broadcast :chat_message, "#{params[:id]}: #{data}"
+            broadcast :chat_message, "#{params['id']}: #{data}"
             # write to our own websocket:
             write "Me: #{data}"
         end
@@ -323,7 +323,7 @@ Now you can use Plezi from withing your existing App's code. For example, if you
 class ClientsController < ApplicationController
   def update
      #... your original logic here
-     @client = Client.find(params[:id])
+     @client = Client.find(params['id'])
 
      # now unicast data to your client on the websocket
      # (assume his websocket uuid was saved in @client.ws_uuid)
@@ -561,8 +561,8 @@ By using a route with the a 'false' controller, the parameters extracted are aut
             "Hello World!\n #{params}"
         end
         def show
-            return "Vous êtes à la recherche d' : #{params[:id]}" if params[:locale] == 'fr'
-            "You're looking for: #{params[:id]}"
+            return "Vous êtes à la recherche d' : #{params['id']}" if params[:locale] == 'fr'
+            "You're looking for: #{params['id']}"
         end
         def debug
             # binding.pry

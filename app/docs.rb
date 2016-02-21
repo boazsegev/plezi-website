@@ -6,6 +6,6 @@ class DocsController
 		render :guides_index, layout: :layout
 	end
 	def show
-		render ['guides', params[:id]], layout: :layout
+		render ['guides', params['id']], layout: :layout
 	end
 end

@@ -95,7 +95,7 @@ For example:
         end
         def show
             params[:name] ||= "unknown"
-            "Your name is #{ params[:name] }... why are you looking for user id '#{ params[:id] }'?"
+            "Your name is #{ params[:name] }... why are you looking for user id '#{ params['id'] }'?"
         end
     end
 
@@ -182,9 +182,9 @@ Here's a more powerful example of a route with a block of code, this time using 
     require 'plezi'
 
     Plezi.route "/(:id)/(:value)" do |request, response|
-       if request.params[:id]
-           response.cookies[request.params[:id]] = request.params[:value]
-           response << "Set the #{request.params[:id]} cookie to #{request.params[:value] || 'be removed'}.\n\n"
+       if request.params['id']
+           response.cookies[request.params['id']] = request.params[:value]
+           response << "Set the #{request.params['id']} cookie to #{request.params[:value] || 'be removed'}.\n\n"
        end
        response << "Your cookies are:\n"
        request.cookies.each {|k, v| response <<  "* #{k}: #{v}\n" }

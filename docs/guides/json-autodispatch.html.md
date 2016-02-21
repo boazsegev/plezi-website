@@ -14,7 +14,7 @@ The auto-dispatch defines and uses the following JSON "sub-protocol":
 
 * The JSON object's property `'event'`, is routed to a method with the same name on the server (both on the Ruby server and the Javascript client).
 
-    This means that the `'event'` property for websocket messages is mostly equivilant to the `params[:id]` property for Http requests ([both will invoke the same method](http://www.plezi.io/docs/routes#the-id-parameter)) - allowing use to easily support a graceful fallback to Asynchronous Javascript and JSON (AJAJ).
+    This means that the `'event'` property for websocket messages is mostly equivilant to the `params['id']` property for Http requests ([both will invoke the same method](http://www.plezi.io/docs/routes#the-id-parameter)) - allowing use to easily support a graceful fallback to Asynchronous Javascript and JSON (AJAJ).
 
     i.e. an event named `'auth'` will invoke the method `auth` and pass the method `auth` a single Hash parameter containing the JSON data.
 
@@ -32,7 +32,7 @@ The auto-dispatch defines and uses the following JSON "sub-protocol":
               msg['event'] == 'auth'
             else
               # is AJAJ
-              params[:id] == 'auth'
+              params['id'] == 'auth'
               msg = params.dup
             end
             # this will write a JSON response for both

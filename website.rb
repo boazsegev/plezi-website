@@ -55,4 +55,4 @@ route '/', HomeController
 require 'logger'
 class ::Logger; alias_method :write, :<<; end
 Plezi.middleware Rack::ShowExceptions
-Plezi.middleware Rack::CommonLogger, ::Logger.new(STDERR)
+# Plezi.middleware Rack::CommonLogger, ::Logger.new(STDERR)

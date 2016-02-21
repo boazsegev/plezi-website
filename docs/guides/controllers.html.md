@@ -22,7 +22,7 @@ To use a class as a Controller, simply attach it to a [route](./routes). i.e., t
             "All Users"
         end
         def show
-	        "I would love to show you #{params[:id]}... later."
+	        "I would love to show you #{params['id']}... later."
         end
         def foo
 	        "bar"
@@ -37,7 +37,7 @@ Notice the difference between [localhost:3000/users/foo](http://localhost:3000/u
 
 ## RESTful methods
 
-Plezi contains special support for CRUD operations (Create, Read, Update, Delete) and RESTful requests through the use of the `:id` parameter (`params[:id]`) and the following reserverd method names: `index`, `new`, `save`, `show`, `update`, `delete`, `before` and `after`.
+Plezi contains special support for CRUD operations (Create, Read, Update, Delete) and RESTful requests through the use of the `:id` parameter (`params['id']`) and the following reserverd method names: `index`, `new`, `save`, `show`, `update`, `delete`, `before` and `after`.
 
 By reviewing the Http request type (GET, POST, DELETE) the `:id` parameter (absent? `new`?) and the optional `:_method` parameters, Plezi will route RESTful requests to the correct CRUD method:
 
@@ -95,34 +95,34 @@ class CRUDCtrl
     def initialize
     end
 
-    # called when request is GET and params[:id] isn't defined
+    # called when request is GET and params['id'] isn't defined
     def index
         "Listing all objects..."
     end
 
-    # called when request is GET and params[:id] exists
+    # called when request is GET and params['id'] exists
     def show
-        "nothing to show for id - #{params[:id]} - with parameters: #{params.to_s}"
+        "nothing to show for id - #{params['id']} - with parameters: #{params.to_s}"
     end
 
-    # called when request is GET and params[:id] == "new" (used for the "create new object" form).
+    # called when request is GET and params['id'] == "new" (used for the "create new object" form).
     def new
         "Should we make something new?"
     end
 
-    # called when request is POST or PUT and params[:id] isn't defined or params[:id] == "new"
+    # called when request is POST or PUT and params['id'] isn't defined or params['id'] == "new"
     def save
         "save called - creating a new object."
     end
 
-    # called when request is POST or PUT and params[:id] exists and isn't "new"
+    # called when request is POST or PUT and params['id'] exists and isn't "new"
     def update
-        "update called - updating #{params[:id]}"
+        "update called - updating #{params['id']}"
     end
 
-    # called when request is DELETE (or params[:_method] == 'delete') and request.params[:id] exists
+    # called when request is DELETE (or params[:_method] == 'delete') and request.params['id'] exists
     def delete
-        "delete called - deleting object #{params[:id]}"
+        "delete called - deleting object #{params['id']}"
     end
 
     # called before request is called

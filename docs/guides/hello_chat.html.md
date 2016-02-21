@@ -32,18 +32,18 @@ The Plezi code from the landing page looked something like this:
             render :client
         end
         def on_open
-            return close unless params[:id]
+            return close unless params['id']
             broadcast :print,
-                    "\#{params[:id]} joind the chat."
-            print "Welcome, \#{params[:id]}!"
+                    "\#{params['id']} joind the chat."
+            print "Welcome, \#{params['id']}!"
         end
         def on_close
             broadcast :print,
-                    "\#{params[:id]} left the chat."
+                    "\#{params['id']} left the chat."
         end
         def on_message data
             self.class.broadcast :print,
-                        "\#{params[:id]}: \#{data}"
+                        "\#{params['id']}: \#{data}"
         end
         protected
         def print data
@@ -84,7 +84,7 @@ The web page is the "client" for our web application. and the `path_to_client` t
 
 `route '/', ChatServer` - We are connecting the `"/"` path to our `ChatServer` controller... 
 
-... Actually, since Plezi is quite opinionated about it's routes, Plezi assumes we meant to write `"/(:id)"`, meaning that the optional `params[:id]` can be set using our route. i.e., our `ChatServer` will answer the request `"/my-name"` and will set the `params[:id]`'s value to be `"my-name"`.
+... Actually, since Plezi is quite opinionated about it's routes, Plezi assumes we meant to write `"/(:id)"`, meaning that the optional `params['id']` can be set using our route. i.e., our `ChatServer` will answer the request `"/my-name"` and will set the `params['id']`'s value to be `"my-name"`.
 
 Will take advantage of that to set data for the websocket connection later on.
 
@@ -133,11 +133,11 @@ Plezi offers us two great ways to authenticate the connection:
 
     The advantage of this approach is that it allows us to send back authentication error messages using our websocket connection as well as unify any initialization we need with the authentication.
 
-In this example, our authentication process is simple, we just make sure our client has a nickname by using the `params[:id]` or we close the connection (remember Plezi's RESTful routing? no? we'll get back to it in a bit).
+In this example, our authentication process is simple, we just make sure our client has a nickname by using the `params['id']` or we close the connection (remember Plezi's RESTful routing? no? we'll get back to it in a bit).
 
     class ChatServer
         def on_open
-            return close unless params[:id]
+            return close unless params['id']
             # ...
         end
     end
@@ -146,7 +146,7 @@ Since we use `on_open` (and not `pre_connect`), we can improve this by sending a
 
     class ChatServer
         def on_open
-            unless params[:id]
+            unless params['id']
                 write "You need a nickname to join the chat!"
                 return close
             end
@@ -163,10 +163,10 @@ Enter `broadcast` on stage left...
 The Controller's instance `broadcast` method will alert all it siblings (all the __other__ ChatServer websocket connections) to an event. We use it in our `on_open` callback to inform everyone about the new connection:
 
         def on_open
-            return close unless params[:id]
+            return close unless params['id']
             broadcast :print,
-                    "\#{params[:id]} joind the chat."
-            print "Welcome, \#{params[:id]}!"
+                    "\#{params['id']} joind the chat."
+            print "Welcome, \#{params['id']}!"
         end
 
 In this implementation, we broadcast an event called `:print`.
@@ -190,7 +190,7 @@ That's it, it all makes sense now. Our `on_close` callback acts the same:
     class ChatServer
         def on_close
             broadcast :print,
-                    "\#{params[:id]} left the chat."
+                    "\#{params['id']} left the chat."
         end
     end
 
@@ -200,7 +200,7 @@ And also out `on_message`... wait, no... our `on_message` callback uses a Class 
     class ChatServer
         def on_message data
             self.class.broadcast :print,
-                        "\#{params[:id]}: \#{data}"
+                        "\#{params['id']}: \#{data}"
         end
     end
 
@@ -209,8 +209,8 @@ It's just a convenience, we could have gotten a similar result (a bit lees async
     class ChatServer
         def on_message data
             broadcast :print,
-                    "\#{params[:id]}: \#{data}"
-            print "\#{params[:id]}: \#{data}"
+                    "\#{params['id']}: \#{data}"
+            print "\#{params['id']}: \#{data}"
         end
     end
 
@@ -352,7 +352,7 @@ Our new `on_message` callback , `handle_chat` method and `print` (renamed to `em
         def handle_chat message
             self.class.broadcast :emit,
                 event: 'chat',
-                from: ::ERB::Util.html_escape(params[:id]),
+                from: ::ERB::Util.html_escape(params['id']),
                 to: 'public',
                 uuid: uuid,
                 data: ::ERB::Util.html_escape(message['data'])
@@ -371,30 +371,30 @@ We also need to update our `on_open` and `on_close` to use JSON... This might be
 
     class ChatServer
         def on_open
-            unless params[:id]
+            unless params['id']
                 emit event: 'err', data: "You need a nickname to join the chat!"
                 return close
             end
             # lets sanitize the nickname here,
             # so we don't repeat this all the time...
-            params[:id] = ::ERB::Util.html_escape(params[:id])
+            params['id'] = ::ERB::Util.html_escape(params['id'])
             # inform others
             broadcast :emit,
                     event: 'connection',
                     data: 'join'
-                    from: params[:id],
+                    from: params['id'],
                     uuid: uuid
             # welcome our client
             emit event: 'connection',
                 data: 'welcome'
-                from: params[:id],
+                from: params['id'],
                 uuid: uuid
         end
         def on_close
             broadcast :emit,
                     event: 'connection',
                     data: 'leave'
-                    from: params[:id],
+                    from: params['id'],
                     uuid: uuid
         end
     end
@@ -409,7 +409,7 @@ But first, we need to update the `handle_chat` method, because we already saniti
 
         def handle_chat message
             self.class.broadcast :emit,
-                from: params[:id],
+                from: params['id'],
                 to: 'public',
                 uuid: uuid,
                 event: 'chat',
@@ -475,7 +475,7 @@ Let's start with a clean and empty controller. We'll just do one thing for now -
 
 What are we keeping? We're keeping the authentication we wrote., So lets put that back in... but there is something we should change first.
 
-The Auto-Dispatch will route any JSON `event` to a public or protected method. This allows us to expose some of our API both as Websocket events (using the JSON `event` property) or as AJAJ (AJAX with JSON) requests (using the `params[:id]` to route the request to the Http method). The protected methods will only be available as websocket events.
+The Auto-Dispatch will route any JSON `event` to a public or protected method. This allows us to expose some of our API both as Websocket events (using the JSON `event` property) or as AJAJ (AJAX with JSON) requests (using the `params['id']` to route the request to the Http method). The protected methods will only be available as websocket events.
 
 But...
 
@@ -493,27 +493,27 @@ Our authentication logic will now look like this:
             write data.to_json
         end
         def on_open
-            unless params[:id]
+            unless params['id']
                 _emit event: 'err', data: "You need a nickname to join the chat!"
                 return close
             end
             # lets sanitize the nickname here,
             # so we don't repeat this all the time...
-            params[:id] = ::ERB::Util.html_escape(params[:id])
+            params['id'] = ::ERB::Util.html_escape(params['id'])
             # inform others
             broadcast :_emit,
                     event: 'joined',
-                    from: params[:id],
+                    from: params['id'],
                     uuid: uuid
             # welcome our client
             _emit event: 'welcome',
-                from: params[:id],
+                from: params['id'],
                 uuid: uuid
         end
         def on_close
             broadcast :_emit,
                     event: 'left',
-                    from: params[:id],
+                    from: params['id'],
                     uuid: uuid
         end
     end
@@ -525,7 +525,7 @@ Now it's time to add a handler for our `chat` event. Since the auto-dispatch wil
         protected
         def chat msg
             self.class.broadcast :_emit,
-                from: params[:id],
+                from: params['id'],
                 to: 'public',
                 uuid: uuid,
                 event: 'chat',
@@ -564,33 +564,33 @@ Here is the whole of our controller code:
             write data.to_json
         end
         def on_open
-            unless params[:id]
+            unless params['id']
                 _emit event: 'err', data: "You need a nickname to join the chat!"
                 return close
             end
             # lets sanitize the nickname here,
             # so we don't repeat this all the time...
-            params[:id] = ::ERB::Util.html_escape(params[:id])
+            params['id'] = ::ERB::Util.html_escape(params['id'])
             # inform others
             broadcast :_emit,
                     event: 'joined',
-                    from: params[:id],
+                    from: params['id'],
                     uuid: uuid
             # welcome our client
             _emit event: 'welcome',
-                from: params[:id],
+                from: params['id'],
                 uuid: uuid
         end
         def on_close
             broadcast :_emit,
                     event: 'left',
-                    from: params[:id],
+                    from: params['id'],
                     uuid: uuid
         end
         protected
         def chat msg
             self.class.broadcast :_emit,
-                from: params[:id],
+                from: params['id'],
                 to: 'public',
                 uuid: uuid,
                 event: 'chat',

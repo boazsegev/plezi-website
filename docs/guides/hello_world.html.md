@@ -181,8 +181,8 @@ Let's edit our `hello_controller.rb` file:
             "Hello World!"
         end
         def show
-            cookies[:hello] = params[:id]
-            "Hello #{params[:id]}!"
+            cookies[:hello] = params['id']
+            "Hello #{params['id']}!"
         end
     end
 
@@ -194,8 +194,8 @@ Hmm... not very DRY, is it... let's try again, and let's give more respect to th
         end
         def show
             response << "You came from #{cookies[:hello]}. now...\n" if cookies[:hello]
-            cookies[:hello] = params[:id]
-            "Hello #{params[:id]}!"
+            cookies[:hello] = params['id']
+            "Hello #{params['id']}!"
         end
     end
 
@@ -211,8 +211,8 @@ Just one last thing... Atlantis isn't really here no more... let's make it a spe
         end
         def show
             response << "You came from #{flash[:hello]}. now...\n" if flash[:hello]
-            flash[:hello] = params[:id]
-            "Hello #{params[:id]}!"
+            flash[:hello] = params['id']
+            "Hello #{params['id']}!"
         end
         def atlantis
             # notice what happens when we don't set the flash.
@@ -257,9 +257,9 @@ Here's a bit of an updated controller... while we're at it, we should probably s
             redirect_to :World
         end
         def show
-            @location = ::ERB::Util.html_escape params[:id]
+            @location = ::ERB::Util.html_escape params['id']
             @previous = ::ERB::Util.html_escape flash[:hello]
-            flash[:hello] = params[:id]
+            flash[:hello] = params['id']
             render :hello, layout: :layout
         end
         def atlantis

@@ -2,17 +2,17 @@
 
 Plezi can play well together with your existing Rack application, so we can run Plezi within our existing Rails/Sinatra/Rack application, adding websocket support to our existing code.
 
-Plezi's server, [Iodine](https://github.com/boazsegev/iodine), isn't a [Rack](http://rack.github.io) server when Plezi uses it, but it _can_ be a Rack server as well... even while being used by Plezi at the same time.
+Plezi's new server, [Iodine](https://github.com/boazsegev/iodine) 0.2.x, is a [Rack](http://rack.github.io) server which allows for application layering. This means that it's possible to run more then a single Rack application at the same time (i.e., running Plezi & Rails).
 
 This means that we can use Plezi for all our needs (Websockets, RESTful API, whatever), and still use our existing Rack application for anything we didn't implement in our Plezi code.
 
-There's only one catch - we can't have more than a single web-server per application. This means that our existing Rack application **MUST** use Plezi (Iodine, actually) as it's web server.
+However, this means that our existing Rack application **MUST** use Plezi (Iodine, actually) as it's web server.
 
-If you really feel attached to your thin, unicorn, puma or passanger server, you can still integrate Plezi with your existing application, but they won't be able to share the same process and you will need to utilize the Placebo API (a guide is coming soon).
+If you really feel attached to your thin, unicorn, puma or passenger server, you can still integrate Plezi with your existing application, but they won't be able to share the same process and you will need to utilize the Placebo API (a guide is coming soon).
 
 ## How to add Plezi to our existing Rails/Sinatra/Rack app
 
-First, make sure `plezi` and all the gems you need are included in your existin application's gemfile.
+First, make sure `plezi` and all the gems you need are included in your existing application's gemfile.
 
 i.e., the `Gemfile` of a Rails app I upgraded to utilize Plezi websockets look something like this:
 
@@ -90,7 +90,7 @@ Easy!
 
 Plezi is designed to serve multiple concurrent connections and perform concurrent tasks - this is especially important when supporting websockets.
 
-To achive this cuncurrency, Plezi uses Iodine, which is a multi-threaded and (optionally) a multi-process server.
+To achieve this concurrency, Plezi uses Iodine, which is a multi-threaded and (optionally) a multi-process server.
 
 Hence, it's not only important that we take care to keep the application's code (and any gems the app is using) thread-safe, but it's often important that we take care to disable any middleware of features that prevent concurrency, such as the `Rack::Lock` middleware.
 

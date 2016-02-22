@@ -21,7 +21,7 @@ Starting with Iodine 0.2.x and Plezi 0.13.x, HTTP streaming is no longer nativel
 `Iodine`'s core is built with simplicity in mind, making the programmer happy. With this in mind, Iodine offers a single and simple method that allow us to easily queue code execution.
 
 
-#### `Plezi.run`
+#### Run a task in parallel using `Plezi.run`
 
 `Plezi.run { block }` (inherited for Iodine) takes a block of code and adds it to the task queue for asynchronous execution.
 
@@ -40,6 +40,16 @@ For example:
     route '/', MyController
 
     exit
+
+#### Schedule a connection related task using `Websocket#defer`
+
+`Websocket#defer { block }` (inherited for Iodine) is similar to `Plezi.run`, except that the task will be performed within the connection's lock, preventing a websocket connection from running this task while performing another connection related tasks (such as broadcast or message handling).
+
+The method (unless overridden) is available from within the controller. i.e.:
+
+    def on_message data
+       defer { puts "Upcoming websockets events will wait for this code to finish." }
+    end
 
 ### Timed events
 

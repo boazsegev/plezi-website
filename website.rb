@@ -2,38 +2,37 @@
 
 ENV['ENV'] ||= ENV['RACK_ENV'] || 'production'
 ## Set working directory, load gems and create logs
-	## Using pathname extentions for setting public folder
-	require 'pathname'
-	## Set up root object, it might be used by the environment and\or the plezi extension gems.
-	Root ||= Pathname.new(File.dirname(__FILE__)).expand_path
-	## If this app is independant, use bundler to load gems (including the plezi gem).
-	## otherwise, use the original app's Gemfile and Plezi will automatically switch to Rack mode.
-	require 'bundler'
-	Bundler.require(:default, ENV['ENV'].to_s.to_sym)
+## Using pathname extentions for setting public folder
+require 'pathname'
+## Set up root object, it might be used by the environment and\or the plezi extension gems.
+Root ||= Pathname.new(File.dirname(__FILE__)).expand_path
+## If this app is independant, use bundler to load gems (including the plezi gem).
+## otherwise, use the original app's Gemfile and Plezi will automatically switch to Rack mode.
+require 'bundler'
+Bundler.require(:default, ENV['ENV'].to_s.to_sym)
 
 # # Optional code auto-loading and logging:
 
-	# # Load code from a subfolder called 'app'?
-	Dir[File.join "{app}", "**" , "*.rb"].each {|file| load File.expand_path(file)}
+# # Load code from a subfolder called 'app'?
+Dir[File.join '{app}', '**', '*.rb'].each { |file| load File.expand_path(file) }
 
-	## Log to a file?
-	# Iodine.logger = Logger.new Root.join('server.log').to_s
+## Log to a file?
+# Iodine.logger = Logger.new Root.join('server.log').to_s
 
 # # Optional Scaling (across processes or machines):
-	ENV['PL_REDIS_URL'] ||= ENV['REDIS_URL'] ||
-							ENV['REDISCLOUD_URL'] ||
-							ENV['REDISTOGO_URL'] ||
-							nil # "redis://username:password@my.host:6389"
-	# # redis channel name should be changed is using Placebo API
-	# Plezi::Settings.redis_channel_name = 'website_6a46dee9baf26132917c5392ddcb504b'
+ENV['PL_REDIS_URL'] ||= ENV['REDIS_URL'] ||
+                        ENV['REDISCLOUD_URL'] ||
+                        ENV['REDISTOGO_URL'] ||
+                        nil # "redis://username:password@my.host:6389"
+# # redis channel name should be changed is using Placebo API
+# Plezi::Settings.redis_channel_name = 'website_6a46dee9baf26132917c5392ddcb504b'
 
-	# # uncomment to set up forking for 3 more processes (total of 4).
-	# Iodine.processes = 4
+# # uncomment to set up forking for 3 more processes (total of 4).
+# Iodine.processes = 4
 
 # change some of the default settings here.
-host templates: Root.join('docs').to_s,
-	public: Root.join('public').to_s,
-	assets: Root.join('assets').to_s
+Plezi.templates = Root.join('docs').to_s
+# assets: Root.join('assets').to_s
 
 # # I18n re-write, i.e.: `/en/home` will be rewriten as `/home`, while setting params[:locale] to "en"
 # route "/:locale{#{I18n.available_locales.join "|"}}/*" , false if defined? I18n
@@ -48,6 +47,6 @@ host templates: Root.join('docs').to_s,
 # end
 
 # Add your routes and controllers by order of priority.
-route '/docs', DocsController
-route '/guides', DocsController
-route '/', HomeController
+Plezi.route('/docs', DocsController)
+Plezi.route('/guides', DocsController)
+Plezi.route('/', HomeController)

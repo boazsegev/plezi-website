@@ -10,7 +10,7 @@ The second layer of this powerful routing system is the Controller class which w
 
 ## What is a Controller Class?
 
-Plezi has the ability to take in any class as a controller class and route Http requests to the classes public methods. This powerful routing system has built-in support for RESTful methods (`index`, `show`, `new`, `save`, `update`, `delete`, `before` and `after`) and for WebSockets (`pre_connect`, `on_open`, `on_message(data)`, `on_close`, `broadcast`, `unicast`, `multicast`, `on_broadcast(data)`, `register_as(identity)`, `notify`).
+Plezi has the ability to take in any class as a controller class and route Http requests to the classes public methods. This powerful routing system has built-in support for RESTful methods (`index`, `show`, `new`, `save`, `update`, `delete`) and for WebSockets (`pre_connect`, `on_open`, `on_message(data)`, `on_close`, `broadcast`, `unicast`, `multicast`, `on_broadcast(data)`, `register_as(identity)`, `notify`).
 
 In effect, Controller classes act as "virtual folders" where methods are the "files" served by the Plezi router.
 
@@ -32,8 +32,6 @@ To use a class as a Controller, simply attach it to a [route](./routes). i.e., t
     exit # on `irb` we start Plezi by exiting `irb`
 
 Notice the difference between [localhost:3000/users/foo](http://localhost:3000/users/foo) and [localhost:3000/users/bar](http://localhost:3000/users/bar).
-
-\* you can read the demo code for [Plezi::StubRESTCtrl and Plezi::StubWSCtrl](https://github.com/boazsegev/plezi/blob/master/lib/plezi/handlers/stubs.rb) to learn more. Also, feel free to read more about the [Iodine Websocket and Http server](https://github.com/boazsegev/iodine) which powers Plezi's core. You can find helpful information about the amazing [Request](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Http/Request) and [Response](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Http/Response) objects.
 
 ## RESTful methods
 
@@ -76,14 +74,6 @@ By reviewing the Http request type (GET, POST, DELETE) the `:id` parameter (abse
 
     To so so, use the `url_for` helper method or simply add the following to the URL query string `?_method=delete`.
 
-* `before` (if exists) will be called before ANY request handled by the controller.
-
-    It's recommended to use the `requested_method` when requiring authentication exemptions for specific methods (i.e `:index` and `:show`).
-
-    If this method returns false (not nil), the request body is cleared, the controller exists and routes continue searching for the next applicable route (allowing the seperation of Editing/Admin Controllers from Viewing/Public Controllers).
-
-* `after` (if exists) will be called after ANY request handled by the controller. Behaves the same as `before`, allowing cancellation of the response after the data had been processed.
-
 ### A sample CRUD Controller
 
 Here's a sample Controller for CRUD RESTful requests:
@@ -125,34 +115,20 @@ class CRUDCtrl
         "delete called - deleting object #{params[:id]}"
     end
 
-    # called before request is called
-    #
-    # if method returns false (not nil), controller exists
-    # and routes continue searching
-    def before
-        true
-    end
-    # called after request is completed
-    #
-    # if method returns false (not nil), the request body is cleared,
-    # the controller exists and routes continue searching
-    def after
-        true
-    end
 end
 # a simple RESTful path - all paths are assumed to be RESTful
-route '/object', CRUDCtrl
-# OR, to allow inline _method request parameter
-route '/object/(:id)/(:_method)', CRUDCtrl
+Plezi.route '/object', CRUDCtrl
+# OR, to allow inline _method request parameter, such as POST, PUT, GET or DELETE
+Plezi.route '/object/(:id)/(:_method)', CRUDCtrl
 ```
 
-For using the `route` paths to add different request parameters, refer to the [routes guide](routes).
+For using the `Plezi.route` paths to add different request parameters, refer to the [routes guide](routes).
 
 ## The Controller as a virtual folder
 
 As already demonstrated by the RESTful API design, the `:id` parameter is used to route the request to a specific CRUD method.
 
-However, the `:id` parameter can also be used to GET or POST data to custom methods, so that a Controller can act as a "virtual API folder" or to group together a group of resources.
+However, the `:id` parameter can also be used to GET, POST or DELETE data using custom methods, so that a Controller can act as a "virtual API folder" or to group together a group of resources.
 
 The perfect example is the "Root" path and it's related pages. i.e.:
 
@@ -169,9 +145,7 @@ The perfect example is the "Root" path and it's related pages. i.e.:
     end
     route '/', RootCtrl
 
-This is a very powerful feature, especially when writing a backend with a Websocket API and an AJAJ (AJAX + JSON) fallback API (see the [JSON websocket Auto-Dispatch guide](json-autodispatch)).
-
-(todo: complete documentation)
+This is a very powerful feature, especially when writing a backend with a Websocket API and AJAJ (AJAX + JSON) fallback (see the [JSON websocket Auto-Dispatch guide](json-autodispatch)).
 
 ## Websocket Callbacks
 
@@ -249,75 +223,24 @@ It's also possible to set the [`response.set_cookie` options](http://www.rubydoc
 
 Remember, cookies are sent to the browser using Http headers - you CAN'T set cookies after the headers were sent. If streaming a response, make sure to set all cookies BEFORE streaming begins.
 
-### The `flash` cookie-jar
-
-The `flash` object is a little bit of a magic hash that sets and reads temporary cookies. These cookies will be removed after the next request sent by the client to the application.
-
-Use it like a Hash, using `flash[:key]` to read or `flash[:key]=value` to set.
-
-### The `session` storage
-
-The session object is a LOCAL storage (unlike Rails which stors the data in a cookie) with a Hash like interface.
-
-The session's lifetime is variable.
-
-The client side identification should remain valid until the browser is restarted. BUT, the identification can still be used until the session's local storage had been cleared.
-
-When using Redis, the local storage persists for up to 24 hours between connections.
-
-When falling back on temp-file storage (no Redis), the local storage will persists until the server clears it's tmp folder. Usually, the tmp folder is cleared between restarts. It's possible to set the interval between tmp-folder cleanup to a different value (which is often the practice with web servers).
-
-Be aware that Session hijacking is a serious threat and avoid trusting the session data before exposing private information on the web (i.e. require re-authentication before exposing private information).
-
-The session object will be either Plezi's Redis session object (syncing local data when scaling) or the local [Tempfile session storage object that comes bundled with Iodine](http://www.rubydoc.info/gems/iodine/Iodine/Http/SessionManager/FileSessionStorage/SessionObject). They both share the same API.
-
 ### The `render` method
 
-Renders a template file (.slim/.erb/.haml) to a String and attempts to set the response's 'content-type' header (if it's still empty).
+Renders a template file (.slim/.erb/.md) to a String and attempts to set the response's 'content-type' header (if it's still empty).
 
-For example, to render the file `body.html.slim` with the layout `main_layout.html.haml`:
+For example, to render the file `users/index.html.erb` with the layout `layout.html.slim`:
 
-    render :body, layout: :main_layout
+    render("layout") { render("users/index") }
 
-or, for example, to render the file `message.json.slim`
+or, for example, to render the same content in JSON format, using the templates `users/index.json.erb` with the layout `layout.json.erb`
 
-    render :message, format: 'json'
+    params['format'] = 'json'
+    render("layout") { render("users/index") }
 
 Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#render-instance_method).
-
-### The `send_data` method (Http)
-
-This method sends raw data to be saved as a file or viewed as an attachment. The browser behave as if it had recieved a file.
-
-This is usful for sending 'attachments' (data to be downloaded) rather then a regular response.
-
-This is also useful for offering a file name for the browser to “save as”.
-
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#send_data-instance_method).
 
 ### The `requested_method` method
 
 This method review's the request and returns the name of the controller method that was invoked.
-
-This method can be useful within the `before` and `after` callbacks, allowing for authentication requirements or exemptions.
-
-### The `redirect_to` method (Http)
-
-This method does two things:
-
-1. It sets redirection headers for the response.
-
-2. It sets the `flash` object (short-time cookies) with all the values passed except the :status value.
-
-i.e., to redirect within the same controller:
-
-    redirect_to "https://www.google.com"
-
-Unless `url` is a String, the controller will attempt to guess the URL using the `url_for` method. i.e., to redirect within the same controller, setting `flash[:notice]` to a message:
-
-    redirect_to :index, notice: "my message"
-
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#redirect_to-instance_method).
 
 ### The `url_for` URL builder
 
@@ -327,15 +250,6 @@ url_for :index # the root of the controller
 url_for id: 1, \_method: :delete # the DELETE method emulation for RESTful ID 1.
 
 Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#url_for-instance_method).
-
-### The `full_url_for` URL builder
-
-Same as `url_for`, but attempts to rebuild the full url (inluding the schema, port and domain name).
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#full_url_for-instance_method).
-
-### The `host_params` hash
-
-This property allows access to the parameters Hash used to setup the host. There is little, if any, use for it, although it allows you to store host global data to be accessed by the controller (allowing the same controller to behave differently on different hosts).
 
 ## Websocket specific helpers
 
@@ -349,7 +263,7 @@ After a websocket connection is established, it is possible to use `write` to wr
 
 `data` should be a String object.
 
-If the String is Binary encoded, the data will be sent as binary data (according to the Websockets protocol), otherwise the data will be sent as a UTF8 string data.
+If the String is Binary encoded, the data will be sent as binary data (according to the Websockets protocol), otherwise the data will be sent as a UTF8 string data. It's possible to use Plezi's `Plezi.try_utf8!` which will set a String's encoding to UTF-8 only when it's a valid encoding for that String.
 
 Using `write` before a websocket connection was established will append the data to the Http response, leading to possible errors.
 
@@ -378,57 +292,3 @@ Read more at the [YARD documentation for this method](http://www.rubydoc.info/ge
 Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#multicast-instance_method).
 
 (todo: write documentation)
-
-### The `register_as` Identity method (Websockets)
-
-Registers the current connection under an unique Identity, creating a message queue that will expire after set lifetime (currently defaults to 7 days).
-
-An Identity has a limited number of connections it can use. That number defaults to 1 (a single connection at a time), but can be expended to any number.
-
-A single connection can register as a number of Identities, allowing varying lifetimes for different Identity message queues.
-
-Example use:
-
-    register_as "#{session.id}_daily", lifetime: 60*60*24, max_connections: 4
-    register_as "#{session.id}_hourly", lifetime: 60*60, max_connections: 4
-
-
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/InstanceMethods#register_as-instance_method).
-
-**A note about the Identity API**:
-
-It is true that the Identity API allows Identities with extremely large number of allowed connections to be used as broadcast "channels" for multiple "subscribers".
-
-However, use of the Identity API where the same Identity has a large number of connections is NOT recommended for performance reasons.
-
-Consider using an 'opt-out' system, leveraging the `broadcast` method, when you expect most of the websocket connections to listen for a certain event.
-
-### The `notify` Identity method (Websockets)
-
-Sends a message / notification to a specific Identity.
-
-The message will wait in a message queue until the Identity is online or the Identity's message queue expires.
-
-Use:
-
-    notify "identity_value", :event_method, arg1, arg2, ...
-
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#notify-instance_method).
-
-### The `registered?` Identity method (Websockets)
-
-This method checks if a certain Identity is valid (is registered and it's lifetime had not expired).
-
-Example use:
-
-    registered? "identity_value"
-
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#registered%3F-instance_method).
-
-### The `placebo?` method (Websockets)
-
-This method should return `false` unless this controller is a Placebo controller, as related to the Placebo API.
-
-The Placebo API allows you to connect the Plize application to a remote, non-Plezi process using a Redis server. Use cases include connecting a Plezi application to a Plezi worker process or a Rails application that opted not to use Plezi directly.
-
-In the (hopefuly close) future, a guide will be published about this API.

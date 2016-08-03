@@ -1,16 +1,16 @@
 # The Schema.org data
-
+require 'json'
 # Description
-SCHEMA_ABOUT = %q{Websockets and REST for Ruby - Plezi is a Ruby framework for realtime web applications. Easier than Faye, more fun than socket.io. Works with Rails, Sintra, Rack and on it's own.}
+SCHEMA_ABOUT = "Websockets and REST for Ruby - Plezi is a Ruby framework for realtime web applications. Easier than Faye, more fun than socket.io. Works with Rails, Sintra, Rack and on it's own.".freeze
 
 # Schema JSON
 SCHEMA_ORG = {
-  "@context" => "http://schema.org",
-  "@type" => "WebSite",
+  '@context' => 'http://schema.org',
+  '@type' => 'WebSite',
   url: 'http://www.plezi.io',
-  name: "Plezi",
+  name: 'Plezi',
   description: SCHEMA_ABOUT,
-  keywords: "websockets, websocket, ruby, framework, realtime, real-time, http, rest, restful, crud, easy",
+  keywords: 'websockets, websocket, ruby, framework, realtime, real-time, http, rest, restful, crud, easy',
   image: 'http://www.plezi.io/images/logo_thick_dark.png',
   # potentialAction: {
   #     "@type" => "SearchAction",
@@ -19,28 +19,28 @@ SCHEMA_ORG = {
   #   },
   author: [
     {
-      "@type" => "Person",
-      name: "Bo (Myst)",
+      '@type' => 'Person',
+      name: 'Bo (Myst)',
       url: 'http://stackoverflow.com/users/4025095/myst',
-      email: "bo(at)plezi.io",
+      email: 'bo(at)plezi.io'
     }
   ],
   sourceOrganization: {
-    "@context" => "http://schema.org",
-    "@type" => "Organization",
-    name: "Plezi",
+    '@context' => 'http://schema.org',
+    '@type' => 'Organization',
+    name: 'Plezi',
     url: 'http://www.plezi.io',
     description: SCHEMA_ABOUT,
     logo: 'http://www.plezi.io/images/logo_thick_dark.png',
     image: 'http://www.plezi.io/images/logo_thick_dark.png',
-    email: "bo(at)plezi.io",
+    email: 'bo(at)plezi.io',
     member: [
       {
-        "@type" => "Person",
-        name: "Bo (Myst)",
+        '@type' => 'Person',
+        name: 'Bo (Myst)',
         url: 'http://stackoverflow.com/users/4025095/myst',
-        email: "bo(at)plezi.io",
+        email: 'bo(at)plezi.io'
       }
-    ],
-  },
+    ]
+  }
 }.to_json

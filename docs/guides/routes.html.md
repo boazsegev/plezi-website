@@ -47,7 +47,7 @@ Here are a few examples for valid routes. You can run the following script in th
     Plezi.route("/people") { "People" }
 
     # this route includes a catch-all at the end and will
-    # catch anything that starts with "/stuff/" 
+    # catch anything that starts with "/stuff/"
     Plezi.route("/stuff/*") { "More and more stuff" }
 
     # this is catch-all that answers any requests not yet answered.
@@ -69,39 +69,42 @@ In order to manage route "groups", Plezi's router attmpts to add an optional `:i
 
 So, the following two routes are identical:
 
-    require 'plezi'
+```ruby
+require 'plezi'
 
-    class UsersController
-        def index
-            "All Users"
-        end
+class UsersController
+    def index
+        "All Users"
     end
+end
 
-    Plezi.route "/users", UsersController
+Plezi.route "/users", UsersController
+Plezi.route "/users/(:id)", UsersController
 
-    route "/users/(:id)", UsersController
-
-    exit
+exit
+```
 
 It's possible to add different optional parameters either before or after the (:id) parameter... but the (:id) parameter is special and it WILL effect the way the Controller reacts to the request - this is what allows the controller to react to RESTful requests (more information about this later on).
 
 For example:
 
-    require 'plezi'
+```ruby
+require 'plezi'
 
-    class UsersController
-        def index
-            "All Users"
-        end
-        def show
-            params[:name] ||= "unknown"
-            "Your name is #{ params[:name] }... why are you looking for user id '#{ params[:id] }'?"
-        end
+class UsersController
+    def index
+        "All Users"
     end
+    def show
+        params[:name] ||= "unknown"
+        "Your name is #{ params[:name] }... why are you looking for user id '#{ params[:id] }'?"
+    end
+end
 
-    route "/users/(:id)/(:name)", UsersController
+Plezi.route "/users/(:id)/(:name)", UsersController
 
-    exit
+exit
+```
 
 * now visit [/users/1/John](http://localhost:3000/users/1/John)
 
@@ -130,37 +133,39 @@ To create a re-write route, we set the "controller" to false.
 
 For Example:
 
-    require 'plezi'
+```ruby
+require 'plezi'
 
-    class UsersController
-        def index
-            case params[:locale]
-            when 'sp'
-                "Hola!"
-            when 'fr'
-                "Bonjour!"
-            when 'ru'
-                "Здравствуйте!"
-            when 'jp'
-                "こんにちは!"
-            else
-                "Hello!"
-            end
+class UsersController
+    def index
+        case params[:locale]
+        when 'sp'
+            "Hola!"
+        when 'fr'
+            "Bonjour!"
+        when 'ru'
+            "Здравствуйте!"
+        when 'jp'
+            "こんにちは!"
+        else
+            "Hello!"
         end
     end
+end
 
-    # this is the re-write route:
-    Plezi.route "/(:locale){en|sp|fr|ru|jp}/*", false
+# this is the re-write route:
+Plezi.route "/(:locale){en|sp|fr|ru|jp}/*", false
 
-    # this route inherits the `:locale`'s result
-    # try:
-    #   /fr/users
-    #   /ru/users
-    #   /en/users
-    #   /it/users # => isn't a valid locale
-    Plezi.route "/users", UsersController
+# this route inherits the `:locale`'s result
+# try:
+#   /fr/users
+#   /ru/users
+#   /en/users
+#   /it/users # => isn't a valid locale
+Plezi.route "/users", UsersController
 
-    exit
+exit
+```
 
 Try the code above and visit:
 
@@ -179,19 +184,19 @@ These Routes favor a global response over the different features offered by Cont
 
 Here's a more powerful example of a route with a block of code, this time using the `request` and `response` passed on to it:
 
-    require 'plezi'
+```ruby
+require 'plezi'
 
-    Plezi.route "/(:id)/(:value)" do |request, response|
-       if request.params[:id]
-           response.cookies[request.params[:id]] = request.params[:value]
-           response << "Set the #{request.params[:id]} cookie to #{request.params[:value] || 'be removed'}.\n\n"
-       end
-       response << "Your cookies are:\n"
-       request.cookies.each {|k, v| response <<  "* #{k}: #{v}\n" }
-    end
-
-    exit
-
+Plezi.route "/(:id)/(:value)" do |request, response|
+   if request.params[:id]
+       response.cookies[request.params[:id]] = request.params[:value]
+       response << "Set the #{request.params[:id]} cookie to #{request.params[:value] || 'be removed'}.\n\n"
+   end
+   response << "Your cookies are:\n"
+   request.cookies.each {|k, v| response <<  "* #{k}: #{v}\n" }
+end
+exit
+```
 
 ### The Plezi Client Route
 
@@ -201,10 +206,11 @@ The client is also part of the application template and can be served as a stati
 
 To server the updated Plezi Auto-Dispatch javascript client (the client version matching the active Plezi version), Plezi allows the creation of a `:client` route, using the path of our choice:
 
-    Plezi.route '/client.js', :client
-    # or any other path
-    Plezi.route 'a/very/unique/path/to/the/pl_client.js', :client
-
+```ruby
+Plezi.route '/client.js', :client
+# or any other path
+Plezi.route 'a/very/unique/path/to/the/pl_client.js', :client
+```
 More information about the Auto-Dispatch controller and client can be found in the [websockets guides](./websockets)
 
 ## The next step

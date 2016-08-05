@@ -4,32 +4,39 @@ It is very common for websocket applications to use json messages to "emit" JSON
 
 This use-case is so common, that Plezi includes an easy to use Auto Dispatch feature both for the Controller and any Javascript client (usually a browser).
 
+This is a per-controller settings, so it's possible to "mix-and-match" websocket connection styles according to the requirements.
+
 ## Plezi&#39;s Auto-Dispatch Protocol Overview
 
 The server-side Auto-Dispatch can be used with any client that uses JSON for websocket data, so it's easy to build native applications that use Plezi as a websocket backend.
 
 The auto-dispatch defines and uses the following JSON "sub-protocol":
 
-* All websockets much contain a "stringified" JSON dictionary (Hash) object as the root object. Plezi will close the connection if it receives a non JSON message on a path that uses Auto-Dispatch.
+* All websockets much contain a "stringified" JSON dictionary (Hash) object as the root object.
 
-* The JSON object's property `'event'`, is routed to a method with the same name on the server (both on the Ruby server and the Javascript client).
+* The JSON dictionary must have the requied `'event'` property (in Ruby: `:event`).
 
-    This means that the `'event'` property for websocket messages is mostly equivilant to the `params[:id]` property for Http requests ([both will invoke the same method](http://www.plezi.io/docs/routes#the-id-parameter)) - allowing use to easily support a graceful fallback to Asynchronous Javascript and JSON (AJAJ).
+* Plezi will close the connection if it receives a non (conforming) JSON message on a path that uses Auto-Dispatch.
+
+* The JSON object's property `:event`, is routed to a method with the same name on the receiving end (both on the Ruby server and the Javascript client).
+
+    This means that the `:event` property for websocket messages is mostly equivilant to the `params['id']` property for HTTP requests - [both will invoke the same method](http://www.plezi.io/docs/routes#the-id-parameter), allowing use to easily support a graceful fallback to Asynchronous Javascript and JSON (AJAJ).
 
     i.e. an event named `'auth'` will invoke the method `auth` and pass the method `auth` a single Hash parameter containing the JSON data.
 
     Ruby:
 
+    ```ruby
         @auto_dispatch = true
         def auth msg
-            msg['event'] == 'auth'
+            msg[:event] == 'auth'
         end
         # to use for both Websockets AND AJAX(AJAJ), make sure
         # the method is public and add a default value. i.e.
         def auth msg = nil
             if msg
               # is Websockets
-              msg['event'] == 'auth'
+              msg[:event] == 'auth'
             else
               # is AJAJ
               params[:id] == 'auth'
@@ -39,25 +46,31 @@ The auto-dispatch defines and uses the following JSON "sub-protocol":
             # AJAJ and Websockets
             {event: :connnection, token: "token"}.to_json
         end
+    ```
 
     Javascript:
 
+    ```js
+        var client = new PleziClient();
         client.auth = function(msg) {
             msg.event == 'auth'
         }
+    ```
 
-* JSON valid messages that do not contain an `'event'` property or that map to a non-existing method are routed to a callback named `unknown` (if it exists). By default (unless a the `unknown` callback exists), unknown events will be ignored by the client while the server will respond with a generic error message.
+* An invalid `:event` property will be handled differently by the client then the Server. While the client will either silently ignore the error or forward the unknown request to the `'unknown'` callback (if defined), the server will simply disconnect the Websocket unless the `'unknown'` callback ws defined (servers are touchy, they have more to protect).
 
-* JSON valid messages that contain the `_EID_` property (event ID), will be invoke an `_ack_` event upon receipt. The `_ack_` event's JSON data will contain only the `_EID_` sent. This is also used internally by Plezi's client API.
+* JSON valid messages that contain the `:_EID_` property (event ID), will be invoke an `:_ack_` event upon receipt. The `:_ack_` event's JSON data will contain only the `:_EID_` sent. This is also used internally by Plezi's client API.
 
 This sub-protocol allows to easily unify AJAJ (AJAX with JSON) and Websocket APIs, when using the method's default argument value to indicated the request's source.
 
 When using the Auto-Dispatch, there is no need to write an `on_message` callback. But the controller must set the class variable `@auto_dispatch` to `true`. i.e.
 
-    class Demo
-        @auto_dispatch = true
-        #...
-    end
+```ruby
+class Demo
+    @auto_dispatch = true
+    #...
+end
+```
 
 ## Serving the Auto-Dispatch client
 
@@ -69,11 +82,13 @@ The client is part of the application template and can be served as a static fil
 
 To server the updated Plezi Auto-Dispatch javascript client (the client version matching the active Plezi version), it's possible to create a `:client` route, using any available path:
 
-    Plezi.route '/client.js', :client
-    # or any other path
-    Plezi.route 'a/very/unique/path/to/the/pl_client.js', :client
+```ruby
+Plezi.route '/client.js', :client
+# or any other path
+Plezi.route 'a/very/unique/path/to/the/c_l_i_e_n_t.js', :client
+```
 
-The client is also available when using the application template. The client's path is `/assets/plezi_client.js` for the mini application template and `/assets/javascript/plezi_client.js` for the larger, default application template.
+The client is also available through the static file server when using the Plezi application template. The client's path is `/javascripts/client.js`.
 
 The clien't [source code is available on GitHub](https://github.com/boazsegev/plezi/blob/master/resources/plezi_client.js). Contributions are welcome.
 
@@ -85,39 +100,53 @@ Plezi provids a basic Websocket client that allows us to leverage the auto-dispa
 
 To open a websocket connection to the current location (i.e, "https://example.com/path" => "wss://example.com/path"), use:
 
-      var client = new PleziClient();
+```js
+var client = new PleziClient();
+```
 
 Notice that SSL preference will be preserved. This means that if we access the server using SSL, the websocket connection will also require SSL (using `wss`). If we access the server using an unencrypted connection, the websocket connection will NOT be encrypted (using `ws`).
 
 To open a connection to a different path for the original server, use:
 
-      var client = new PleziClient(PleziClient.origin + "/path");
+```js
+var client = new PleziClient(PleziClient.origin + "/path");
+```
 
 i.e., to open a connection to the root ("/"), use:
 
-      var client = new PleziClient(PleziClient.origin + "/");
+```js
+var client = new PleziClient(PleziClient.origin + "/");
+```
 
 To open a connection to a different URL or path, use:
 
-      var client = new PleziClient("ws://full.url.com/path");
+```js
+var client = new PleziClient("ws://full.url.com/path");
+```
 
 #### Event callbacks
 
 To set up event handling, directly set an `<event name>` callback. i.e., for an event called `chat`:
 
-      client.chat = function(event) { "..." }
+```js
+client.chat = function(event) { "..." }
+```
 
 #### `client.unknown(event)`
 
 When unknown JSON messages arrive, it's possible to handle them using the `unknown` callback which will be called whenever there is no method that handles the event or an event is not specified in the JSON message. i.e.:
 
-      client.unknown = function(event) { "..." }
+```js
+client.unknown = function(event) { "..." }
+```
 
 #### `client.emit(event, callback, timeout)`
 
 To emit an event in JSON format (send the JSON event to the Controller), use the `emit` method:
 
-      client.emit({event: "chat", data: "the message"})
+```js
+client.emit({event: "chat", data: "the message"})
+```
 
 The emitted event will invoke the Controller's method on the server. When using an Auto-Dispatch Controller the event will invoke a method with the same name. When using a raw websocket controller, the event will be forwarded as a JSON String to the Controller's `on_message` callback.
 
@@ -125,53 +154,62 @@ It's possible to set a timeout and a local callback for the emitted event. The c
 
 Notice that this uses Plezi's Auto-Dispatch's protocol with regards to the event ID (the `_EID_` property will be overwritten) and the`_ack_` event to set a timeout once the event is sent (and cancel it when the `_ack_` is received).
 
-      client.emit({event: "ping"},
-        function(event, client){
-          // notice that the client is accessible using the second argument
-          console.log("The "+ event.event +" event timed out", event, client)
-        },
-        3000);
+```js
+client.emit({event: "ping"},
+  function(event, client){
+    // notice that the client is accessible using the second argument
+    console.log("The "+ event.event +" event timed out", event, client)
+  },
+  3000);
+```
 
 #### Timeout defaults
 
 It's also possible to set a default timeout that will be used whenever a specific timeout wasn't specified
 
-      client.emit_timeout = 3000;
-      client.emit({event: "ping"},
-        function(event, client){
-          // notice that the client is accessible using the second argument
-          console.log("The "+ event.event +" event timed out", event, client)
-        });
-
+```js
+client.emit_timeout = 3000;
+client.emit({event: "ping"},
+  function(event, client){
+    // notice that the client is accessible using the second argument
+    console.log("The "+ event.event +" event timed out", event, client)
+  });
+```
 
 It's also possible to set the client's `ontimeout` callback when using a single timout logic for some (or all) of the events.
 
-      client.emit_timeout = 3000;
-      client.ontimeout = function(event){
-          // notice that `this` refers to the client
-          console.log("The "+ event.event +" event timed out", event, this)
-        };
-      client.emit({event: "ping"});
+```js
+client.emit_timeout = 3000;
+client.ontimeout = function(event){
+    // notice that `this` refers to the client
+    console.log("The "+ event.event +" event timed out", event, this)
+  };
+client.emit({event: "ping"});
+```
 
 #### Auto-reconnection
 
-To automatically renew the connection when disconnections are reported by the browser, use:
+To automatically renew the connection after a disconnection was reported by the browser, use:
 
-      client.autoreconnect = true;
-      client.reconnect_interval = 200; // sets how long to wait before reconnection attempts.
-
+```js
+client.autoreconnect = true;
+client.reconnect_interval = 200; // sets how long to wait between reconnection attempts.
+```
 The automatic reconnection flag can be used when creating the client, using:
 
-      var client = new PleziClient(PleziClient.origin + "/path", true);
-      client.reconnect_interval = 100; // Or use the default 200 ms.
-
+```js
+var client = new PleziClient(PleziClient.origin + "/path", true);
+client.reconnect_interval = 100; // Or use the default 200 ms.
+```
 The default `reconnect_interval` value is 200 ms.
 
 #### `client.reconnect()`
 
 It's possible to manually reestablish a lost connection using:
 
-      client.reconnect()
+```js
+client.reconnect()
+```
 
 This will NOT close the existing connection (if still open), so that pending responses would be received... however, this could cause multiple open connections unless used with care.
 
@@ -179,34 +217,44 @@ This will NOT close the existing connection (if still open), so that pending res
 
 To sent raw websocket data, use the `sendraw` method. This will cause disconnetions if Plezi's controller uses `@auto_dispatch` and the message isn't a valid JSON string. i.e. sending a raw string:
 
-      client.sendraw("string")
+```js
+client.sendraw("string")
+```
 
 #### `client.close()`
 
 Manually closing the connection will prevent automatic reconnections:
 
-      client.close()
+```js
+client.close()
+```
 
 #### AJAJ - `client.ajaj`
 
-AJAJ (AJAX with JSON instead of XML), can be used either as a websocket fallback position or for HTTP RESTful requests.
+AJAJ (AJAX with JSON, not XML), can be used either as a websocket fallback position or for HTTP RESTful requests.
 
 The following object is the gateway for performing AJAJ requests.
 
-      client.ajaj
+```js
+client.ajaj
+```
 
 AJAJ responses are routed to the Auto-Dispatch as if they were Websocket events. This allows for easy AJAJ polling. i.e.:
 
-      client.ajaj.add.token = 'my_token' // will be added to any AJAJ event.
-      setInterval( function() {
-        client.ajaj.emit({event: 'poll'})
-        }, 3000);
+```js
+client.ajaj.add.token = 'my_token' // will be added to any AJAJ event.
+  setInterval( function() {
+    client.ajaj.emit({event: 'poll'})
+    }, 3000);
+```
 
 #### AJAJ fallback - `client.ajaj.auto`
 
 To automatically have any websocket sent events gracefully fallback to AJAJ after timeout had occured, set the `client.ajaj.auto` value to true. i.e.
 
-      client.ajaj.auto = true
+```js
+client.ajaj.auto = true
+```
 
 When using automatic fallback, the `client.ontimeout` will only be called if the AJAJ request failed - meaning an AJAJ fallback will be attempted before calling the default failure callback.
 
@@ -220,7 +268,9 @@ This allows storage of tokens or other authentication data that will be sent alo
 
 i.e., to add a token to any AJAJ emitted event, use:
 
-      client.ajaj.add.token = "my_token"
+```js
+client.ajaj.add.token = "my_token"
+```
 
 Another option (perhaps a more secure option) is storing data in Plezi's `session` storage.
 
@@ -228,7 +278,9 @@ Another option (perhaps a more secure option) is storing data in Plezi's `sessio
 
 This method behaves in a similar fasion to the websocket version (`client.emit`). i.e.
 
-      client.ajaj.emit({event: 'auth', token: 'my_token'})
+```js
+client.ajaj.emit({event: 'auth', token: 'my_token'})
+```
 
 The callback will be called only if the event **wasn't** sent.
 
@@ -246,21 +298,23 @@ Unknown events will be either answered with an `err` event or sent to the `unkno
 
 Here's a quick JSON echo server:
 
-    class MyEcho
-      # enable auto_dispatch
-      @auto_dispatch = true
-      # define the unknown event callback
-      # this will be used to echo everything JSON
-      def unknown event = nil
-        unless event
-          # this is an AJAJ request
-          event = {event: "err", status: 404, request: params.dup}
-          event[:request][:event] = event[:request].delete :id
-        end
-        event.to_json
-      end
+```ruby
+class MyEcho
+  # enable auto_dispatch
+  @auto_dispatch = true
+  # define the unknown event callback
+  # this will be used to echo everything JSON
+  def unknown event = nil
+    unless event
+      # this is an AJAJ request
+      event = {event: "err", status: 404, request: params.dup}
+      event[:request][:event] = event[:request].delete 'id'.freeze
     end
-    route '/', MyEcho
+    event.to_json
+  end
+end
+Plexi.route '/', MyEcho
+```
 
 Notice how a default value of `nil` allowed us to use the method also for AJAJ requests (where the `:id` parameter replaces the `:event` parameter in JSON).
 
@@ -286,69 +340,71 @@ Here are a few things to notice about the example we're about to explore:
 
 * We have two routes for the same controller, allowing us to set different inline AJAJ parameters (although the `:publish` event is probably expecting POST data rather than GET data).
 
-* We can use `render`, exactly the same for both AJAJ and Websocket messages. 
+* We can use `render`, exactly the same for both AJAJ and Websocket messages.
 
 The example controller code:
 
-    class MyAPI
-      # enable auto_dispatch
-      @auto_dispatch = true
-      # define an Http only method
-      # (no arguments, auto-dispatch will fail to call this method)
-      def http
-        {event: 'http', data: "this is available only for Http"}.to_json
-      end
-      # define the publish event
-      def publish event = nil, is_broadcast = false
-        if is_broadcast
-          # notice that we have to
-          # explicitly send data when
-          # using broadcasting
-          return write(event.to_json)
-        end
-        unless event
-          # this is an AJAX request
-          auth()
-          return false unless @user
-          event = {event: 'publish',
-            content: params[:content],
-            title: params[:title]}
-        end
-        event[:author] = @user.id
-        # now do the actual publishing
-        # ...
-        # next, broadcast the news to all
-        # the websocket clients
-        broadcast :publish, event, true
-        event.to_json
-      end
-      def echo event = nil
-        (event || params).to_json
-        # # Or, even more interesting:
-        # event ||= params
-        # render :echo, format: 'json'
-      end
-      protected
-      def auth event = nil
-        is_ajax = event && true
-        event = params unless event
-        @user = User.where token: event[:token]
-        close unless @user || is_ajax
-      end
-
-      def chat event, is_broadcast = true
-        return write(event.to_json) if is_broadcast
-        return ({event: :err,
-          msg: 'authenticate first using the "auth" event',
-          status: 400}.to_json) unless @user
-        event[:from] = @user.name
-        event[:from_id] = @user.id
-        broadcast :chat, event, true
-        render :chatmessage, format: 'ajax'
-      end
+```ruby
+class MyAPI
+  # enable auto_dispatch
+  @auto_dispatch = true
+  # define an Http only method
+  # (no arguments, auto-dispatch will fail to call this method)
+  def http
+    {event: 'http', data: "this is available only for Http"}.to_json
+  end
+  # define the publish event
+  def publish event = nil, is_broadcast = false
+    if is_broadcast
+      # notice that we have to
+      # explicitly send data when
+      # using broadcasting
+      return write(event.to_json)
     end
-    route '/(:id){publish}/(:title)', MyAPI
-    route '/(:id){echo}/(:message)/(:data)', MyAPI
+    unless event
+      # this is an AJAX request
+      auth()
+      return false unless @user
+      event = {event: 'publish',
+        content: params[:content],
+        title: params[:title]}
+    end
+    event[:author] = @user.id
+    # now do the actual publishing
+    # ...
+    # next, broadcast the news to all
+    # the websocket clients
+    broadcast :publish, event, true
+    event.to_json
+  end
+  def echo event = nil
+    (event || params).to_json
+    # # Or, even more interesting:
+    # event ||= params
+    # render :echo, format: 'json'
+  end
+  protected
+  def auth event = nil
+    is_ajax = event && true
+    event = params unless event
+    @user = User.where token: event[:token]
+    close unless @user || is_ajax
+  end
+
+  def chat event, is_broadcast = true
+    return write(event.to_json) if is_broadcast
+    return ({event: :err,
+      msg: 'authenticate first using the "auth" event',
+      status: 400}.to_json) unless @user
+    event[:from] = @user.name
+    event[:from_id] = @user.id
+    broadcast :chat, event, true
+    render :chatmessage, format: 'ajax'
+  end
+end
+Plezi.route '/(:id){publish}/(:title)', MyAPI
+Plezi.route '/(:id){echo}/(:message)/(:data)', MyAPI
+```
 
 We can use the PleziClient to communicate with our server.
 
@@ -362,25 +418,27 @@ As we read through the client, notice:
 
 The example client code:
 
-    var connection = new PleziClient();
-    connection.onopen = function(e) {
-      connection.emit(event: 'auth', token: "my_token");
-      connection.emit(event: 'chat', message: "Hi everyone!");
-      connection.emit(event: 'echo', data: "echo echo echo...");
-      connection.emit(event: 'publish', title: 'Hmmm', content: "blah blah...");
-    }
-    connection.chat = function(e) {
-      alert("Chat from: " e.from + "\n" + e.message)
-    }
-    connection.echo = function(e) {
-      console.log(e);
-    }
-    connection.publish = function(e) {
-      console.log(e);
-    }
-    connection.unknown = function(e) {
-      console.log(e);
-    }
+```js
+var connection = new PleziClient();
+connection.onopen = function(e) {
+  connection.emit(event: 'auth', token: "my_token");
+  connection.emit(event: 'chat', message: "Hi everyone!");
+  connection.emit(event: 'echo', data: "echo echo echo...");
+  connection.emit(event: 'publish', title: 'Hmmm', content: "blah blah...");
+}
+connection.chat = function(e) {
+  alert("Chat from: " e.from + "\n" + e.message)
+}
+connection.echo = function(e) {
+  console.log(e);
+}
+connection.publish = function(e) {
+  console.log(e);
+}
+connection.unknown = function(e) {
+  console.log(e);
+}
+```
 
 ## Reserved keywords
 
@@ -406,11 +464,9 @@ Using any of the reserved keywords as an event name - both the Ruby keywords and
 
 * `unknown` - This is a reserved auto-dispatch callback name.
 
-* `unknown_event` - This is a reserved auto-dispatch callback name (for backwards compatibility).
+* `uuid` - This is a reserved method name that returns a process dependent (Iodine) uuid for the current (websocket) connection.
 
-* `uuid` - This is a reserved method name that returns the uuid for the current (websocket) connection.
-
-* `unicast_id` - This is a reserved method name, same as `uuid`.
+* `id` - This is a reserved method name that returns an internet global (Plezi) uuid for the current (websocket) connection.
 
 * `write` - This is a reserved websocket method name that writes data to the websocket.
 
@@ -421,12 +477,6 @@ Using any of the reserved keywords as an event name - both the Ruby keywords and
 * `broadcast` - This is a reserved websocket method name used for sending messages to a specific websocket type of connection (type by Controller).
 
 * `multicast` - This is a reserved websocket method name used for sending messages to all currently connected clients.
-
-* `register_as` - This is a reserved websocket method name used for registering a specific connection under a specific Identity (Identity API).
-
-* `notify` - This is a reserved websocket method name used for sending messages to a specific Identity (Identity API).
-
-* `registered?` - This is a reserved websocket method name used for checking if a specific Identity is registered to accept messages (Identity API). This will return true for the Identity's lifetime (the message might not be read, but the "mailbox" exists).
 
 * `request` - This is a reserved method/property name storing the Http request.
 
@@ -455,10 +505,6 @@ Using any of the reserved keywords as an event name - both the Ruby keywords and
 * `requested_method` - This is a reserved method name returning the Controller's method that was originally invoked by the Http request.
 
 * `_route_path_to_methods_and_set_the_response_` - This is a reserved method name used internally after the Controller was initiallized, to process the request.
-
-* `___review_identity` - This is a reserved websocket callback name used internally as part of the Identity API.
-
-* `__get_io` - This is a reserved method name used internally for getting the IO protocol (Http / Websockets).
 
 The following are reserved Ruby keywords that cannot be used as event/method names (this list might be partial):
 

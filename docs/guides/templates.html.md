@@ -50,9 +50,11 @@ Question - what's the shortest "Hello World" web-application when writing for Si
 
 In Plezi, it looks like this:
 
-    require 'plezi'
-    route('*') { "Hello World!" }
-    exit # <- this exits the terminal and starts the server
+```ruby
+require 'plezi'
+Plezi.route('*') { "Hello World!" }
+exit # <- this exits the terminal and starts the server
+```
 
 Three lines! Now visit [localhost:3000](http://localhost:3000/)
 
@@ -64,24 +66,26 @@ Plezi will automatically map instance methods in any class to routes with comple
 
 Let's copy and paste this into our `irb` terminal:
 
-    require 'plezi'
-    class MyDemo
-        # the index will answer '/'
-        def index
-            "Hello World!"
-        end
-        # a regular method will answer it's own name i.e. '/foo'
-        def foo
-            "Bar!"
-        end
-        # show is RESTful, it will answer '/(:id)'
-        def show
-            "Are you looking for: #{params[:id]}?"
-        end
+```ruby
+require 'plezi'
+class MyDemo
+    # the index will answer '/'
+    def index
+        "Hello World!"
     end
+    # a regular method will answer it's own name i.e. '/foo'
+    def foo
+        "Bar!"
+    end
+    # show is RESTful, it will answer '/(:id)'
+    def show
+        "Are you looking for: #{params[:id]}?"
+    end
+end
 
-    route '/', MyDemo
-    exit
+Plezi.route '/', MyDemo
+exit
+```
 
 Now visit [index](http://localhost:3000/) and [foo](http://localhost:3000/foo) or request an id, i.e. [http://localhost:3000/1](http://localhost:3000/1).
 
@@ -95,48 +99,52 @@ Plezi was designed for websockets from the ground up. If your controller class d
 
 Here's a Websocket echo server using Plezi:
 
-    require 'plezi'
-    class MyDemo
-        def on_message data
-            # sanitize the data and write it to the websocket.
-            write ">> #{ERB::Util.html_escape data}"
-        end
+```ruby
+require 'plezi'
+class MyDemo
+    def on_message data
+        # sanitize the data and write it to the websocket.
+        write ">> #{ERB::Util.html_escape data}"
     end
+end
 
-    route '/', MyDemo
-    exit
+Plezi.route '/', MyDemo
+exit
+```
 
 But that's not all, each controller is also a "channel" which can broadcast to everyone who's connected to it.
 
 Here's a websocket chat-room server using Plezi, comeplete with minor authentication (requires a chat handle):
 
-    require 'plezi'
-    class MyDemo
-        def on_open
-            # there's a better way to require a user handle, but this is good enough for now.
-            close unless params[:id]
-        end
-        def on_message data
-            # sanitize the data.
-            data = ERB::Util.html_escape data
-            # broadcast to everyone else (NOT ourselves):
-            # this will have every connection execute the `chat_message` with the following argument(s).
-            broadcast :chat_message, "#{params[:id]}: #{data}"
-            # write to our own websocket:
-            write "Me: #{data}"
-        end
-        protected
-        # receive and implement the broadcast
-        def chat_message data
-            write data
-        end
+```ruby
+require 'plezi'
+class MyDemo
+    def on_open
+        # there's a better way to require a user handle, but this is good enough for now.
+        close unless params[:id]
     end
+    def on_message data
+        # sanitize the data.
+        data = ERB::Util.html_escape data
+        # broadcast to everyone else (NOT ourselves):
+        # this will have every connection execute the `chat_message` with the following argument(s).
+        broadcast :chat_message, "#{params[:id]}: #{data}"
+        # write to our own websocket:
+        write "Me: #{data}"
+    end
+    protected
+    # receive and implement the broadcast
+    def chat_message data
+        write data
+    end
+end
 
-    route '/', MyDemo
-    # You can connect to this chatroom by going to ws://localhost:3000/any_nickname
-    # but you need to write a websocket client too...
-    # try two browsers with the client provided by http://www.websocket.org/echo.html
-    exit
+Plezi.route '/', MyDemo
+# You can connect to this chatroom by going to ws://localhost:3000/any_nickname
+# but you need to write a websocket client too...
+# try two browsers with the client provided by http://www.websocket.org/echo.html
+exit
+```
 
 Broadcasting isn't the only tool Plezi offers, we can also send a message to a specific connection using `unicast`, or send a message to everyone (no matter what controller is handling their connection) using `multicast`...
 
@@ -157,32 +165,36 @@ Just tell Plezi how to acess your Redis server and Plezi will make sure that you
 
 Plezi allows us to use different host-names for different routes. i.e.:
 
-    require 'plezi'
+```ruby
+require 'plezi'
 
-    host # this is the default host, it's always last to be checked.
-    route('/') {"this is localhost"}
+host # this is the default host, it's always last to be checked.
+Plezi.route('/') {"this is localhost"}
 
-    host host: '127.0.0.1' # special host, for the IP name
-    route('/') {"this is only for the IP!"}
-    exit
+host host: '127.0.0.1' # special host, for the IP name
+Plezi.route('/') {"this is only for the IP!"}
+exit
+```
 
 Each host has it's own settings for a public folder, asset rendering, templates etc'. For example:
 
-    require 'plezi'
+```ruby
+require 'plezi'
 
-    class MyDemo
-        def index
-            # to make this work, create a template and set the correct template folder
-            render :index
-        end
+class MyDemo
+    def index
+        # to make this work, create a template and set the correct template folder
+        render :index
     end
+end
 
-    host public: File.join('my', 'public', 'folder'),
-        templates: File.join('my', 'templates', 'folder'),
-        assets: File.join('my', 'assets', 'folder')
+Plezi.templates = File.join('my', 'templates', 'folder'),
+Plezi.assets = File.join('my', 'assets', 'folder')
 
-    route '/', MyDemo
-    exit
+Plezi.route '/assets', :assets
+Plezi.route '/', MyDemo
+exit
+```
 
 Plezi supports ERB (i.e. `template.html.erb`), Slim (i.e. `template.html.slim`), Haml (i.e. `template.html.haml`), CoffeeScript (i.e. `asset.js.coffee`) and Sass (i.e. `asset.css.scss`) right out of the box... and it's even extendible using the `Plezi::Renderer.register` and `Plezi::AssetManager.register`
 
@@ -192,18 +204,20 @@ One of the best things about the Plezi is it's ability to take in any class as a
 
 Here is a Hello World using a Controller class (run in `irb`):
 
-        require 'plezi'
+```ruby
+require 'plezi'
 
-        class Controller
-            def index
-                "Hello World!"
-            end
-        end
+class Controller
+    def index
+        "Hello World!"
+    end
+end
 
 
-        route '*' , Controller
+Plezi.route '*' , Controller
 
-        exit # Plezi will autostart once you exit irb.
+exit # Plezi will autostart once you exit irb.
+```
 
 Except when using WebSockets, returning a String will automatically add the string to the response before sending the response - which makes for cleaner code. It's also possible to use the `response` object to set the response or stream HTTP (return true instead of a stream when you're done).
 
@@ -222,39 +236,39 @@ As a client side, we will use the WebSockets echo demo page - we will simply put
 Remember to connect to the service from at least two browser windows - to truly experience the `broadcast`ed websocket messages.
 
 ```ruby
-    require 'plezi'
+require 'plezi'
 
-    # do you need automated redis support?
-    # require 'redis'
-    # ENV['PL_REDIS_URL'] = "redis://user:password@localhost:6379"
+# do you need automated redis support?
+# require 'redis'
+# ENV['PL_REDIS_URL'] = "redis://user:password@localhost:6379"
 
-    class BroadcastCtrl
-        def index
-            redirect_to 'http://www.websocket.org/echo.html'
-        end
-        def on_message data
-            # try replacing the following two lines are with:
-            # self.class.broadcast :_send_message, data
-            broadcast :_send_message, data
-            response << "sent."
-        end
-        def _send_message data
-            response << data
-        end
-        def hello
-            'Hello!'
-        end
-        def_special_method "humans.txt" do
-            'I made this :)'
-        end
+class BroadcastCtrl
+    def index
+        redirect_to 'http://www.websocket.org/echo.html'
     end
+    def on_message data
+        # try replacing the following two lines are with:
+        # self.class.broadcast :_send_message, data
+        broadcast :_send_message, data
+        response << "sent."
+    end
+    def _send_message data
+        response << data
+    end
+    def hello
+        'Hello!'
+    end
+    def_special_method "humans.txt" do
+        'I made this :)'
+    end
+end
 
-    route '/', BroadcastCtrl
+Plezi.route '/', BroadcastCtrl
 ```
 
-method names starting with an underscore ('_') are protected from the Http router, even when they are public.
+method names starting with an underscore (`'_'`) are protected from the Http router, even when they are public.
 
-This is why even though both '/hello' and '/humans.txt' are public ( [try it](http://localhost:3000/humans.txt) ), '/_send_message' will return a 404 not found error ( [try it](http://localhost:3000/_send_message) ).
+This is why even though both '/hello' and '/humans.txt' are public ( [try it](http://localhost:3000/humans.txt) ), `'/_send_message'` will return a 404 not found error ( [try it](http://localhost:3000/_send_message) ).
 
 ## Adding Websockets to your existing Rails/Sinatra/Rack application
 
@@ -410,20 +424,20 @@ Plezi comes with native HTTP streaming support (Http will use chuncked encoding 
 Let's make the classic 'Hello World' use HTTP Streaming:
 
 ```ruby
-        require 'plezi'
+require 'plezi'
 
-        class Controller
-            def index
-                response.stream_async do
-                    sleep 0.5
-                    response << "Hello ";
-                    response.stream_async{ sleep 0.5; response << "World" }
-                end
-                true
-            end
+class Controller
+    def index
+        response.stream_async do
+            sleep 0.5
+            response << "Hello ";
+            response.stream_async{ sleep 0.5; response << "World" }
         end
+        true
+    end
+end
 
-        route '*' , Controller
+Plezi.route '*' , Controller
 ```
 
 Notice you can nest calls to the `response.stream_async` method, allowing you to breakdown big blocking tasks into smaller chunks. `response.stream_async` will return immediately, scheduling the task for background processing.
@@ -438,12 +452,14 @@ Plezi supports magic routes, in similar formats found in other systems, such as:
 
 Plezi assummes all simple routes to be RESTful routes with the parameter `:id` ( `"/user" == "/user/(:id)"` ).
 
-    require 'plezi'
+```ruby
+require 'plezi'
 
-    # this route demos a route for listing/showing posts,
-    # with or without revision numbers or page-control....
-    # notice the single quotes (otherwise the '\' would need to be escaped).
-    route '/post/(:id)/(:revision){[\d]+\.[\d]+}/(:page_number)', Plezi::StubRESTCtrl
+# this route demos a route for listing/showing posts,
+# with or without revision numbers or page-control....
+# notice the single quotes (otherwise the '\' would need to be escaped).
+Plezi.route '/post/(:id)/(:revision){[\d]+\.[\d]+}/(:page_number)', Plezi::StubRESTCtrl
+```
 
 now visit:
 
@@ -456,33 +472,35 @@ now visit:
 
 Plezi can be used to create virtual hosts for the same service, allowing you to handle different domains and subdomains with one app:
 
-    require 'plezi'
+```ruby
+require 'plezi'
 
-    # define a named host.
-    host 'localhost', alias: 'localhost2', public: File.join('my', 'public', 'folder')
+# define a named host.
+host 'localhost', alias: 'localhost2', public: File.join('my', 'public', 'folder')
 
-    shared_route '/shared' do |req, res|
-        res << "shared by all existing hosts.... but the default host doesn't exist yet, so we're only on localhost and localhost2."
-    end
+shared_route '/shared' do |req, res|
+    res << "shared by all existing hosts.... but the default host doesn't exist yet, so we're only on localhost and localhost2."
+end
 
-    # define a default (catch-all) host.
-    host
+# define a default (catch-all) host.
+host
 
-    shared_route '/humans.txt' do |req, res|
-        res << "we are people - we're in every existing hosts."
-    end
+shared_route '/humans.txt' do |req, res|
+    res << "we are people - we're in every existing hosts."
+end
 
 
-    route('*') do |req, res|
-        res << "this is a 'catch-all' host. you got here by putting in the IP adderess."
-    end
+Plezi.route('*') do |req, res|
+    res << "this is a 'catch-all' host. you got here by putting in the IP adderess."
+end
 
-    # get's the existing named host
-    host 'localhost'
+# get's the existing named host
+host 'localhost'
 
-    route('*') do |req, res|
-        res << "this is localhost or localhost 2"
-    end
+Plezi.route('*') do |req, res|
+    res << "this is localhost or localhost 2"
+end
+```
 
 Now visit:
 
@@ -500,46 +518,49 @@ The Plezi module (also `PL`) delegates to the Iodine methods, helping with loggi
 
 Logging:
 
-    require 'plezi'
+```ruby
+require 'plezi'
 
-    # simple logging of strings
-    PL.info 'log info'
-    Iodine.info 'This is the same, but more direct.'
-    PL.warn 'log warning'
-    PL.error 'log error'
-    PL.fatal "log a fatal error (shuoldn't be needed)."
-    PL.log_raw "Write raw strings to the logger."
+# simple logging of strings
+PL.info 'log info'
+Iodine.info 'This is the same, but more direct.'
+PL.warn 'log warning'
+PL.error 'log error'
+PL.fatal "log a fatal error (shuoldn't be needed)."
+PL.log_raw "Write raw strings to the logger."
 
-    # the logger accepts exceptions as well.
-    begin
-        raise "hell"
-    rescue Exception => e
-        PL.error e
-    end
-
+# the logger accepts exceptions as well.
+begin
+    raise "hell"
+rescue Exception => e
+    PL.error e
+end
+```
 Please notice it is faster to use the Iodine's API directly when using API that is delegated to Iodine.
 
 ## Plezi Events and Timers
 
-The Plezi module (also `PL`) also delegates to the [Iodine's API](http://www.rubydoc.info/gems/greactor/iodine) to help with asynchronous tasking, callbacks, timers and customized shutdown cleanup.
+Plezi uses [Iodine's API](http://www.rubydoc.info/gems/greactor/iodine) to help with asynchronous tasking, callbacks, timers and customized shutdown cleanup.
 
-Asynchronous callbacks (works only while services are active and running):
+Asynchronous callbacks (works only while services are active and running and when using the default Iodine server):
 
-    require 'plezi'
+```ruby
+require 'plezi'
 
-    def my_shutdown_proc time_start
-        puts "Services were running for #{Time.now - time_start} seconds."
-    end
+def my_shutdown_proc time_start
+    puts "Services were running for #{Time.now - time_start} seconds."
+end
 
-    # shutdown callbacks
-    Iodine.on_shutdown(Kernel, :my_shutdown_proc, Time.now) { puts "this will run after shutdown." }
-    Iodine.on_shutdown() { puts "this will run too." }
+# shutdown callbacks
+Iodine.on_shutdown(Kernel, :my_shutdown_proc, Time.now) { puts "this will run after shutdown." }
+Iodine.on_shutdown() { puts "this will run too." }
 
-    # a timer
-    Iodine.run_after(2) {puts "this will wait 2 seconds to run... too late. for this example"}
+# a timer
+Iodine.run_after(2) {puts "this will wait 2 seconds to run... too late. for this example"}
 
-    Iodine.run {puts "notice that the background tasks will only start once the Plezi's engine is running."}
-    Iodine.run {puts "exit Plezi to observe the shutdown callbacks."}
+Iodine.run {puts "notice that the background tasks will only start once the Plezi's engine is running."}
+Iodine.run {puts "exit Plezi to observe the shutdown callbacks."}
+```
 
 ## Re-write Routes
 
@@ -551,48 +572,49 @@ This is great for setting global information such as internationalization (I18n)
 
 By using a route with the a 'false' controller, the parameters extracted are automatically retained.
 
-*(Older versions of Plezi allowed this behavior for all routes, but it was deprecated starting version 0.7.4).
+\*(Older versions of Plezi allowed this behavior for all routes, but it was deprecated starting version 0.7.4).
 
-    require 'plezi'
+```ruby
+require 'plezi'
 
-    class Controller
-        def index
-            return "Bonjour le monde!" if params[:locale] == 'fr'
-            "Hello World!\n #{params}"
-        end
-        def show
-            return "Vous êtes à la recherche d' : #{params[:id]}" if params[:locale] == 'fr'
-            "You're looking for: #{params[:id]}"
-        end
-        def debug
-            # binding.pry
-            # do you use pry for debuging?
-            # no? oh well, let's ignore this.
-            false
-        end
-        def delete
-            return "Mon Dieu! Mon français est mauvais!" if params[:locale] == 'fr'
-            "did you try #{request.base_url + request.original_path}?_method=delete or does your server support a native DELETE method?"
-        end
+class Controller
+    def index
+        return "Bonjour le monde!" if params[:locale] == 'fr'
+        "Hello World!\n #{params}"
     end
-
-    # this is our re-write route.
-    # it will extract the locale and re-write the request.
-    route '/:locale{fr|en}/*', false
-
-    # this route takes a regular expression that is a simple math calculation
-    # (calculator)
-    #
-    # it is an example for a Proc controller, which can replace the Class controller.
-    route /^\/[\d\+\-\*\/\(\)\.]+$/ do |request, response|
-        message = (request.params[:locale] == 'fr') ? "La solution est" : "My Answer is"
-        response << "#{message}: #{eval( request.path[1..-1] )}"
+    def show
+        return "Vous êtes à la recherche d' : #{params[:id]}" if params[:locale] == 'fr'
+        "You're looking for: #{params[:id]}"
     end
+    def debug
+        # binding.pry
+        # do you use pry for debuging?
+        # no? oh well, let's ignore this.
+        false
+    end
+    def delete
+        return "Mon Dieu! Mon français est mauvais!" if params[:locale] == 'fr'
+        "did you try #{request.base_url + request.original_path}?_method=delete or does your server support a native DELETE method?"
+    end
+end
 
-    route "/users" , Controller
+# this is our re-write route.
+# it will extract the locale and re-write the request.
+Plezi.route '/:locale{fr|en}/*', false
 
-    route "/" , Controller
+# this route takes a regular expression that is a simple math calculation
+# (calculator)
+#
+# it is an example for a Proc controller, which can replace the Class controller.
+Plezi.route /^\/[\d\+\-\*\/\(\)\.]+$/ do |request, response|
+    message = (request.params[:locale] == 'fr') ? "La solution est" : "My Answer is"
+    response << "#{message}: #{eval( request.path[1..-1] )}"
+end
 
+Plezi.route "/users" , Controller
+
+Plezi.route "/" , Controller
+```
 try:
 
 * [http://localhost:3000/](http://localhost:3000/)
@@ -614,39 +636,41 @@ Plezi has a few helpers that help with common tasks.
 For instance, Plezi has a built in controller that allows you to add social authentication using Google, Facebook
 and and other OAuth2 authentication service. For example:
 
-    require 'plezi'
+```ruby
+require 'plezi'
 
-    class Controller
-        def index
-            flash[:login] ? "You are logged in as #{flash[:login]}" : "You aren't logged in. Please visit one of the following:\n\n* #{request.base_url}#{Plezi::OAuth2Ctrl.url_for :google}\n\n* #{request.base_url}#{Plezi::OAuth2Ctrl.url_for :facebook}"
-        end
+class Controller
+    def index
+        flash[:login] ? "You are logged in as #{flash[:login]}" : "You aren't logged in. Please visit one of the following:\n\n* #{request.base_url}#{Plezi::OAuth2Ctrl.url_for :google}\n\n* #{request.base_url}#{Plezi::OAuth2Ctrl.url_for :facebook}"
     end
+end
 
-    # set up the common social authentication variables for automatic Plezi::OAuth2Ctrl service recognition.
-    ENV["FB_APP_ID"] ||= "facebook_app_id / facebook_client_id"
-    ENV["FB_APP_SECRET"] ||= "facebook_app_secret / facebook_client_secret"
-    ENV['GOOGLE_APP_ID'] = "google_app_id / google_client_id"
-    ENV['GOOGLE_APP_SECRET'] = "google_app_secret / google_client_secret"
+# set up the common social authentication variables for automatic Plezi::OAuth2Ctrl service recognition.
+ENV["FB_APP_ID"] ||= "facebook_app_id / facebook_client_id"
+ENV["FB_APP_SECRET"] ||= "facebook_app_secret / facebook_client_secret"
+ENV['GOOGLE_APP_ID'] = "google_app_id / google_client_id"
+ENV['GOOGLE_APP_SECRET'] = "google_app_secret / google_client_secret"
 
-    require 'plezi/oauth'
+require 'plezi/oauth'
 
-    # manually setup any OAuth2 service (we'll re-setup facebook as an example):
-    Plezi::OAuth2Ctrl.register_service(:facebook, app_id: ENV['FB_APP_ID'],
-                    app_secret: ENV['FB_APP_SECRET'],
-                    auth_url: "https://www.facebook.com/dialog/oauth",
-                    token_url: "https://graph.facebook.com/v2.3/oauth/access_token",
-                    profile_url: "https://graph.facebook.com/v2.3/me",
-                    scope: "public_profile,email") if ENV['FB_APP_ID'] && ENV['FB_APP_SECRET']
+# manually setup any OAuth2 service (we'll re-setup facebook as an example):
+Plezi::OAuth2Ctrl.register_service(:facebook, app_id: ENV['FB_APP_ID'],
+                app_secret: ENV['FB_APP_SECRET'],
+                auth_url: "https://www.facebook.com/dialog/oauth",
+                token_url: "https://graph.facebook.com/v2.3/oauth/access_token",
+                profile_url: "https://graph.facebook.com/v2.3/me",
+                scope: "public_profile,email") if ENV['FB_APP_ID'] && ENV['FB_APP_SECRET']
 
 
-    create_auth_shared_route do |service_name, token, remote_user_id, remote_user_email, remote_response|
-        # we will create a temporary cookie storing a login message. replace this code with your app's logic
-        flash[:login] = "#{remote_response['name']} (#{remote_user_email}) from #{service_name}"
-    end
+create_auth_shared_route do |service_name, token, remote_user_id, remote_user_email, remote_response|
+    # we will create a temporary cookie storing a login message. replace this code with your app's logic
+    flash[:login] = "#{remote_response['name']} (#{remote_user_email}) from #{service_name}"
+end
 
-    route "/" , Controller
+Plezi.route "/" , Controller
 
-    exit
+exit
+```
 
 Plezi has a some more goodies under the hood.
 
@@ -681,38 +705,45 @@ Plezi's global cache storage is a memory based storage protected by a mutex for 
 
 So... these are protected:
 
-    # set data
-    Plezi.cache_data :my_global_variable, 32
-    # get data
-    Plezi.get_cached :my_global_variable # => 32
+```ruby
+# set data
+Plezi.cache_data :my_global_variable, 32
+# get data
+Plezi.get_cached :my_global_variable # => 32
+```
 
 However, although Ruby seems innocent, it's super powerful when it comes to using pointers and references behind the scenes. This could allow you to change a protected object in an unprotected way... consider this:
 
-    a = []
-    b = a
-    b << '1'
-    # we changed `a` without noticing
-    a # => [1]
+```ruby
+a = []
+b = a
+b << '1'
+# we changed `a` without noticing
+a # => [1]
+```
 
 For this reason, it's important that Strings, Arrays and Hashes will be protected if they are to be manipulated in any way.
 
 The following is safe:
 
-    # set data
-    Plezi.cache_data :global_hash, Hash.new
-    # manipulate data
-    Plezi.get_cached :global_hash do |global_hash|
-        global_hash[:change] = "safe"
-    end
- 
+```ruby
+# set data
+Plezi.cache_data :global_hash, Hash.new
+# manipulate data
+Plezi.get_cached :global_hash do |global_hash|
+    global_hash[:change] = "safe"
+end
+```
+
 However, the following is unsafe:
 
-    # set data
-    Plezi.cache_data :global_hash, Hash.new
-    # manipulate data
-    global_hash = Plezi.get_cached :global_hash do |global_hash|
-    global_hash[:change] = "NOT safe"
- 
+```ruby
+# set data
+Plezi.cache_data :global_hash, Hash.new
+# manipulate data
+global_hash = Plezi.get_cached :global_hash do |global_hash|
+global_hash[:change] = "NOT safe"
+```
 
 \* be aware, if using Plezi in as a multi-process application, that each process has it's own cache and that processes can't share the cache. The different threads in each of the processes will be able to acess their process's cache, but each process runs in a different memory space, so they can't share.
 
@@ -725,4 +756,3 @@ Feel free to fork or contribute. right now I am one person, but together we can 
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
-

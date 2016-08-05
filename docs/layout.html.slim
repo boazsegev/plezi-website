@@ -75,21 +75,21 @@ html
             == yield
         - else
             input#show_sidebar type='checkbox'
-            nav#side_bar == render :guides_sidebar
+            nav#side_bar == render "guides/sidebar"
             #md_container
                 == yield
                 a#sign href='/'
-        - if flash[:notice]
+        - if @flash && @flash[:notice]
             #notice
                 a.notice_close onclick='hide_notice()' X
                 div#notice_text
-                    pre= flash[:notice]
+                    pre= @flash[:notice]
         - else
             #notice.hidden
                 a.notice_close onclick='hide_notice()' X
                 div#notice_text
         / Highlight code
-        script src="/assets/javascripts/highlight.pack.js"
+        script src="/javascripts/highlight.pack.js"
         javascript:
             hljs.initHighlighting();
             function show_notice() { document.getElementById("notice").classList.remove('hidden'); }; 

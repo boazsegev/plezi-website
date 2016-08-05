@@ -1,4 +1,4 @@
 <%=
-  flash[:notice] = "Internal error (500) on request for: #{request[:original_path]}"
-  render :welcome, layout: :layout
-%><% flash[:notice] = nil %>
+@flash = {notice: "Internal error (500) on request for: #{request.path_info}"}
+render('layout') { render 'welcome' }
+%>

@@ -78,18 +78,19 @@ div#demo
 							render :client
 						end
 						def on_open
-							return close unless params[:id]
+							return close unless params['id']
+							@name = params['id']
 							broadcast :print,
-									"\#{params[:id]} joind the chat."
-							print "Welcome, \#{params[:id]}!"
+									"\#{@name} joind the chat."
+							print "Welcome, \#{@name}!"
 						end
 						def on_close
 							broadcast :print,
-									"\#{params[:id]} left the chat."
+									"\#{@name} left the chat."
 						end
 						def on_message data
 							self.class.broadcast :print,
-										"\#{params[:id]}: \#{data}"
+										"\#{@name}: \#{data}"
 						end
 						protected
 						def print data
@@ -97,8 +98,8 @@ div#demo
 						end
 					end
 					path_to_client = File.expand_path( File.dirname(__FILE__) )
-					host templates: path_to_client
-					route '/', ChatServer
+					Plezi.templates = path_to_client
+					Plezi.route '/', ChatServer
 input#show_code type='checkbox'
 div id='client_code'
 	pre

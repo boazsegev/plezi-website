@@ -10,32 +10,33 @@ The second layer of this powerful routing system is the Controller class which w
 
 ## What is a Controller Class?
 
-Plezi has the ability to take in any class as a controller class and route Http requests to the classes public methods. This powerful routing system has built-in support for RESTful methods (`index`, `show`, `new`, `save`, `update`, `delete`) and for WebSockets (`pre_connect`, `on_open`, `on_message(data)`, `on_close`, `broadcast`, `unicast`, `multicast`, `on_broadcast(data)`, `register_as(identity)`, `notify`).
+Plezi has the ability to take in any class as a controller class and route Http requests to the classes public methods. This powerful routing system has built-in support for RESTful methods (`index`, `show`, `new`, `save`, `update`, `delete`) and for WebSockets (`pre_connect`, `on_open`, `on_message(data)`, `on_close`, `broadcast`, `unicast`, `multicast`).
 
 In effect, Controller classes act as "virtual folders" where methods are the "files" served by the Plezi router.
 
 To use a class as a Controller, simply attach it to a [route](./routes). i.e., type the following in your `irb` terminal:
 
-    require 'plezi'
-    class UsersController
-        def index
-            "All Users"
-        end
-        def show
-	        "I would love to show you #{params[:id]}... later."
-        end
-        def foo
-	        "bar"
-        end
+```ruby
+require 'plezi'
+class UsersController
+    def index
+        "All Users"
     end
-    Plezi.route "/users", UsersController
-    exit # on `irb` we start Plezi by exiting `irb`
-
+    def show
+      "I would love to show you #{params[:id]}... later."
+    end
+    def foo
+      "bar"
+    end
+end
+Plezi.route "/users", UsersController
+exit # on `irb` we start Plezi by exiting `irb`
+```
 Notice the difference between [localhost:3000/users/foo](http://localhost:3000/users/foo) and [localhost:3000/users/bar](http://localhost:3000/users/bar).
 
 ## RESTful methods
 
-Plezi contains special support for CRUD operations (Create, Read, Update, Delete) and RESTful requests through the use of the `:id` parameter (`params[:id]`) and the following reserverd method names: `index`, `new`, `save`, `show`, `update`, `delete`, `before` and `after`.
+Plezi contains special support for CRUD operations (Create, Read, Update, Delete) and RESTful requests through the use of the `:id` parameter (`params[:id]`) and the following reserverd method names: `index`, `new`, `save`, `show`, `update` and `delete`.
 
 By reviewing the Http request type (GET, POST, DELETE) the `:id` parameter (absent? `new`?) and the optional `:_method` parameters, Plezi will route RESTful requests to the correct CRUD method:
 
@@ -78,41 +79,41 @@ By reviewing the Http request type (GET, POST, DELETE) the `:id` parameter (abse
 
 Here's a sample Controller for CRUD RESTful requests:
 
-```
+```ruby
 class CRUDCtrl
 
     # every request that routes to this controller will create a new instance
     def initialize
     end
 
-    # called when request is GET and params[:id] isn't defined
+    # called when request is GET and params['id'] isn't defined
     def index
         "Listing all objects..."
     end
 
-    # called when request is GET and params[:id] exists
+    # called when request is GET and params['id'] exists
     def show
-        "nothing to show for id - #{params[:id]} - with parameters: #{params.to_s}"
+        "nothing to show for id - #{params['id']} - with parameters: #{params.to_s}"
     end
 
-    # called when request is GET and params[:id] == "new" (used for the "create new object" form).
+    # called when request is GET and params['id'] == "new" (used for the "create new object" form).
     def new
         "Should we make something new?"
     end
 
-    # called when request is POST or PUT and params[:id] isn't defined or params[:id] == "new"
+    # called when request is POST or PUT and params['id'] isn't defined or params[:id] == "new"
     def save
         "save called - creating a new object."
     end
 
-    # called when request is POST or PUT and params[:id] exists and isn't "new"
+    # called when request is POST or PUT and params['id'] exists and isn't "new"
     def update
-        "update called - updating #{params[:id]}"
+        "update called - updating #{params['id']}"
     end
 
-    # called when request is DELETE (or params[:_method] == 'delete') and request.params[:id] exists
+    # called when request is DELETE (or params['_method'] == 'delete') and request.params[:id] exists
     def delete
-        "delete called - deleting object #{params[:id]}"
+        "delete called - deleting object #{params['id']}"
     end
 
 end
@@ -126,9 +127,9 @@ For using the `Plezi.route` paths to add different request parameters, refer to 
 
 ## The Controller as a virtual folder
 
-As already demonstrated by the RESTful API design, the `:id` parameter is used to route the request to a specific CRUD method.
+As already demonstrated by the RESTful API design, the `'id'` parameter is used to route the request to a specific CRUD method.
 
-However, the `:id` parameter can also be used to GET, POST or DELETE data using custom methods, so that a Controller can act as a "virtual API folder" or to group together a group of resources.
+However, the `'id'` parameter can also be used to GET, POST or DELETE data using custom methods, so that a Controller can act as a "virtual API folder" or to group together a group of resources.
 
 The perfect example is the "Root" path and it's related pages. i.e.:
 
@@ -143,7 +144,7 @@ The perfect example is the "Root" path and it's related pages. i.e.:
             request.to_s
         end
     end
-    route '/', RootCtrl
+    Plezi.route '/', RootCtrl
 
 This is a very powerful feature, especially when writing a backend with a Websocket API and AJAJ (AJAX + JSON) fallback (see the [JSON websocket Auto-Dispatch guide](json-autodispatch)).
 
@@ -155,7 +156,7 @@ The same controller can answer Websocket connections as well as  CRUD, RESTful o
 
 This allows to easily write an API that serves both Websocket clients and AJAX/AJAJ cliects.
 
-In order to answer Websocket connections, Plezi defines the following reserved callback methods: `pre_connect`, `on_open`, `on_message(data)`, `on_close` and `on_shutdown`.
+In order to answer Websocket connections, Plezi (and Iodine) define the following reserved callback methods: `pre_connect`, `on_open`, `on_message(data)`, `on_close` and `on_shutdown`.
 
 To learn more about these callbacks and about Websockets, read the [websockets guide](websockets).
 
@@ -167,71 +168,57 @@ The following properties and methods are accessible from within your Controller 
 
 ### `request`
 
-The request object is a Hash like object, containing the request's information and some helper methods.
+The request object is a Rack::Request object, containing the request's information and some helper methods.
 
-Read more at the [YARD documentation for the Request object](http://www.rubydoc.info/gems/iodine/Iodine/Http/Request).
+Read more at the [YARD documentation for the Request object](http://www.rubydoc.info/github/rack/rack/Rack/Request).
 
 ### `response`
 
-The response object allows more control of the response, such as setting headers, streaming the response etc'.
+The response object is a Rack::Response object and it more control over the response, such as setting headers, cookies etc'.
 
-Read more at the [YARD documentation for the Response object](http://www.rubydoc.info/gems/iodine/Iodine/Http/Response).
+Read more at the [YARD documentation for the Response object](http://www.rubydoc.info/github/rack/rack/Rack/Response).
 
 ### The `params` hash
 
-The `params` Hash includes all the data from form data, query data and route parameters that had been collected for the request.
+The `params` Hash includes all the data from Rack's `request.params` as well as any parameters provided within the route ([more on that in the routes guide](routes)).
 
-It's a shortcut for `requst.params`.
+Param keys are always strings (never symbols). Values are always Strings (except for `'_method'` which is a symbol).
 
-Param keys are always symbols. Values are either Strings, numbers or `true`/`false`.
+Some param names are reserved for specific features, as they follow common practice. Reserved params names include:
 
-Uploaded files include the following data (assuming `:file_field` is the name of the file input in the Html form):
+* `'locale'` - this param name will set the locale when using the I18n gem.
 
-* `params[:file_field][:name]` - contains the original file's name.
+* `'format'` - this param name will set the format of the template being rendered.
 
-* `params[:file_field][:type]` - contains the file's mime type.
-
-* `params[:file_field][:size]` - contains the length of the file uploaded in bytes.
-
-* `params[:file_field][:file]` - contains a Tempfile which stores the file data.
-
-* `params[:file_field][:data]` - will dump the Tempfile data into the memory and store it in the Hash. Don't use this except if you intend to read the whole file data into the memory anyway.
-
-Some param names are reserved, as they are used for common shortcuts or other uses. Reserved params names include:
-
-* `:locale` - this param name will set the locale when using the I18n gem.
-
-* `:format` - this param name will set the format of the template being rendered.
-
-Read about [routes](./routes) to discover how to use the request path to set parameters.
+Read about [routes](routes) to discover how to use the request path to set parameters.
 
 ### The `cookies` cookie-jar
 
-The `cookies` cookie jar is a Hash that both reads and writes cookies (it uses `response.set_cookie` whenever a value is assigned to a cookie name).
+The `cookies` cookie jar is a Hash that both reads and writes cookies. It's a bit of syntetic sugar over Rack's `response.set_cookie` and `response.delete_cookie`.
 
 To read a cookie name, simply:
 
-    cookies[:name]
+    cookies['name']
 
 To set a cookie's value, simply:
 
-    cookies[:name] = "value"
+    cookies['name'] = "value"
 
-It's also possible to set the [`response.set_cookie` options](http://www.rubydoc.info/gems/iodine/Iodine/Http/Response#set_cookie-instance_method) when setting the value. i.e.:
+It's also possible to set the [`response.set_cookie` options](http://www.rubydoc.info/github/rack/rack/Rack%2FUtils.add_cookie_to_header) when setting the value. i.e.:
 
-    cookies[:name] = {value: "value", secure: true}
+    cookies[:name] = {value: "value", secure: true, httponly: true}
 
-Remember, cookies are sent to the browser using Http headers - you CAN'T set cookies after the headers were sent. If streaming a response, make sure to set all cookies BEFORE streaming begins.
+Remember, cookies are sent to the browser using HTTP headers - it is **not** possible to set cookies after the headers were sent. Make sure to set all cookies **before** aresponse is set - this is especially true for Websockets (use the `pre_connect` callback for that).
 
 ### The `render` method
 
-Renders a template file (.slim/.erb/.md) to a String and attempts to set the response's 'content-type' header (if it's still empty).
+Renders a template file (`.slim`/`.erb`/`.md`) to a String and attempts to set the response's 'content-type' header (if it's still empty).
 
 For example, to render the file `users/index.html.erb` with the layout `layout.html.slim`:
 
     render("layout") { render("users/index") }
 
-or, for example, to render the same content in JSON format, using the templates `users/index.json.erb` with the layout `layout.json.erb`
+Rr, for example, to render the same content in JSON format, using the templates `users/index.json.erb` with the layout `layout.json.erb`
 
     params['format'] = 'json'
     render("layout") { render("users/index") }
@@ -244,7 +231,7 @@ This method review's the request and returns the name of the controller method t
 
 ### The `url_for` URL builder
 
-The controller will attempt to guess the URL used to reach any path within it's parameters, setting query parameters if the parameters are not part of the route's path parameters. i.e.:
+The controller will attempt to guess the URL used to reach any path within it's parameters, setting query parameters if the parameters are not part of the route's fixed path parameters. i.e.:
 
 url_for :index # the root of the controller
 url_for id: 1, \_method: :delete # the DELETE method emulation for RESTful ID 1.

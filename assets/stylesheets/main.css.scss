@@ -544,6 +544,11 @@ body.dark, .dark input
     {
         background-color: #333;
     }
+    mark
+    {
+      background-color: #403020;
+      color: #e0e0e0;
+    }
     a
     {
         color: #ddf;
@@ -569,7 +574,7 @@ body.dark, .dark input
             }
         }
     }
- 
+
     #logo:after
     {
         background-image: url('/images/logo_thick_light.png');

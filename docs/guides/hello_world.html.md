@@ -16,9 +16,16 @@
 
 If you read [the getting started guide](./basics), you know that a "Hello World" Plezi applicationonly needs two line (three, if you're using `irb` instead of a ruby script)... remember?
 
-    require 'plezi'
-    route('*') { "Hello World!" }
-    exit # <- this exits the terminal and starts the server
+```ruby
+require 'plezi'
+class Hello
+   def index
+      "Hello World!"
+   end
+end
+Plezi.route '*', Hello
+exit # <- this exits the terminal and starts the server
+```
 
 So... instead of writing the __shortest__ hello world tutorial, we're going to write the most __bloated__ hello world application ever, allowing us to explore some of the more powerful and common features Plezi has to offer.
 
@@ -139,27 +146,33 @@ Let's move our Controller to a seperate file and while where at it, let's give i
 
 Plezi is ready for this very common practice. In our `hello_world.rb` file you will find the following commented line - remove the comment:
 
-    # # Load code from a subfolder called 'app'?
-    Dir[File.join "{app}", "**" , "*.rb"].each {|file| load File.expand_path(file)}
-
+```ruby
+# # Load code from a subfolder called 'app'
+Dir[File.join "{app}", "**" , "*.rb"].each {|file| load File.expand_path(file)}
+```
 Create a folder named `app` in our `hello_world` application's root folder, and crate a file with our controller code. We'll call our file `hello_controller.rb`:
 
-    class HelloController
-        def index
-            cookies[:hello] = "world"
-            "Hello World!"
-        end
+```ruby
+class HelloController
+    def index
+        cookies[:hello] = "world"
+        "Hello World!"
     end
+end
+```
 
 Now our application is happily broken. It won't work... Why? because our Http router ([read more about routes here](./routes)) doesn't know about the new controller's name. Let's fix this.
 
 Edit the `hello_world.rb` file again, replacing this line:
 
-    route '/(:id)', MyController
-
+```ruby
+Plezi.route '/(:id)', MyController
+```
 with this line:
 
-    route '/', HelloController
+```ruby
+Plezi.route '/', HelloController
+```
 
 "WAIT!", I hear you say, "What happened to the `"/(:id)"`?"
 
@@ -175,29 +188,33 @@ Remember the implied `:id` parameter? RESTful routing means that the method `sho
 
 Let's edit our `hello_controller.rb` file:
 
-    class HelloController
-        def index
-            cookies[:hello] = "world"
-            "Hello World!"
-        end
-        def show
-            cookies[:hello] = params[:id]
-            "Hello #{params[:id]}!"
-        end
+```ruby
+class HelloController
+    def index
+        cookies[:hello] = "world"
+        "Hello World!"
     end
+    def show
+        cookies[:hello] = params[:id]
+        "Hello #{params[:id]}!"
+    end
+end
+```
 
 Hmm... not very DRY, is it... let's try again, and let's give more respect to the cookie while we're at it! Here's our updated code:
 
-    class HelloController
-        def index
-            redirect_to :World
-        end
-        def show
-            response << "You came from #{cookies[:hello]}. now...\n" if cookies[:hello]
-            cookies[:hello] = params[:id]
-            "Hello #{params[:id]}!"
-        end
+```ruby
+class HelloController
+    def index
+        redirect_to :World
     end
+    def show
+        response << "You came from #{cookies[:hello]}. now...\n" if cookies[:hello]
+        cookies[:hello] = params[:id]
+        "Hello #{params[:id]}!"
+    end
+end
+```
 
 Now, restart the application and visit: [localhost:3000/New York](http://localhost:3000/New%20York), [localhost:3000/London](http://localhost:3000/London) and [localhost:3000/Atlantis](http://localhost:3000/Atlantis) (Always wanted to go there)...
 
@@ -205,20 +222,22 @@ Now, restart the application and visit: [localhost:3000/New York](http://localho
 
 Just one last thing... Atlantis isn't really here no more... let's make it a special case by adding a dedicated method for this `:id`. Also, let's replace `cookies` with a short-lived cookie-flavor called `flash` (a self-destructing cookie):
 
-    class HelloController
-        def index
-            redirect_to :World
-        end
-        def show
-            response << "You came from #{flash[:hello]}. now...\n" if flash[:hello]
-            flash[:hello] = params[:id]
-            "Hello #{params[:id]}!"
-        end
-        def atlantis
-            # notice what happens when we don't set the flash.
-            "Dude! It sunk!"
-        end
+```ruby
+class HelloController
+    def index
+        redirect_to :World
     end
+    def show
+        response << "You came from #{flash[:hello]}. now...\n" if flash[:hello]
+        flash[:hello] = params[:id]
+        "Hello #{params[:id]}!"
+    end
+    def atlantis
+        # notice what happens when we don't set the flash.
+        "Dude! It sunk!"
+    end
+end
+```
 
 Now, let's restart the application and re-visit: [localhost:3000/London](http://localhost:3000/London) and [localhost:3000/Atlantis](http://localhost:3000/Atlantis)<sup>*</sup> - This was cool!
 
@@ -236,9 +255,10 @@ As we format our response for Html, we would probably want to seperate all the c
 
 If you'll look through `hello_world.rb`, you should find these little lines:
 
-    host templates: Root.join('templates').to_s,
-        # public: Root.join('public').to_s,
-        assets: Root.join('assets').to_s
+```ruby
+Plezi.templates = Root.join('templates').to_s,
+Plezi.assets = Root.join('assets').to_s
+```
 
 These lines set some common options for our global host. Yes, since you wondered, Plezi supports virtual hosts, each with their own settings and unique - or shared - routes.
 
@@ -252,23 +272,24 @@ The method accepts a number of common options such as `:layout`, `:type` and `:l
 
 Here's a bit of an updated controller... while we're at it, we should probably sanitize any incoming data, who knows what our users might do when our application's security is tested in the big wild internet:
 
-    class HelloController
-        def index
-            redirect_to :World
-        end
-        def show
-            @location = ::ERB::Util.html_escape params[:id]
-            @previous = ::ERB::Util.html_escape flash[:hello]
-            flash[:hello] = params[:id]
-            render :hello, layout: :layout
-        end
-        def atlantis
-            @location ="Dude! It sunk!"
-            @previous = ::ERB::Util.html_escape flash[:hello]
-            render :hello, layout: :layout            
-        end
+```ruby
+class HelloController
+    def index
+        redirect_to :World
     end
-
+    def show
+        @location = ::ERB::Util.html_escape params[:id]
+        @previous = ::ERB::Util.html_escape flash[:hello]
+        flash[:hello] = params[:id]
+        render :hello, layout: :layout
+    end
+    def atlantis
+        @location ="Dude! It sunk!"
+        @previous = ::ERB::Util.html_escape flash[:hello]
+        render :hello, layout: :layout
+    end
+end
+```
 
 #### The layout
 
@@ -276,36 +297,39 @@ I will be using the `ERB` (embeded ruby) engine for this demo, but on my own app
 
 Our html layout file will be saved as `layout.html.erb` and it looks something like this:
 
-    <!DOCTYPE html>
-    <html lang="en">
-        <head>
-            <meta charset="utf-8">
-            <title><%= @title || "Hello World" %></title>
-        </head>
-        <body>
-            <%= yield %>
-        </body>
-    </html>
-
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title><%= @title || "Hello World" %></title>
+    </head>
+    <body>
+        <%= yield %>
+    </body>
+</html>
+```
 If you're using [Slim](http://slim-lang.com), maybe you saved the layout as `layout.html.slim`, and it might have looked like this:
 
-    doctype html
-    html
-        head
-            meta charset="utf-8"
-            title= @title || "Hello World"
-        body
-            == yield
-
+```slim
+doctype html
+html
+    head
+        meta charset="utf-8"
+        title= @title || "Hello World"
+    body
+        == yield
+```
 #### The content template
 
 The content is super short for "Hello World", it's a one or two paragraph long file called `hello.html.erb`:
 
-    <% if @previous %>
-    <p>We just arrived from <%= @previous %>, we welcome you!</p>
-    <% end %>
-    <p>Hello <%= @location %>!</p>
-
+```html
+<% if @previous %>
+<p>We just arrived from <%= @previous %>, we welcome you!</p>
+<% end %>
+<p>Hello <%= @location %>!</p>
+```
 
 Cool. Let's see it in action, this time visiting [localhost:3000/Berlin](http://localhost:3000/Berlin), [localhost:3000/Paruge](http://localhost:3000/Paruge) and [localhost:3000/Atlantis](http://localhost:3000/Atlantis).
 
@@ -321,7 +345,7 @@ The same goes for handling internal server errors (error code 500). We don't wan
 
 ### A graceful 404 error
 
-Looking at the files in our `hello_world` applications, we can find a template called `404.html.erb`. The 404 (not found) error seems to be routed to the `404.html.erb` tamplate. 
+Looking at the files in our `hello_world` applications, we can find a template called `404.html.erb`. The 404 (not found) error seems to be routed to the `404.html.erb` tamplate.
 
 We have a number of ways to deal with the error more gracefully... Personally, I'm an advocate for the lazy method, which we will use when dealing with the 500 (internal error) error.
 
@@ -331,24 +355,21 @@ A catch-all route doesn't have an `:id` appended to it, so our Controller only n
 
 First, let's create a Controller, We'll call it `Err404Ctrl` and save it in a file in our `app` folder. Let's name the file `app/err404.rb`:
 
-    class Err404Ctrl
-        def index
-            @previous = flash[:hello]
-            @location = "Nowhere (error 404 - location not found)"
-            render :hello, layout: :layout
-        end
+```ruby
+class Err404Ctrl
+    def index
+        @previous = flash[:hello]
+        @location = "Nowhere (error 404 - location not found)"
+        render :hello, layout: :layout
     end
+end
+```
 
 Now, let's update out `hello_world.rb` file. We will add the following line at the end of our file:
 
-    Plezi.route '*', Err404Ctrl
-
-Maybe you looked at the line above the one we just added and saw that it read:
-
-    route '/', HelloController
-
-
-Wonder why we write `Plezi.route` instead of `route`? - No special reason, except to show where the `route` method actually comes from.
+```ruby
+Plezi.route '*', Err404Ctrl
+```
 
 Cool, we now handle the 404 not found error way more gracefuly. Try it: [localhost:3000/Miami/Beach](http://localhost:3000/Miami/Beach)
 
@@ -358,12 +379,14 @@ Now, 500 errors also creep up sometimes and that's when the s**t really hit's th
 
 Let's make sure we get an 500 error whenever we want one by adding the following method to our HelloController class:
 
-    class HelloController
-        # ... all our existing code is here
-        def fail
-            raise "HELL!"
-        end
+```ruby
+class HelloController
+    # ... all our existing code is here
+    def fail
+        raise "HELL!"
     end
+end
+```
 
 Now (remember to restart the application), if we visit [localhost:3000/fail](http://localhost:3000/fail) we should get the `500.html.erb` template.
 
@@ -432,19 +455,22 @@ All we need is to create a route and pass `false` as our controller - easy.
 
 This allows us to set the language for all our routes by adding a single rewrite route such as:
 
-    route '/(:locale){en|it|ru}', false
-
+```ruby
+Plezi.route '/(:locale){en|it|ru}', false
+```
 This also allows us to support JSON across the board with a single rewrite route and a few templates.
 
 We will add the `route "/(:format){html|json}" , false`  rewrite route as the **first** route - remember, routes have priority by order of creation... so we want our request to be re-written before it's reviewed by our other routes.
 
 Our routing code, in `hello_world.rb` should now look like this:
 
+```ruby
     host templates: Root.join('templates').to_s,
         assets: Root.join('assets').to_s
-    route "/(:format){html|json}" , false
-    route '/(:id)', HelloController
+    Plezi.route "/(:format){html|json}" , false
+    Plezi.route '/(:id)', HelloController
     Plezi.route '*', Err404Ctrl
+```
 
 That's it! restart the app and go to [localhost:3000/json/London](http://localhost:3000/json/london)
 
@@ -536,5 +562,3 @@ This code I decided to use is highly customized, since I wanted to both add and 
 Wow! We discovered that Plezi has caching helpers (even one that checks if the file that initiated the cache was updated since we cached our data) AND that Plezi's `render` method can be extended to render any extention we want.
 
 As an excersize, try and complete this one yourself: update your Html `hello` template to use markdown instead of ERB of Slim. What do you think should change (notice the difference between `erb` and `slim` usage?
-
-

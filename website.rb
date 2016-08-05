@@ -32,7 +32,7 @@ ENV['PL_REDIS_URL'] ||= ENV['REDIS_URL'] ||
 
 # change some of the default settings here.
 Plezi.templates = Root.join('docs').to_s
-# assets: Root.join('assets').to_s
+Plezi.assets = Root.join('assets').to_s
 
 # # I18n re-write, i.e.: `/en/home` will be rewriten as `/home`, while setting params[:locale] to "en"
 # route "/:locale{#{I18n.available_locales.join "|"}}/*" , false if defined? I18n
@@ -49,4 +49,6 @@ Plezi.templates = Root.join('docs').to_s
 # Add your routes and controllers by order of priority.
 Plezi.route('/docs', DocsController)
 Plezi.route('/guides', DocsController)
+Plezi.route('/assets', :assets)
+Plezi.route('/client', :client)
 Plezi.route('/', HomeController)

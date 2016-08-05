@@ -2,9 +2,14 @@
 class HomeController
   # HTTP
   def index
+    cookies['last_nickname'.freeze] = nil
     # return response << "Hello World!" # for a hello world app
     render('layout') { render 'welcome' }
   end
+
+  # def pre_connect
+  #   cookies['last_nickname'.freeze] = params['id'.freeze]
+  # end
 
   # Websockets
   def on_open

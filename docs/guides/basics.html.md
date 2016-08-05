@@ -96,20 +96,22 @@ Plezi was designed for websockets from the ground up. If your controller class d
 
 Here's a Websocket echo server using Plezi:
 
-    require 'plezi'
-    class MyDemo
-        def on_message data
-            # sanitize the data and write it to the websocket.
-            write ">> #{ERB::Util.html_escape data}"
-        end
+```ruby
+require 'plezi'
+class MyDemo
+    def on_message data
+        # sanitize the data and write it to the websocket.
+        write ">> #{ERB::Util.html_escape data}"
     end
+end
 
-    Plezi.route '/', MyDemo
-    exit
+Plezi.route '/', MyDemo
+exit
+```
 
 Plezi will also, automatically, route the controller's (public and protected) instance methods to websocket events which you can "fire" using the `unicast`/`broadcast` methods.
 
-Why protected methods, you ask? ... well, We wouldn't want any miscreant users using HTTP requests to activate websocket events. This is why both public and protected methods are available for websocket events, but only public methods are available for HTT{}.
+Why protected methods, you ask? ... well, We wouldn't want any miscreant users using HTTP requests to activate websocket events. This is why both public and protected methods are available for websocket events, but only public methods are available for HTTP.
 
 Each controller can also act as a "channel", broadcasting websocket events (controller protected methods) to everyone who's connected to it.
 
@@ -140,7 +142,7 @@ class MyDemo
     end
 end
 
-route '/', MyDemo
+Plezi.route '/', MyDemo
 # You can connect to this chatroom by going to ws://localhost:3000/any_nickname
 # but you need to write a websocket client too...
 # try two browsers with the client provided by http://www.websocket.org/echo.html
@@ -175,9 +177,9 @@ However, this is a bit more advanced (unless we use the `@auto_dispatch` feature
 
 ## Template Rendering, assets...?
 
-Rendering allows use to seperate the View from the Controller and the data. This allows us to use the same code for both an html and a JSON response.
+Rendering allows use to seperate the View from the Controller and the data. This allows us to use the same code for different response formats (i.e., both for an html and a JSON response).
 
-This feature is extra powerful when coupled with Plezi's rewrite routes, that allow us to set up the format as part of the routing system.
+This feature is extra powerful when coupled with Plezi's rewrite routes and the `:format` parameter, that allow us to set up the format as part of the routing system.
 
 Here's a quick example (minus the `html` and `json` templates)... We'll assume we have two templates, `index.html.slim` and `index.json.erb`.
 
@@ -187,14 +189,14 @@ Plezi.templates = "/folder/to/templates"
 # setup our controllers
 class MyDemo
     def index
-        # to make this work, create a template in the correct template folder
-        render(:index)
+        # with the proper templates, our code is format agnostic :-)
+        render('index')
     end
 end
 # a rewrite route
-route '/(:format)/*', false
-# our demo route
-route '/', MyDemo
+Plezi.route '/(:format)', /html|json/
+# our demo route agnostic towards the output format
+Plezi.route '/', MyDemo
 # start the server
 exit
 ```

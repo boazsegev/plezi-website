@@ -52,7 +52,7 @@ The Plezi code from the landing page looked something like this:
     end
     path_to_client = File.expand_path( File.dirname(__FILE__) )
     host templates: path_to_client
-    route '/', ChatServer
+    Plezi.route '/', ChatServer
     # finish with `exit` if running within `irb`
     exit
 
@@ -66,7 +66,7 @@ Now, let's start taking it apart...
     end
     path_to_client = File.expand_path( File.dirname(__FILE__) )
     host templates: path_to_client
-    route '/', ChatServer
+    Plezi.route '/', ChatServer
 
 This part of the code outlines the whole of the server.
 
@@ -76,13 +76,13 @@ This part of the code outlines the whole of the server.
 
 `host templates: path_to_client` - we are setting the `host` options for our server. More abot this in the [routes](/guide/routes) guide and the [./hello_world]("Hello World" tutorial).
 
-Basically we are telling Plezi where we are keeping the html (or template) that we will be sending the browser. This Html will be our "client" application. 
+Basically we are telling Plezi where we are keeping the html (or template) that we will be sending the browser. This Html will be our "client" application.
 
 Because websockets are like conversations, websocket applications require (at least) two sides, both "speaking" the same language. Usually there is a server and many clients. The server will be talking to all the clients, sometimes also delivering messages between clients.
 
 The web page is the "client" for our web application. and the `path_to_client` tells Plezi where to look for the template.
 
-`route '/', ChatServer` - We are connecting the `"/"` path to our `ChatServer` controller... 
+`route '/', ChatServer` - We are connecting the `"/"` path to our `ChatServer` controller...
 
 ... Actually, since Plezi is quite opinionated about it's routes, Plezi assumes we meant to write `"/(:id)"`, meaning that the optional `params[:id]` can be set using our route. i.e., our `ChatServer` will answer the request `"/my-name"` and will set the `params[:id]`'s value to be `"my-name"`.
 

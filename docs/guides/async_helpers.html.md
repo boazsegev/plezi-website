@@ -43,7 +43,7 @@ For example:
         end
     end
 
-    route '/', MyController
+    Plezi.route '/', MyController
 
     exit
 
@@ -71,7 +71,7 @@ In come Iodine's TimedEvents: `Plezi.run_after` and `Plezi.run_every`
     end
 
 
-    route '/', MyController
+    Plezi.route '/', MyController
 
     exit
 
@@ -97,6 +97,6 @@ The timed event allows us to create a new event with the same job, if we wish. H
         end
     end
 
-    route '/', MyController
+    Plezi.route '/', MyController
 
     exit

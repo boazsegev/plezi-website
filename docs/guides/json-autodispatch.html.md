@@ -12,15 +12,15 @@ The server-side Auto-Dispatch can be used with any client that uses JSON for web
 
 The auto-dispatch defines and uses the following JSON "sub-protocol":
 
-* All websockets much contain a "stringified" JSON dictionary (Hash) object as the root object.
+* All websockets must contain a "stringified" JSON dictionary (Hash) object as the root object.
 
-* The JSON dictionary must have the requied `'event'` property (in Ruby: `:event`).
+* The JSON dictionary must have the required `'event'` property (in Ruby: `:event`).
 
 * Plezi will close the connection if it receives a non (conforming) JSON message on a path that uses Auto-Dispatch.
 
-* The JSON object's property `:event`, is routed to a method with the same name on the receiving end (both on the Ruby server and the Javascript client).
+* The JSON object's property `:event`, is routed to a method with the same name (this is also true for the client, when using Plezi's javascript client).
 
-    This means that the `:event` property for websocket messages is mostly equivilant to the `params['id']` property for HTTP requests - [both will invoke the same method](http://www.plezi.io/docs/routes#the-id-parameter), allowing use to easily support a graceful fallback to Asynchronous Javascript and JSON (AJAJ).
+    This means that the `:event` property for websocket messages is mostly equivalent to the `params['id']` property for HTTP requests - [both will invoke the same method](http://www.plezi.io/docs/routes#the-id-parameter), allowing us to easily support a graceful fallback to HTTP with AJAJ (Asynchronous Javascript and JSON).
 
     i.e. an event named `'auth'` will invoke the method `auth` and pass the method `auth` a single Hash parameter containing the JSON data.
 
@@ -44,7 +44,7 @@ The auto-dispatch defines and uses the following JSON "sub-protocol":
             end
             # this will write a JSON response for both
             # AJAJ and Websockets
-            {event: :connnection, token: "token"}.to_json
+            {event: :connection, token: "token"}.to_json
         end
     ```
 
@@ -57,11 +57,11 @@ The auto-dispatch defines and uses the following JSON "sub-protocol":
         }
     ```
 
-* An invalid `:event` property will be handled differently by the client then the Server. While the client will either silently ignore the error or forward the unknown request to the `'unknown'` callback (if defined), the server will simply disconnect the Websocket unless the `'unknown'` callback ws defined (servers are touchy, they have more to protect).
+* An invalid `:event` property will be handled differently by the client then the Server. While the client will either silently ignore the error or forward the unknown request to the `'unknown'` callback (if defined), the server will disconnect the Websocket unless the `'unknown'` callback was defined (servers are touchy, they have more to protect).
 
-* JSON valid messages that contain the `:_EID_` property (event ID), will be invoke an `:_ack_` event upon receipt. The `:_ack_` event's JSON data will contain only the `:_EID_` sent. This is also used internally by Plezi's client API.
+* JSON valid messages that contain the `:_EID_` property (event ID), will be invoke an `:_ack_` event upon receipt. The `:_ack_` event's JSON data will contain only the `:_EID_` sent. You don't have to worry about this when using Plezi's client, since the client will manage the book-keeping according to the settings you provide.
 
-This sub-protocol allows to easily unify AJAJ (AJAX with JSON) and Websocket APIs, when using the method's default argument value to indicated the request's source.
+This sub-protocol allows us to easily unify AJAJ and Websocket APIs, when using the method's default argument value to indicated the request's source.
 
 When using the Auto-Dispatch, there is no need to write an `on_message` callback. But the controller must set the class variable `@auto_dispatch` to `true`. i.e.
 
@@ -90,7 +90,7 @@ Plezi.route 'a/very/unique/path/to/the/c_l_i_e_n_t.js', :client
 
 The client is also available through the static file server when using the Plezi application template. The client's path is `/javascripts/client.js`.
 
-The clien't [source code is available on GitHub](https://github.com/boazsegev/plezi/blob/master/resources/plezi_client.js). Contributions are welcome.
+The clien't [source code is available on GitHub](https://github.com/boazsegev/plezi/blob/master/resources/client.js). Contributions are welcome.
 
 ### Leveraging the Plezi Client
 
@@ -307,7 +307,7 @@ class MyEcho
   def unknown event = nil
     unless event
       # this is an AJAJ request
-      event = {event: "err", status: 404, request: params.dup}
+      event = {event: "err", status: 404, request: Plezi.rubyfy(params)}
       event[:request][:event] = event[:request].delete 'id'.freeze
     end
     event.to_json
@@ -316,7 +316,7 @@ end
 Plexi.route '/', MyEcho
 ```
 
-Notice how a default value of `nil` allowed us to use the method also for AJAJ requests (where the `:id` parameter replaces the `:event` parameter in JSON).
+Notice how a default value of `nil` allowed us to use the method also for HTTP-AJAJ requests (where the `'id'` parameter replaces the `:event` parameter in JSON).
 
 The reason for the default value is that AJAJ requests will call the method without providing ANY arguments (just like all Http requests, there are no arguments, only the `params` Hash). On the other hand, the auto-dispatcher will call the method while passing the event Hash data as a single argument.
 

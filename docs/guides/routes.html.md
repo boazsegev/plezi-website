@@ -188,6 +188,32 @@ Try the code above and visit:
 
 Notice the re-write route containes an implied catch all. This catch-all is automatically added if missing. The catch-all is the part of the path that will remain for the following routes to check against.
 
+### The Plezi Assets Route
+
+By default, Plezi assumes assets are baked and servered as static files.
+
+However, during production, it's comfortable to have our assets served dynamically and updated live.
+
+Also, sometimes we forget to back some (or all) of the assets before deployment to a production environment (or we're just lazy).
+
+Plezi has our back by providing us with the `:assets` controller.
+
+Plezi will allow live updates to asstes during development, but in production mode (using `ENV['RACK_ENV'] = 'production'`) plezi will bake any missing assets to the public folder, so that the next request is always served by the static file server without getting the Ruby layer involved.
+
+For example:
+
+```ruby
+Plezi.assets = 'my/assets' # defaults to 'assets'
+
+Plezi.route "/assets", :assets
+```
+
+`Plezi.assets` defaults to the subfolder `'./assets'`, but this can be changed to suite your naming preferences.
+
+`Plezi.route "/assets", :assets` will create the route for the `:assets` baking controller.
+
+Using `:assets` as a controller allows us to control asset priority over other dynamic requests, but it also means Plezi does **not** provide any default asset management.
+
 ### The Plezi Client Route
 
 Plezi's Auto-Dispatch has a websocket javascript client that gets updated along with Plezi.

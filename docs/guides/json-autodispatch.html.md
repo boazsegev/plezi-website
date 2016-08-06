@@ -452,21 +452,15 @@ Using any of the reserved keywords as an event name - both the Ruby keywords and
 
 * `on_close` - This is a reserved websocket callback name.
 
-* `on_broadcast` - This is a reserved websocket callback name used internally to map broadcasted events to their respective method. It can also be used for non-Plezi websocket broadcasing when using Iodine's (the server's) API.
+* `on_shutdown` - This is a reserved websocket callback name.
 
 * `pre_connect` - This is a reserved websocket callback name.
 
-* `on_message` - This is a reserved websocket callback name.
-
-* `before` - This is a reserved callback name.
-
-* `after` - This is a reserved callback name.
-
-* `unknown` - This is a reserved auto-dispatch callback name.
-
-* `uuid` - This is a reserved method name that returns a process dependent (Iodine) uuid for the current (websocket) connection.
+* `unknown` - This should be a reserved auto-dispatch callback name.
 
 * `id` - This is a reserved method name that returns an internet global (Plezi) uuid for the current (websocket) connection.
+
+* `uuid` - This is a reserved method name that returns a process dependent (Iodine) uuid for the current (websocket) connection.
 
 * `write` - This is a reserved websocket method name that writes data to the websocket.
 
@@ -484,27 +478,23 @@ Using any of the reserved keywords as an event name - both the Ruby keywords and
 
 * `cookies` - This is a reserved method/property name storing (and setting) the Http cookies. Setting cookies can only be performed BEFORE the Http response's headers were sent (i.e. during `pre_connect` or any Http response method such as `index`).
 
-* `session` - This is a reserved method/property name storing session data. Session data is stored either locally (on a tmp-file) or using Redis (if defined), so that session data CAN be stored even after the headers were sent (i.e. during websocket event handling).
+* `session` - This should be reserved when using session middleware.
 
-* `response` - This is a reserved method/property name storing the Http response object. The Http response object can also be used to send websocket data (i.e. `response << "my data"`).
+* `response` - This is a reserved method/property name storing the Rack::Response object.
 
-* `flash` - This is a reserved method/property name storing temporary (single use) cookies. The same rules regarding cookies apply to flash storage (set before headers are sent).
-
-* `host_params` - This is a reserved method/property name storing the setting for the host (i.e., the path to the host's templates is used for the render engine).
-
-* `redirect_to` - This is a reserved method name for Http redirection.
+* `redirect_to` - This is a reserved method name for HTTP redirection.
 
 * `url_for` - This is a reserved method name for rebuilding (guessing) the first path to the controller, with the requested parameters as part of the URL (i.e. `url_for user.id` or `url_for id: :8, method: :_delete`). Re-write route parameters (i.e. `:locale` or `:format`) are preserved when rebuilding the URL.
 
-* `full_url_for` - same as `url_for`, but prefixed with the current hostname (don't use if changing hosts).
+* `send_data` - This is a reserved HTTP method name used for sending IO objects (Files) or data (usually binary) Strings. Emulates a static file sent, but attempts to avoid browser cashing.
 
-* `send_data` - This is a reserved Http method name used for sending IO objects (Files) or data (usually binary) Strings. Emulates a static file sent, but attempts to avoid browser cashing.
+* `send_file` - This is a reserved HTTP method name used for sending files using their file name.
 
 * `render` - This is a reserved method name used for rendering templates for Http/AJAX (and even websocket/auto-dispatch) responses.
 
 * `requested_method` - This is a reserved method name returning the Controller's method that was originally invoked by the Http request.
 
-* `_route_path_to_methods_and_set_the_response_` - This is a reserved method name used internally after the Controller was initiallized, to process the request.
+* `_pl_(*)` - These are reserved method names used internally.
 
 The following are reserved Ruby keywords that cannot be used as event/method names (this list might be partial):
 

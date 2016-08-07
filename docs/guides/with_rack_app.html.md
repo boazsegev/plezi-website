@@ -68,6 +68,10 @@ get '/hello' do
 end
 ```
 
+## A note about rewrite paths
+
+Be aware that any rewrite paths defined by Plezi could cause data loss, since the path will be rewritten but the data extracted won't be available to other middleware or the final application.
+
 ## A note about multi-threading
 
 Plezi is designed to serve multiple concurrent connections and perform concurrent tasks - this is especially important when supporting websockets.

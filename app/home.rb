@@ -2,8 +2,7 @@
 class HomeController
   # HTTP
   def index
-    cookies['last_nickname'.freeze] = nil
-    # return response << "Hello World!" # for a hello world app
+    # cookies['last_nickname'.freeze] = nil
     render('layout') { render 'welcome' }
   end
 

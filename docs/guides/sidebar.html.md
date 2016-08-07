@@ -2,7 +2,7 @@
 * [Installing Plezi](/docs/install)
 *   
 * [Getting started](/docs/basics)
-* [Hello World (coming soon)]()
+* [Hello World](/docs/hello_world)
 * [Hello Chatroom (coming soon)]()
 *   
 * [Routing with Plezi](/docs/routes)

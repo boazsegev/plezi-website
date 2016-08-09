@@ -176,13 +176,13 @@ Once a controller class had been attached to a route, Plezi will inherit this cl
 
 The following properties and methods are accessible from within your Controller classes.
 
-### `request`
+### The `request` object
 
 The request object is a Rack::Request object, containing the request's information and some helper methods.
 
 Read more at the [YARD documentation for the Request object](http://www.rubydoc.info/github/rack/rack/Rack/Request).
 
-### `response`
+### The `response` object
 
 The response object is a Rack::Response object and it more control over the response, such as setting headers, cookies etc'.
 
@@ -254,9 +254,39 @@ MyController.url_for id: 1, \_method: :delete # the DELETE method can be emulate
 
 Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#url_for-instance_method).
 
+###
+
+
+
+### The `send_data(data, options = {})` helper
+
+Sends a block of data, setting the file name, mime type and content disposition headers when possible.
+
+This should be a good choice when sending large amounts of data, as the application could leverage future optimizations without the need to update it's code base.
+
+By default, `send_data` sends the data as an attachment, unless `inline: true` was set.
+
+If a mime type is provided, it will be used to set the Content-Type header. i.e. `mime: "text/plain"`
+
+If a file name was provided, Rack will be used to find the correct mime type (unless provided). i.e. `filename: "sample.pdf"` will set the mime type to `application/pdf`
+
+Available options: `:inline` (`true` / `false`), `:filename`, `:mime`.
+
+### The `send_file(filename, options = {})` helper
+
+Same as the `send_data` helper method, but accepts a file name (to be opened and sent) rather then a String.
+
+This method will attempt to leverage Iodines X-Sendfile support when available (when the static file service is active).
+
+The options for this method are the same as the ones used for `send_data`.
+
 ## Websocket specific helpers
 
 Some Controller helper methods are only available and relevant after a Websocket connection was established.
+
+### Using `id` to identify a Websocket
+
+A connection's Plezi ID uniquely identifies the connection across application instances, allowing it to receive and send messages using #unicast.
 
 ### Using `write` to write to a Websocket
 
@@ -297,3 +327,15 @@ Read more at the [YARD documentation for this method](http://www.rubydoc.info/ge
 Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#multicast-instance_method).
 
 (todo: write documentation)
+
+### The `adopt` method (Websockets)
+
+This method is still experimental.
+
+The method "adopts" a module to be used for Websocket callbacks events (listening, not sending).
+
+This function can only be called *after* a websocket connection was established (i.e., within the `on_open` callback).
+
+This allows a module “library” to be used similar to the way “rooms” are used in node.js, so that event handling code can be reused across a number of different Controllers.
+
+After adopting a module into a websocket instance, the module will be able to `broadcast` Websocket events as if it were a controller.

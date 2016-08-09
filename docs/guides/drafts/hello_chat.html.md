@@ -12,17 +12,38 @@
         <Attribute name="height" value="256" />
     </DataObject>
 </PageMap>-->
-# A Plezi chatroom using Websockets
+# A Better Chatroom
 
-Just like the ["Hello World" tutorial](./hello_world) was used to explore some of what Plezi had to offer us in the world of Http and RESTful routing, this Chatroom tutorial can be used to explore some of what Plezi can do for us when it comes to websockets.
+A ["Hello World" tutorial](./hello_world) is wonderful, but Plezi really shines when it comes to Websockets.
 
 In the landing page you have noticed a working demonstration for a fully working chatroom application, with a few lines of code executed through the `irb` terminal.
 
-First we will walk through the code and explore it to learn more about Websockets in Plezi, than we will see what we can tweek.
+There's no point in showing the basics or repeating the code in the landing page. I assume we all have experience coming from different platforms... so let's improve our chatroom rather then repeat ourselves.
 
-As I write this tutorial, I am hoping we will get to explore the different ways we can pass messages between the server and the clients, pushing real time data (chat messages, in this tutorial).
+## Getting Ready
 
-## The original code
+Before we start coding, we'll start with a clean slate, a new Plezi application. Let's open our terminal window and type:
+
+    $ plezi new hello_chat
+
+We're going to rewrite the Controller and html template quite heavily, so make sure you know where they are. If you're not sure, refer to the ["Hello World" tutorial](./hello_world).
+
+## JSON - The Common Practice
+
+When implementing Websockets we often use JSON to communicate what type of message we're exchanging and it's details.
+
+It's quite common for a message to look like this (I use epoch time stamps, but others may use String representation):
+
+```json
+{"event":"poke","from":"some_user","at":1470734881.272001}
+```
+
+Using JSON and the `'event'` property is such a common practice, it's practically a community standard. It's so common, I often think people forget it's not part of the raw Websocket protocol.
+
+Plezi embraces this common practice, allowing up to leverage this design by implementing an Auto Dispatch feature.
+
+This feature allows us to directly connect the `"event"` property with a controller's method name, so that websocket "events" invoke the corresponding method.
+
 
 The Plezi code from the landing page looked something like this:
 

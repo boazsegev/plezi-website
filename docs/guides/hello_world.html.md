@@ -12,7 +12,7 @@
         <Attribute name="height" value="256" />
     </DataObject>
 </PageMap>-->
-# Hello World in three languages
+# Hello World for more then english
 
 If you read [the getting started guide](./basics), you know that a "Hello World" Plezi application only needs just a few lines of code... it can be written using the `irb` terminal like so:
 

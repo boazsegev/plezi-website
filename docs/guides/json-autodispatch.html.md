@@ -140,7 +140,7 @@ When unknown JSON messages arrive, it's possible to handle them using the `unkno
 client.unknown = function(event) { "..." }
 ```
 
-#### `client.emit(event, callback, timeout)`
+#### `client.emit(event, callback, timeout_callback, timeout)`
 
 To emit an event in JSON format (send the JSON event to the Controller), use the `emit` method:
 
@@ -158,6 +158,10 @@ Notice that this uses Plezi's Auto-Dispatch's protocol with regards to the event
 client.emit({event: "ping"},
   function(event, client){
     // notice that the client is accessible using the second argument
+    console.log("The "+ event.event +" event finished successfully", event, client)
+  },
+  function(event, client){
+    // notice that the client is accessible using the second argument
     console.log("The "+ event.event +" event timed out", event, client)
   },
   3000);
@@ -170,6 +174,10 @@ It's also possible to set a default timeout that will be used whenever a specifi
 ```js
 client.emit_timeout = 3000;
 client.emit({event: "ping"},
+  function(event, client){
+    // notice that the client is accessible using the second argument
+    console.log("The "+ event.event +" event finished successfully", event, client)
+  },
   function(event, client){
     // notice that the client is accessible using the second argument
     console.log("The "+ event.event +" event timed out", event, client)
@@ -274,9 +282,9 @@ client.ajaj.add.token = "my_token"
 
 Another option (perhaps a more secure option) is storing data in Plezi's `session` storage.
 
-#### AJAJ emit - `client.ajaj.emit(event, callback)`
+#### AJAJ emit - `client.ajaj.emit(event, timeout_callback)`
 
-This method behaves in a similar fasion to the websocket version (`client.emit`). i.e.
+This method behaves in a similar fashion to the websocket version (`client.emit`). i.e.
 
 ```js
 client.ajaj.emit({event: 'auth', token: 'my_token'})

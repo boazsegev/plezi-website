@@ -12,13 +12,19 @@
         <Attribute name="height" value="256" />
     </DataObject>
 </PageMap>-->
-# A Better Chatroom
+# The Chatroom Experience
 
 A ["Hello World" tutorial](./hello_world) is wonderful, but Plezi really shines when it comes to Websockets.
 
 In the landing page you have noticed a working demonstration for a fully working chatroom application, with a few lines of code executed through the `irb` terminal.
 
-There's no point in showing the basics or repeating the code in the landing page. I assume we all have experience coming from different platforms... so let's improve our chatroom rather then repeat ourselves.
+There's no point in showing the basics or repeating the code in the landing page.
+
+If you're looking for some easy tutorial, this is **not** the place.
+
+This tutorial aims at implementing complex concepts in a way that will allow us to implement real world websocket applications.
+
+The chatroom application is just an excuse, a comfortable way to demonstrate more complex concepts.
 
 ## Getting Ready
 
@@ -26,7 +32,9 @@ Before we start coding, we'll start with a clean slate, a new Plezi application.
 
     $ plezi new hello_chat
 
-We're going to rewrite the Controller and html template quite heavily, so make sure you know where they are. If you're not sure, refer to the ["Hello World" tutorial](./hello_world).
+We're going to rewrite the Controller (`app/my_controller.rb`) and html template (`views/welcome.html.erb`) quite heavily, so make sure you know where they are. If you're not sure, refer to the ["Hello World" tutorial](./hello_world).
+
+I should probably note that the new application implements a simple, insecure (non-sanitized) chatroom. You can go ahead and have a look, I'll wait.
 
 ## JSON - The Common Practice
 
@@ -40,307 +48,289 @@ It's quite common for a message to look like this (I use epoch time stamps, but 
 
 Using JSON and the `'event'` property is such a common practice, it's practically a community standard. It's so common, I often think people forget it's not part of the raw Websocket protocol.
 
-Plezi embraces this common practice, allowing up to leverage this design by implementing an Auto Dispatch feature.
+Plezi embraces this common practice, allowing us to leverage this design by implementing an (optional) "Auto Dispatch" feature.
 
 This feature allows us to directly connect the `"event"` property with a controller's method name, so that websocket "events" invoke the corresponding method.
 
+## JSON as a Websocket and AJAJ API unifier
 
-The Plezi code from the landing page looked something like this:
+As a side note, the (optional) Auto-Dispatch feature makes websocket functions behave in a similar way to HTTP functions, allowing for AJAJ (AJAX with JSON, or Asynchronous Javascript And JSON) requests to map directly to Websocket event handlers.
 
-    require 'plezi'
-    class ChatServer
-        def index
-            render :client
-        end
-        def on_open
-            return close unless params[:id]
-            broadcast :print,
-                    "\#{params[:id]} joind the chat."
-            print "Welcome, \#{params[:id]}!"
-        end
-        def on_close
-            broadcast :print,
-                    "\#{params[:id]} left the chat."
-        end
-        def on_message data
-            self.class.broadcast :print,
-                        "\#{params[:id]}: \#{data}"
-        end
-        protected
-        def print data
-            write ::ERB::Util.html_escape(data)
-        end
+This API unification feature requires a few adjustments (such as a default value for the `event` argument, "rubyfying" the `params` hash and mapping the `params[:id]` to the `:event` property)... This tutorial will not get into these details.
+
+However, you might notice some similarities as we write our code, such as some return value types being written to the websocket (similarly, in HTTP, some return value types are appended to the response).
+
+## Designing the events
+
+Agile development means we can implement small pieces very quickly and then take these pieces out and replace them with different (hopefully better) implementations or workflows.
+
+Basically it means that we make our plans one module at a time (kinda like Object Oriented Programming, we have Object Oriented Development) - so mistakes aren't as expensive.
+
+### The User's Chatroom Journey
+
+I'm guessing, for now, that the chatroom will provide the user with an experience similar to this one:
+
+- The user logs in.
+
+- Everyone is notified about the login and welcomes the new user.
+
+- messages are exchanged.
+
+- The user logs out.
+
+- Everyone is notified about the logout.
+
+Later we might add private messages, but for now, this is the flow for the public chat.
+
+From this we can derive the following events, which I named with a `chat` prefix (to prevent later collisions): `chat_login`, `chat_message`, `chat_logout`
+
+Let's translate this to Code.
+
+### Public Chat Server Events
+
+Our server will need to manage the events we defined. I'll put it for now in a separate module, we might move the code somewhere else later on.
+
+```ruby
+module PublicChat
+
+  def chat_login event
+  end
+
+  def chat_message event
+  end
+
+  def chat_logout event
+  end
+
+end
+```
+
+As you can see, the design is simple. The method names are the same as the event names and each method accept the one objet - the event - which corresponds to the JSON hash we received.
+
+For now, will fill this in as if we had all the websocket functionality we wanted. We might have to reorganize some things later, but at least we'll know what we want each event to perform.
+
+Lets save this code as `app/public_chat.rb`:
+
+```ruby
+module PublicChat
+  def chat_login(event = nil)
+    if event.nil?
+      # we will broadcast a login event to everyone in the chatroom.
+      broadcast :chat_login, event: 'chat_login',
+                             name: params[:nickname],
+                             user_id: id
+      # we don't need to send anything, this is taken care of by the JavaScript.
+      nil
+    else
+      # We will forward the event to the websocket.
+      event
     end
-    path_to_client = File.expand_path( File.dirname(__FILE__) )
-    host templates: path_to_client
-    Plezi.route '/', ChatServer
-    # finish with `exit` if running within `irb`
-    exit
-
-Now, let's start taking it apart...
-
-### The outline
-
-    require 'plezi'
-    class ChatServer
-        # ...
+  end
+  def chat_message(event, from_broadcast = false)
+    if from_broadcast
+      # we will simply forward the event to the websocket.
+      event
+    else # this event was invoked by the websocket
+      # enforce the senders nickname and id
+      event[:name] = params[:nickname]
+      event[:id] = id
+      # sanitize the message
+      event[:message] = ::ERB::Util.h event[:message]
+      # we will broadcast the message to everyone
+      broadcast :chat_message, event, true
+      # the data was received from the websocket, and we have nothing to "say" back.
+      nil
     end
-    path_to_client = File.expand_path( File.dirname(__FILE__) )
-    host templates: path_to_client
-    Plezi.route '/', ChatServer
-
-This part of the code outlines the whole of the server.
-
-`require 'plezi'` - We are using Plezi.
-
-`class ChatServer #...` - We are creating a Controller class that will handle some tasks.
-
-`host templates: path_to_client` - we are setting the `host` options for our server. More abot this in the [routes](/guide/routes) guide and the [./hello_world]("Hello World" tutorial).
-
-Basically we are telling Plezi where we are keeping the html (or template) that we will be sending the browser. This Html will be our "client" application.
-
-Because websockets are like conversations, websocket applications require (at least) two sides, both "speaking" the same language. Usually there is a server and many clients. The server will be talking to all the clients, sometimes also delivering messages between clients.
-
-The web page is the "client" for our web application. and the `path_to_client` tells Plezi where to look for the template.
-
-`route '/', ChatServer` - We are connecting the `"/"` path to our `ChatServer` controller...
-
-... Actually, since Plezi is quite opinionated about it's routes, Plezi assumes we meant to write `"/(:id)"`, meaning that the optional `params[:id]` can be set using our route. i.e., our `ChatServer` will answer the request `"/my-name"` and will set the `params[:id]`'s value to be `"my-name"`.
-
-Will take advantage of that to set data for the websocket connection later on.
-
-### Sending our Client side application
-
-As mentioned before, Websockets require both a server and a client. It's common for web applications to offer an Html+javascript client.
-
-The following method answers the path `'/'` (the Controller's root or `index` path, no `:id`) by "rendering" our template into an Html file and sending it.
-
-    class ChatServer
-        def index
-            render :client
-        end
+  end
+  def chat_logout(event = nil)
+    if event.nil?
+      # if no event was received, it's us that are leaving the chatroom.
+      broadcast :chat_logout, event: 'chat_logout',
+                              name: params[:nickname],
+                              userid: id
+    else
+      # forward the event to the websocket.
+      event
     end
+  end
+end
+```
 
-`render` will automatically look up a file named `"client.html.erb"` in the `templates` folder we set up using `host`.
+We made a few assumptions. We assumed that `params[:nickname]` exists and we assumed that whatever value we return will be sent back to the websocket.
 
-Actually, `render` will also look for `"client.html.slim"` and `"client.html.haml"` if we include these gems in our `Gemfile` (we can extend support also for more render engines).
+We'll need to fix these up later.
 
-### Listening to a connection
+**Security Tip**: You might have noticed I sanitized the data we got from the user. It's super important to **NEVER trust data we get from the big scary internet**... people (and machines) send the weirdest things.
 
-Once the browser got our client application and entered a nickname, it will try to connect to our server using Websockets. We want our application to listen to websocket connections.
+### Client events
 
-Plezi makes this as easy as it gets. If our controller handles incoming Websocket data (using the `on_message(data)` callback), Plezi will automatically listen to incoming websocket connections on that route. i.e.,
+Our client application will also need to send and receive events.
 
-    class ChatServer
-        def on_message data
-            # ... that's it, we answer websocket connections!
-        end
-    end
+To make our lives easy, Plezi supplies us with a [ready to use Auto-Dispatch client](./json-autodispatch).
+
+The route to the client can be adjusted and set, as described in the [routes](./routes) guide. For our use case we will simply load the client script from it's static file location at [/javascripts/client.js](http://localhost:3000/javascripts/client.js).
+
+We can set up the client side events like so:
+
+```javascript
+client = NaN;
+function connect2chat(nickname) {
+  // set the global client object. The default connection URL is the same as our Controller's URL.
+  client = new PleziClient();
+  // Set automatic reconnection. This is great when a laptop or mobile phone is closed.
+  client.autoreconnect = true
+  // handle connection state updates
+  client.onopen = function(event) {
+  };
+  // handle connection state updates
+  client.onclose = function(event) {
+  };
+  // handle the chat_message event
+  client.chat_message = function(event) {
+  };
+  // handle the chat_login event
+  client.chat_login = function(event) {
+  };
+  // handle the chat_logout event
+  client.chat_logout = function(event) {
+  };
+  return client;
+}
+```
+
+We will need some extra helper functions and we'll need to fill those placeholder functions with some content... so let's save the following Javascript to `public/javascripts/public_chat.js`
+
+```javascript
+// the client object
+client = NaN;
+// A helper function to print messages to a DIV called "output"
+function print2output(text) {
+    console.log("printing----\n" + text + "----\n");
+    var o = document.getElementById("output");
+    o.innerHTML = "<li>" + text + "</li>" + o.innerHTML
+}
+// A helper function to disable a text input called "input"
+function disable_input() {
+    document.getElementById("input").disabled = true;
+}
+// A helper function to enable a text input called "input"
+function enable_input() {
+    document.getElementById("input").disabled = false;
+    document.getElementById("input").placeholder = "Message";
+}
+// A callback for when our connection is established.
+function connected_callback(event) {
+    console.log("Connection callback\n");
+    enable_input();
+    print2output("System: " + client.nickname + ", welcome to the chatroom.");
+}
+// creating the client object and connecting
+function connect2chat(nickname) {
+    if (client) {
+        client.nickname = nickname;
+        client.reconnect;
+        return client;
+    }
+    // create a global client object. The default connection URL is the same as our Controller's URL.
+    client = new PleziClient();
+    // save the nickname
+    client.nickname = nickname;
+    // Set automatic reconnection. This is great when a laptop or mobile phone is closed.
+    client.autoreconnect = true
+        // handle connection state updates
+    client.onopen = function(event) {
+        client.was_closed = false;
+        // when the connection opens, we will authenticate with our nickname.
+        // This isn't really authenticating anything, but we can add security logic later.
+        client.emit({
+            event: "chat_auth",
+            nickname: client.nickname
+        }, connected_callback);
+    };
+    // handle connection state updates
+    client.onclose = function(event) {
+        if (client.was_closed) return;
+        print2output("System: Connection Lost.");
+        client.was_closed = true;
+        disable_input();
+    };
+    // handle the chat_message event
+    client.chat_message = function(event) {
+        print2output(event.name + ": " + event.message)
+    };
+    // handle the chat_login event
+    client.chat_login = function(event) {
+        print2output("System: " + event.name + " logged into the chat.")
+    };
+    // handle the chat_logout event
+    client.chat_logout = function(event) {
+        console.log(event);
+        print2output("System: " + event.name + " logged out of the chat.")
+    };
+    return client;
+}
+// This will be used to send the text in the `input` to the websocket.
+function send_text() {
+    // get the text
+    var msg = document.getElementById("input").value;
+    // clear the input field
+    document.getElementById("input").value = '';
+    // no client? the text is the nickname.
+    if (!client) {
+        // connect to the chat
+        connect2chat(msg);
+        // prevent default action (form submition)
+        return false;
+    }
+    // there is a client, the text is a chat message.
+    client.emit({
+        event: "chat_message",
+        message: msg
+    }, function(e) {
+        print2output("Me: " + e.message)
+    });
+    // prevent default action (avoid form submission)
+    return false;
+}
+```
+
+Again, we're making a few assumptions which are actually promises we will have to keep. We assume two objects, one called `output` and the other called `input`. We'll fix that when we get into out HTML.
+
+Also, in the true spirit of Agile development, we discovered we need another event to handle the user's log in process, since we will want to authenticate the user before logging them into the chat. So we added the `chat_auth` event.
+
+Ideally, the `chat_auth` event will contain a single-use token with a short life-span or maybe data for a different authentication technique. At the moment, we have no server-side persistent data storage to manage users nor tokens, so we'll let it slide.
+
+### Connecting the Javascript to the Client HTML
 
 
-But, we don't WANT to accept any connection - we want to make sure that our user had a nickname (or authenticate them) first...
-
-### Authenticating the connection
-
-Plezi offers us two great ways to authenticate the connection:
-
-* the `pre_connect` callback will prevent websocket connections from being established (a stay outside type of authentication).
-
-    This approach is generally considered more secure, as no websocket connection was established quite yet. Plezi made sure the more common approach (using `on_open`) would be secure as well.
-
-* the `on_open` callback will prevent any incoming websocket messages from being processed until it's finished. This allows us to use `on_open` for authentication without worrying about websocket messages being processed before we have completed our authentication.
-
-    This is a "hallway" type of authentication (you can enter the hallway, but you're not all in just yet).
-
-    The advantage of this approach is that it allows us to send back authentication error messages using our websocket connection as well as unify any initialization we need with the authentication.
-
-In this example, our authentication process is simple, we just make sure our client has a nickname by using the `params[:id]` or we close the connection (remember Plezi's RESTful routing? no? we'll get back to it in a bit).
-
-    class ChatServer
-        def on_open
-            return close unless params[:id]
-            # ...
-        end
-    end
-
-Since we use `on_open` (and not `pre_connect`), we can improve this by sending an error message on the websocket connection:
-
-    class ChatServer
-        def on_open
-            unless params[:id]
-                write "You need a nickname to join the chat!"
-                return close
-            end
-            # ...
-        end
-    end
-
-### Handling websocket data
-
-After our client connects to our websocket controller, chat messages will start flowing. Also, we will want to let people know the client is here.
-
-Enter `broadcast` on stage left...
-
-The Controller's instance `broadcast` method will alert all it siblings (all the __other__ ChatServer websocket connections) to an event. We use it in our `on_open` callback to inform everyone about the new connection:
-
-        def on_open
-            return close unless params[:id]
-            broadcast :print,
-                    "\#{params[:id]} joind the chat."
-            print "Welcome, \#{params[:id]}!"
-        end
-
-In this implementation, we broadcast an event called `:print`.
-
-Events in Plezi are super simple, they are automatically routed to methods and any data attached to the event is automatically routed to the method's arguments.
-
-We implement the `print` event by simply writing to the websocket (using the `write` method) after sanitizing the data and protectting ourselves from cross-site-scripting attacks (XSS):
-
-    class ChatServer
-        # notice the method must be protected,
-        # so that it doesn't translate as an Http route.
-        protected
-
-        def print data
-            write ::ERB::Util.html_escape(data)
-        end
-    end
-
-That's it, it all makes sense now. Our `on_close` callback acts the same:
-
-    class ChatServer
-        def on_close
-            broadcast :print,
-                    "\#{params[:id]} left the chat."
-        end
-    end
-
-And also out `on_message`... wait, no... our `on_message` callback uses a Class method instead of the instance method - this means that ALL of the ChatServer websockets receive the event - even our own instance:
 
 
-    class ChatServer
-        def on_message data
-            self.class.broadcast :print,
-                        "\#{params[:id]}: \#{data}"
-        end
-    end
 
-It's just a convenience, we could have gotten a similar result (a bit lees asynchronous and a bit less DRY) using:
 
-    class ChatServer
-        def on_message data
-            broadcast :print,
-                    "\#{params[:id]}: \#{data}"
-            print "\#{params[:id]}: \#{data}"
-        end
-    end
 
-That's all we need from our server. Let's look at our client code.
 
-### The client
 
-This is not a Javascript or Html tutorial, so I will ignore styling in favor of functionality. I will also ignore some of the code and explain only what I think is most important or relevant.
 
-If you clicked the "Client Code" button at the bottom of plezi.io's landing page, you probably saw the following peice of code:
 
-    <!DOCTYPE html><html>
-    <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-        <script>
-            ws = NaN
-            handle = ''
-            function onsubmit(e) {
-                e.preventDefault();
-                if($('#text')[0].value == '') {return false}
-                if(ws && ws.readyState == 1) {
-                    ws.send($('#text')[0].value);
-                    $('#text')[0].value = '';
-                } else {
-                    handle = $('#text')[0].value
-                    var url = "ws://" + window.document.location.host +
-                                '/' + $('#text')[0].value
-                    ws = new WebSocket(url)
-                    ws.onopen = function(e) {
-                        output("<b>Connected :-)</b>");
-                        $('#text')[0].value = '';
-                        $('#text')[0].placeholder = 'your message';
-                    }
-                    ws.onclose = function(e) {
-                        output("<b>Disonnected :-/</b>")
-                        $('#text')[0].value = '';
-                        $('#text')[0].placeholder = 'nickname';
-                        $('#text')[0].value = handle
-                    }
-                    ws.onmessage = function(e) {
-                        output(e.data);
-                    }
-                }
-                return false;
-            }
-            function output(data) {
-                $('#output').append("<li>" + data + "</li>")
-                $('#output').animate({ scrollTop:
-                            $('#output')[0].scrollHeight }, "slow");
-            }
-        </script>
-    </head><body>
-        <p>A real-time Websocket Chat Room? Easy!</p>
-        <form id='form'>
-            <input type='text' id='text' name='text' placeholder='nickname'></input>
-            <input type='submit' value='send'></input>
-        </form>
-        <script> $('#form')[0].onsubmit = onsubmit </script>
-        <ul id='output'></ul>
-    </body>
 
-The code is quite simple in concept (although I think the Javascript is a bit less readable and friendly when compared with Ruby).
 
-There is a text input feild in a form. When the form is submitted, the application checks if a websocket connection is already established.
 
-If there's no connection, the text in the input field is used as a nickname to establish a new connection. If a connection already exists, the text in the input field is used to send a chat message.
 
-In bothe cases, the script prevents the default action (the form submition) from taking place.
 
-Let's look where the client's connection is created:
 
-    function onsubmit(e) {
-        // ...
-        if(ws && ws.readyState == 1) {
-            // ... (sending messages)
-        } else {
-            // ...
-            // The `url` for the websocket - we can also statically write it in.
-            var url = "ws://" + window.document.location.host +
-                        '/' + $('#text')[0].value
-            // Look! Here is the new connection to the websocket!
-            ws = new WebSocket(url)
-            // next, we set up the callback:
-            ws.onopen = function(e) {
-                // ...
-            }
-            ws.onclose = function(e) {
-                // ...
-            }
-            ws.onmessage = function(e) {
-                // ...
-            }
-        }
 
-As you can see, there is a similarity here. In Javascript, we open a new connection and set up it's callbacks. The callback names are very similar, although their naming convention is a bit different (singlewords instead of snake_case).
 
-Since Javascript is single threaded, it's okay if we setup the callbacks AFTER we tell javascript to create the new connection. The new connection will be initiated only once our code is finished. This is different from Ruby and it's good to know this when working with Javascript.
 
-The rest is common Javascript with jQuery being leveraged to make it a bit shorter to write. We simply add text to the `"output"` element as they trickle in.
 
-## Leveraging JSON
 
-At the moment, our websockets aren't very flexible. Our application communicates using raw strings and a single type of data.
 
-It's true that Plezi can use binary websocket messages to give us more options, but Javascript isn't very good with binary strings... On the other hand, Javascript has this great tool for seralizing objects, called JSON (similar to Ruby's YAML).
 
-We can use JSON to give our websockets more functionality. But first, let's move our single functionality to the JSON format, so we can keep what we have as we add more.
 
-Let's update our Plezi application to use JSON.
+
+
+
+
+
 
 ### Server side JSON
 

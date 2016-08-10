@@ -3,7 +3,7 @@
 *   
 * [Getting started](/docs/basics)
 * [Hello World](/docs/hello_world)
-* [Hello Chatroom (coming soon)]()
+* [Hello Chatroom](/docs/hello_chat)
 *   
 * [Routing with Plezi](/docs/routes)
 * [Using controllers](/docs/controllers)

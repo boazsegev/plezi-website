@@ -328,11 +328,11 @@ Read more at the [YARD documentation for this method](http://www.rubydoc.info/ge
 
 (todo: write documentation)
 
-### The `adopt` method (Websockets)
+### The `extend` method (Websockets)
 
 This method is still experimental.
 
-The method "adopts" a module to be used for Websocket callbacks events (listening, not sending).
+The method "extend" a module to be used for Websocket callbacks events (listening, not sending).
 
 This function can only be called *after* a websocket connection was established (i.e., within the `on_open` callback).
 

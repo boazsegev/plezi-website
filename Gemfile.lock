@@ -1,18 +1,14 @@
-PATH
-  remote: /Users/2Be/Ruby/plezi/plezi
-  specs:
-    plezi (0.14.0)
-      iodine (~> 0.2.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
     iodine (0.2.0)
       rack
       rake-compiler
+    plezi (0.14.0)
+      iodine (~> 0.2.0)
     rack (2.0.1)
     rake (11.2.2)
-    rake-compiler (0.9.5)
+    rake-compiler (1.0.1)
       rake
     redcarpet (3.3.4)
     sass (3.4.22)
@@ -26,7 +22,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  plezi!
+  plezi (~> 0.14.0)
   redcarpet
   sass
   slim

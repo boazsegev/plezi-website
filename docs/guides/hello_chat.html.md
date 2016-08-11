@@ -205,7 +205,6 @@ We will need some extra helper functions and we'll need to fill those placeholde
 client = NaN;
 // A helper function to print messages to a DIV called "output"
 function print2output(text) {
-    console.log("printing----\n" + text + "----\n");
     var o = document.getElementById("output");
     o.innerHTML = "<li>" + text + "</li>" + o.innerHTML
 }
@@ -220,17 +219,11 @@ function enable_input() {
 }
 // A callback for when our connection is established.
 function connected_callback(event) {
-    console.log("Connection callback\n");
     enable_input();
     print2output("System: " + client.nickname + ", welcome to the chatroom.");
 }
 // creating the client object and connecting
 function connect2chat(nickname) {
-    if (client) {
-        client.nickname = nickname;
-        client.reconnect;
-        return client;
-    }
     // create a global client object. The default connection URL is the same as our Controller's URL.
     client = new PleziClient();
     // save the nickname
@@ -264,7 +257,6 @@ function connect2chat(nickname) {
     };
     // handle the chat_logout event
     client.chat_logout = function(event) {
-        console.log(event);
         print2output("System: " + event.name + " logged out of the chat.")
     };
     return client;

@@ -51,7 +51,6 @@ Adding Plezi to Sinatra might look similar to adding Plezi to Rack. i.e.:
 ```ruby
 require 'sinatra'
 require 'plezi'
-
 # our Plezi application,
 class MyCtrl
   def index
@@ -60,11 +59,11 @@ class MyCtrl
 end
 # Our Plezi route
 Plezi.route '/plezi/*', MyCtrl
-
+# using Plezi as Middleware
 use Plezi
-
+# Our Sinatra app route
 get '/hello' do
-  'Hello World'
+  'Hello from Sinatra'
 end
 ```
 

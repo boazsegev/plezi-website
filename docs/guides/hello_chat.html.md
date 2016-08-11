@@ -22,19 +22,19 @@ There's no point in showing the basics or repeating the code in the landing page
 
 If you're looking for some easy tutorial, this is **not** the place.
 
-This tutorial aims at implementing complex concepts in a way that will allow us to implement real world websocket applications.
+This tutorial aims at implementing moderately advanced concepts, such as evented application design, in a way that will allow us to implement real world websocket applications.
 
-The chatroom application is just an excuse, a comfortable way to demonstrate more complex concepts.
+The chatroom application is just an excuse, a comfortable way, to demonstrate more complex concepts.
 
 ## Getting Ready
 
-Before we start coding, we'll start with a clean slate, a new Plezi application. Let's open our terminal window and type:
+To begin coding, start with a new Plezi application. Open our terminal window and type:
 
     $ plezi new hello_chat
 
-We're going to rewrite the Controller (`app/my_controller.rb`) and html template (`views/welcome.html.erb`) quite heavily, so make sure you know where they are. If you're not sure, refer to the ["Hello World" tutorial](./hello_world).
+If you haven't already familiarized yourself with the application files and structure, refer to the ["Hello World" tutorial](./hello_world) and at least locate the Controller (`app/my_controller.rb`) and html template (`views/welcome.html.erb`).
 
-I should probably note that the new application implements a simple, insecure (non-sanitized) chatroom. You can go ahead and have a look, I'll wait.
+I should probably note that the new application implements a simple chatroom. You can go ahead and have a look, I'll wait.
 
 ## JSON - The Common Practice
 
@@ -46,11 +46,11 @@ It's quite common for a message to look like this (I use epoch time stamps, but 
 {"event":"poke","from":"some_user","at":1470734881.272001}
 ```
 
-Using JSON and the `'event'` property is such a common practice, it's practically a community standard. It's so common, I often think people forget it's not part of the raw Websocket protocol.
+Using JSON and the `'event'` property is a very common practice, it's practically a community standard. Although it's so common, it's important to remember that it isn't part of the raw Websocket protocol and that sometimes other avenues will perform better (i.e. when sending binary data).
 
-Plezi embraces this common practice, allowing us to leverage this design by implementing an (optional) "Auto Dispatch" feature.
+Plezi offers easy implementation for this common practice by implementing an (optional) "Auto Dispatch" feature.
 
-This feature allows us to directly connect the `"event"` property with a controller's method name, so that websocket "events" invoke the corresponding method.
+This feature directly connects the `"event"` property with a controller's method name, so that websocket "events" invoke the corresponding method.
 
 ## JSON as a Websocket and AJAJ API unifier
 
@@ -292,432 +292,92 @@ Also, in the true spirit of Agile development, we discovered we need another eve
 
 Ideally, the `chat_auth` event will contain a single-use token with a short life-span or maybe data for a different authentication technique. At the moment, we have no server-side persistent data storage to manage users nor tokens, so we'll let it slide.
 
-### Connecting the Javascript to the Client HTML
+### Authenticating our Chatroom Session
 
+It's time to implement our `chat_auth` event.
 
+The following code in the Controller file (`app/my_controller.rb`) will handle our Chatroom authentication and provide the web application (the HTML and Javascript) to our client:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Server side JSON
-
-First, we'll need our application to parse the JSON format, we'll close the connection if this fails, because this will mean we're not talking to an authorized client.
-
-Next, we will check the message type and route it to a method that will handle it correctly. For this we will need to write a __protected__ method (so the Http router doesn't think it's a public route) to handle chat messages. We'll call it `handle_chat`.
-
-We'll also need to rewrite our `print` method... and while we're at it, let's change it's name, `print` is so 80's.
-
-Our new `on_message` callback , `handle_chat` method and `print` (renamed to `emit`) will look something like this:
-
-    class ChatServer
-        def on_message data
-            begin
-                msg = JSON.parse(data)
-            rescue
-                return close
-            end
-            case msg['event']
-            when /chat/
-                handle_chat msg
-            else
-                # nothing right now
-                nil
-            end
-        end
-
-        protected
-
-        def handle_chat message
-            self.class.broadcast :emit,
-                event: 'chat',
-                from: ::ERB::Util.html_escape(params[:id]),
-                to: 'public',
-                uuid: uuid,
-                data: ::ERB::Util.html_escape(message['data'])
-        end
-
-        def emit data
-            write data.to_json
-        end
+```ruby
+# Replace this sample with real code.
+class RootController
+  # Set the controller to use Auto-Dispatch, mapping JSON events to methods.
+  @auto_dispatch = true
+  # HTTP
+  def index
+    # the template should be placed in: views/welcome/html.erb
+    render 'welcome'
+  end
+  # Websocket on_close callback
+  def on_close
+    chat_logout if is_a?(PublicChat)
+  end
+  # Chat authentication event handler
+  def chat_auth(event)
+    # make sure we don't so this more then once
+    if !is_a?(PublicChat) && event[:nickname]
+      # sanitize the nickname
+      params[:nickname] = ::ERB::Util.h event[:nickname]
+      # add the PublicChat functionality (only once)
+      extend PublicChat
+      # call the log in event (and return it's result)
+      chat_login
+    else
+      # we are being abused, close the connection
+      close
     end
+  end
+end
+```
 
-You might have noticed I keep sanitizing the data I get from the user. We'll optimize this later, but it super important to **NEVER trust data you get from the big scary internet**... people (and machines) send the weirdest things.
+The code is similar to the `PublicChat` module except for the `extend` method.
 
-Another thing you might have noticed is the `uuid` that sliped in there. It's a great way to recoginze the websocket's connection and will allow us, later on, to support unicasting (sending messages to one person instead of the whole chatroom).
+Plezi has a security oriented design, meaning no inherited functions are exposed to either HTTP.
 
-We also need to update our `on_open` and `on_close` to use JSON... This might be a good time to introduce a new type of event... It could, if we want it to, look something like this:
+However, once a connection was established, it's possible to added Websocket event handlers using the connection's instance method `extend`.
 
-    class ChatServer
-        def on_open
-            unless params[:id]
-                emit event: 'err', data: "You need a nickname to join the chat!"
-                return close
-            end
-            # lets sanitize the nickname here,
-            # so we don't repeat this all the time...
-            params[:id] = ::ERB::Util.html_escape(params[:id])
-            # inform others
-            broadcast :emit,
-                    event: 'connection',
-                    data: 'join'
-                    from: params[:id],
-                    uuid: uuid
-            # welcome our client
-            emit event: 'connection',
-                data: 'welcome'
-                from: params[:id],
-                uuid: uuid
-        end
-        def on_close
-            broadcast :emit,
-                    event: 'connection',
-                    data: 'leave'
-                    from: params[:id],
-                    uuid: uuid
-        end
-    end
+The `extend` method can only be called once - multiple calls will raise an exception, as they indicate possible security flaws.
 
-Wow, we already added two new types of message - connection messages and error messages... we can decide what to do with them when we get to our client code.
+The `extend` method can only be called by an instance of the Controller. Extending the Controller class won't expose any of the inherited methods to either HTTP or Websocket requests.
 
-But first, we need to update the `handle_chat` method, because we already sanitized the nickname in our `on_open` callback:
+### The Client
 
-    class ChatServer
+The client's javascript is all done, but an HTML presentation layer should be provided.
 
-        protected
+If you're not up speed with current web design, a quick refresher: HTML is what we show (i.e. a button, a text), CSS is how we show it (i.e. the text color, the button's size) and Javascript is the code that manages interactions and events (i.e. what happens when we press the button, how the text change when an event occurs).
 
-        def handle_chat message
-            self.class.broadcast :emit,
-                from: params[:id],
-                to: 'public',
-                uuid: uuid,
-                event: 'chat',
-                data: ::ERB::Util.html_escape(message['data'])
-        end
-    end
+The following HTML goes in the `views/welcome.html.erb` template:
 
-### Client side JSON
+```html
+<!DOCTYPE html>
+<html>
+<title>The Chatroom Example</title>
+<head>
+  <script src="/javascripts/client.js"></script>
+  <script src="/javascripts/public_chat.js"></script>
+    <style>
+    html, body {width:100%; height: 100%; background-color: #ddd; color: #111;}
+    h3, form {text-align: center;}
+    input {background-color: #fff; color: #111; padding: 0.3em;}
+    </style>
+</head><body>
+  <h3>The Chatroom Example</h3>
+    <form id='form' onsubmit='send_text(); return false;'>
+        <input type='text' id='input' name='input' placeholder='nickname'></input>
+        <input type='submit' value='send'></input>
+    </form>
+    <script> $('#form')[0].onsubmit = send_text </script>
+    <ul id='output'></ul>
+</body>
+</html>
+```
 
-To use JSON with javascript we will need to use `JSON.parse(e.data)` in our `onmessage(e)` callback. Our new javascript callback will look something like this (but don't follow my lead, I'm a lazy javascripter, and it's probably better to seperate this to more functions):
+### A quick recap
 
-    ws.onmessage = function(e) {
-        var msg = JSON.parse(e.data);
-        switch(msg.event){
-            case 'chat':
-                output(msg.from + ": " + msg.data)
-                break;
-            case 'connection':
-                switch(msg.data) {
-                    case 'join':
-                        output(msg.from + " joined the chat :-)");
-                        break;
-                    case 'leave':
-                        output(msg.from + " left the chat :-/");
-                        break;
-                    case 'welcome':
-                        output("Welcome, " + msg.from + " :-)");
-                        break;
-                }
-            case 'err':
-                output("Error: " + msg.data)
-                break;
-        }
-    }
+The application is ready. Restart the application (if it isn't running, run it now) and visit [localhost:3000](http://localhost:3000).
 
-As you can see, we are starting to develop what is known as a "Protocol" for our server-client communication.
+This example application is over-designed. The same results can be accomplished in far less code.
 
-This also shows you how many options we really face.
+However, this example is extendable and demonstrates security considerations, dynamic websocket API considerations (we can connect from different controllers to the same chatroom) and evented design.
 
-For instance, we can move the conncetion listings to a side elemnt. We can also tell Plezi to react to a 'join' message by telling the original connection who's already here. Than, we can use that data (remember the uuid?) to send private messages to one user and not the others... We can even start using Plezi's Identity API to send messages to users who went off-line these messages will wait for a while, so if the user reconnects, they'll see what private messages they missed.
-
-## Leveraging Plezi&#39;s Auto-Dispatch
-
-The JSON `on_message` and `onmessage` callbacks we used are essentially a dispatch system that routes websocket `events` to methods in our Controller or Javascript client.
-
-This use-case is so common, that Plezi includes an easy to use Auto Dispatch feature both for our Controller and our Client.
-
-This allows us to replace out general purpuse `on_message` callback with event related methods which will be automatically invoked whenever the client "emits" an event. (we have a single `chat` event, but it's a start).
-
-Let's re-write our application to leverage this wonderful feature.
-
-You can read more about about it in the [JSON websocket event Auto-Dispatch guide](json-autodispatch).
-
-### The Auto-Dispatch Controller
-
-This is about to be a pretty minor rewite, we're mostly getting rid of code that is used to route the websocket `chat` event to the `handle_chat` method (which we will simply rename).
-
-Let's start with a clean and empty controller. We'll just do one thing for now - we'll set the `@auto_dispatch` class flag to `true`, so that the controller uses the Auto Dispatcher.
-
-    class ChatServer
-        @auto_dispatch = true
-    end
-
-What are we keeping? We're keeping the authentication we wrote., So lets put that back in... but there is something we should change first.
-
-The Auto-Dispatch will route any JSON `event` to a public or protected method. This allows us to expose some of our API both as Websocket events (using the JSON `event` property) or as AJAJ (AJAX with JSON) requests (using the `params[:id]` to route the request to the Http method). The protected methods will only be available as websocket events.
-
-But...
-
-What about helper methods, such as our `emit` method? How do we keep them out of the Http and Websocket routing system? Easy, Plezi has us covered with the underscore (`_`) sign. Any method starting with an underscore will be inaccessible to both the Http router and the websocket auto-dispatcher.
-
-Our `emit` helper method will now be called `_emit`.
-
-Also, because we are using the auto-dispatcher, we can have plenty of both client-side and server-side events. So instead of the connection event being a single event with subtypes, we'll have different events for each type.
-
-Our authentication logic will now look like this:
-
-    class ChatServer
-        @auto_dispatch = true
-        def _emit data
-            write data.to_json
-        end
-        def on_open
-            unless params[:id]
-                _emit event: 'err', data: "You need a nickname to join the chat!"
-                return close
-            end
-            # lets sanitize the nickname here,
-            # so we don't repeat this all the time...
-            params[:id] = ::ERB::Util.html_escape(params[:id])
-            # inform others
-            broadcast :_emit,
-                    event: 'joined',
-                    from: params[:id],
-                    uuid: uuid
-            # welcome our client
-            _emit event: 'welcome',
-                from: params[:id],
-                uuid: uuid
-        end
-        def on_close
-            broadcast :_emit,
-                    event: 'left',
-                    from: params[:id],
-                    uuid: uuid
-        end
-    end
-
-Now it's time to add a handler for our `chat` event. Since the auto-dispatch will route every JSON `event` to a method with the same name, that's easy. We just need to write a method called `chat` that accepts a single parametere (the JSON data Hash).
-
-    class ChatServer
-        @auto_dispatch = true
-        protected
-        def chat msg
-            self.class.broadcast :_emit,
-                from: params[:id],
-                to: 'public',
-                uuid: uuid,
-                event: 'chat',
-                data: ::ERB::Util.html_escape(msg['data'])
-        end
-    end
-
-Notice how we don't need an `on_message` callback or any complicated dispatching logic.
-
-But... what happens when we get a message with a request we don't implement. Well, Plezi will automatically send an error response for unknown JSON requests and it will hang up the connection if the websocket message isn't valid JSON.
-
-We can customize the error response by writing a callback called `unknown`. This will allow us to handle unknown JSON messages (Plezi will always disconnect when a non-JSON message is received). i.e.
-
-    class ChatServer
-        protected
-        def unknown msg
-            # by returning a string, it's automatically sent as a websocket message,
-            # auto-dispatch methods behave the same as AJAX(AJAJ)/Http methods, so it's easy to unify
-            # our code for both Websockets and AJAJ.
-            {event: :err, status: 404, data: 'unknown request', request: msg}.to_json
-        end
-    end
-
-Notice that unlike normal (raw) websocket methods (`on_open`, `on_close`, `on_message`), the auto-dispatch methods allow us to return a String (or a Hash) that will be written to the websocket automatically. This makes auto-dispatch methods act the same as Http methods, allowing us to write an API that is valid for both AJAJ and Websockets with a single method.
-
-Here is the whole of our controller code:
-
-    class ChatServer
-        # Http
-        def index
-            render :client
-        end
-        # Websockets
-        @auto_dispatch = true
-        def _emit data
-            write data.to_json
-        end
-        def on_open
-            unless params[:id]
-                _emit event: 'err', data: "You need a nickname to join the chat!"
-                return close
-            end
-            # lets sanitize the nickname here,
-            # so we don't repeat this all the time...
-            params[:id] = ::ERB::Util.html_escape(params[:id])
-            # inform others
-            broadcast :_emit,
-                    event: 'joined',
-                    from: params[:id],
-                    uuid: uuid
-            # welcome our client
-            _emit event: 'welcome',
-                from: params[:id],
-                uuid: uuid
-        end
-        def on_close
-            broadcast :_emit,
-                    event: 'left',
-                    from: params[:id],
-                    uuid: uuid
-        end
-        protected
-        def chat msg
-            self.class.broadcast :_emit,
-                from: params[:id],
-                to: 'public',
-                uuid: uuid,
-                event: 'chat',
-                data: ::ERB::Util.html_escape(msg['data'])
-        end
-        def unknown msg
-            # by returning a string, it's automatically sent as a websocket message,
-            # auto-dispatch methods behave the same as AJAX(AJAJ)/Http methods, so it's easy to unify
-            # our code for both Websockets and AJAJ.
-            {event: :err, status: 404, data: 'unknown request', request: msg}.to_json
-        end
-    end
-
-Next, we'll use a similar approach on our client-side Javascript.
-
-### Serving the Auto-Dispatch Client
-
-Plezi's Auto-Dispatch has a websocket javascript client that gets updated along with Plezi.
-
-The client is also part of the application template and can be served as a static file / asset... but, this means that the client isn't updated when Plezi is updated.
-
-To server the updated Plezi Auto-Dispatch javascript client we'll create a `:client` route, using the path of our choice. Add the following route at the end of the routes in our hello_chat application script:
-
-    Plezi.route '/websocket/javascript/client.js', :client
-
-Remember to restart the application whenever editing anything that isn't an asset of a template, such as the Ruby code (Controllers, Models, Routes, etc').
-
-### The Auto-Dispatch PleziClient
-
-Plezi provids a basic Websocket client that allows us to leverage the auto-dispatch "feel" and style also for our client side code.
-
-To include the PleziClient from the route we just wrote, we will need to add the following line to out `head`
-
-    <script src="/websocket/javascript/client.js"></script>
-
-Next, we will want to create a client and define the handlers for the different client side events. For this we simply add callbacks to each of the event-names (the websocket events will start with the `on`). i.e., our client code will look something like this:
-
-    client = new PleziClient(PleziClient.origin + "/" + $('#text')[0].value);
-    client.onopen = function(e) {
-        $('#text')[0].placeholder = 'your message';
-    }
-    client.onclose = function(e) {
-        output("<b>Disonnected :-/</b>")
-        $('#text')[0].placeholder = 'nickname';
-        $('#text')[0].value = handle
-    }
-    client.chat = function(msg) {
-        output(msg.from + ": " + msg.data);
-    }
-    client.joined = function(msg) {
-        output(msg.from + " joined the chat :-)");
-    }
-    // ...
-
-We can also use PleziClient's auto-reconnect feature
-
-    client.reconnect = true
-    client.reconnect_interval = 100 // interval between connections, in miliseconds
-
-This will be the whole of our updated client:
-
-    <!DOCTYPE html><html>
-    <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-        <script src="/assets/plezi_client.js"></script>
-        <script>
-            client = NaN
-            handle = ''
-            function onsubmit(e) {
-                e.preventDefault();
-                var text = $('#text')[0].value
-                if(text == '') {return false}
-                if(client && client.connected) {
-                    client.emit({event: 'chat', data: text});
-                    $('#text')[0].value = '';
-                } else {
-                    handle = text
-                    $('#text')[0].value = '';
-                    client = new PleziClient(PleziClient.origin + "/" + text);
-                    client.onopen = function(e) {
-                        $('#text')[0].placeholder = 'your message';
-                    }
-                    client.onclose = function(e) {
-                        output("<b>Disonnected :-/</b>")
-                        $('#text')[0].placeholder = 'nickname';
-                        $('#text')[0].value = handle
-                    }
-                    client.chat = function(msg) {
-                        output(msg.from + ": " + msg.data);
-                    }
-                    client.joined = function(msg) {
-                        output(msg.from + " joined the chat :-)");
-                    }
-                    client.left = function(msg) {
-                        output(msg.from + " left the chat :-/");
-                    }
-                    client.welcome = function(msg) {
-                        output("Welcome, " + msg.from + " :-)");
-                    }
-                    client.unknown = function(msg) {
-                        console.log("unknown event:");
-                        console.log(msg);
-                    }
-                }
-                return false;
-            }
-            function output(data) {
-                $('#output').append("<li>" + data + "</li>")
-                $('#output').animate({ scrollTop:
-                            $('#output')[0].scrollHeight }, "slow");
-            }
-        </script>
-    </head><body>
-        <p>A real-time Websocket Chat Room? Easy!</p>
-        <form id='form'>
-            <input type='text' id='text' name='text' placeholder='nickname'></input>
-            <input type='submit' value='send'></input>
-        </form>
-        <script> $('#form')[0].onsubmit = onsubmit </script>
-        <ul id='output'></ul>
-    </body>
-
-Isn't the code more readable and beautiful?
-
-The auto-dispatch feature allows both our client's code and our server's code to be shorter, more beautiful, easier to maintain and easier to read.
-
-[todo: add unicasting / identity support]
+Congratulations for making it this far.

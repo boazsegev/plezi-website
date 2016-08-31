@@ -1,2 +1,4 @@
 
 *.map
+
+.DS_Store

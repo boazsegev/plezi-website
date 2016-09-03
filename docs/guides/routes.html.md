@@ -156,9 +156,11 @@ class UsersController
         when 'fr'
             "Bonjour!"
         when 'ru'
-            "Здравствуйте!"
+          # "Здравствуйте!"
+          "\u0417\u0434\u0440\u0430\u0432\u0441\u0442\u0432\u0443\u0439\u0442\u0435!"
         when 'jp'
-            "こんにちは!"
+            # "こんにちは!"
+            "\u3053\u3093\u306B\u3061\u306F!"
         else
             "Hello!"
         end

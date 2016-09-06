@@ -24,7 +24,7 @@ If you're looking for some easy tutorial, this is **not** the place.
 
 This tutorial aims at implementing moderately advanced concepts, such as evented application design, in a way that will allow us to implement real world websocket applications.
 
-The chatroom application is just an excuse, a comfortable way, to demonstrate more complex concepts.
+The chatroom application is just an excuse to demonstrate more complex concepts.
 
 ## Getting Ready
 
@@ -40,7 +40,7 @@ I should probably note that the new application implements a simple chatroom. Yo
 
 When implementing Websockets we often use JSON to communicate what type of message we're exchanging and it's details.
 
-It's quite common for a message to look like this (I use epoch time stamps, but others may use String representation):
+It's quite common for a message to look like this (I use epoch timestamps, but others may use String representation):
 
 ```json
 {"event":"poke","from":"some_user","at":1470734881.272001}
@@ -84,7 +84,7 @@ Later we might add private messages, but for now, this is the flow for the publi
 
 From this we can derive the following events, which I named with a `chat` prefix (to prevent later collisions): `chat_login`, `chat_message`, `chat_logout`
 
-Let's translate this to Code.
+Let's translate this to code.
 
 ### Public Chat Server Events
 
@@ -158,7 +158,7 @@ end
 
 We made a few assumptions. We assumed that `params[:nickname]` exists and we assumed that whatever value we return will be sent back to the websocket.
 
-We'll need to fix these up later.
+We'll need to fix these later.
 
 **Security Tip**: You might have noticed I sanitized the data we got from the user. It's super important to **NEVER trust data we get from the big scary internet**... people (and machines) send the weirdest things.
 
@@ -288,7 +288,7 @@ function send_text() {
 
 Again, we're making a few assumptions which are actually promises we will have to keep. We assume two objects, one called `output` and the other called `input`. We'll fix that when we get into out HTML.
 
-Also, in the true spirit of Agile development, we discovered we need another event to handle the user's log in process, since we will want to authenticate the user before logging them into the chat. So we added the `chat_auth` event.
+Also, in the true spirit of Agile development, we discovered we need another event to handle the user's login process, since we will want to authenticate the user before logging them into the chat. So we added the `chat_auth` event.
 
 Ideally, the `chat_auth` event will contain a single-use token with a short life-span or maybe data for a different authentication technique. At the moment, we have no server-side persistent data storage to manage users nor tokens, so we'll let it slide.
 
@@ -314,7 +314,7 @@ class RootController
   end
   # Chat authentication event handler
   def chat_auth(event)
-    # make sure we don't so this more then once
+    # make sure we don't do this more than once
     if !is_a?(PublicChat) && event[:nickname]
       # sanitize the nickname
       params[:nickname] = ::ERB::Util.h event[:nickname]
@@ -332,7 +332,7 @@ end
 
 The code is similar to the `PublicChat` module except for the `extend` method.
 
-Plezi has a security oriented design, meaning no inherited functions are exposed to either HTTP.
+Plezi has a security oriented design, meaning no inherited functions are exposed to either HTTP or Websocket requests.
 
 However, once a connection was established, it's possible to added Websocket event handlers using the connection's instance method `extend`.
 
@@ -343,8 +343,6 @@ The `extend` method can only be called by an instance of the Controller. Extendi
 ### The Client
 
 The client's javascript is all done, but an HTML presentation layer should be provided.
-
-If you're not up speed with current web design, a quick refresher: HTML is what we show (i.e. a button, a text), CSS is how we show it (i.e. the text color, the button's size) and Javascript is the code that manages interactions and events (i.e. what happens when we press the button, how the text change when an event occurs).
 
 The following HTML goes in the `views/welcome.html.erb` template:
 
@@ -376,8 +374,6 @@ The following HTML goes in the `views/welcome.html.erb` template:
 
 The application is ready. Restart the application (if it isn't running, run it now) and visit [localhost:3000](http://localhost:3000).
 
-This example application is over-designed. The same results can be accomplished in far less code.
+The example application is over-designed. However, this example is extendable and demonstrates security considerations, dynamic websocket API considerations (we can connect from different controllers to the same chatroom) and evented design.
 
-However, this example is extendable and demonstrates security considerations, dynamic websocket API considerations (we can connect from different controllers to the same chatroom) and evented design.
-
-Congratulations for making it this far.
+Congratulations on making it this far.

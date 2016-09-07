@@ -1,30 +1,30 @@
 # Plezi&#39;s smart routing system
 
-In the core of Plezi's framework is a smart Object Oriented Router which acts like a "virtual folder" with RESTful routing and Websocket support.
+At the core of Plezi's framework is a smart Object Oriented Router which acts like a "virtual folder" with RESTful routing and Websocket support.
 
 RESTful routing and Websocket callback support both allow us to use conventionally named methods in our Controller to achive common tasks. Such names methods, as will be explored further on, include the `update`, `save` and `show` RESTful method names, as well as the `on_open`, `on_message(data)` and `on_close` Websocket callbacks.
 
-The first layer of this powerful routing system is the Plezi's Http Router and the core method `Plezi.route`.
+The first layer of this powerful routing system is the Plezi's HTTP Router and the core method `Plezi.route`.
 
 ## What is a Route?
 
 Routes are what connects different URLs to different parts of our code.
 
-We when we visit `www.example.com/users/index` we expect a different page than when we go to `www.example.com/users/1`. This is because we expect the first URL to provide a page with the list of users while we expect the second URL to show us a specific user's page or data.
+When we visit `www.example.com/users/index` we expect a different page than when we go to `www.example.com/users/1`. This is because we expect the first URL to provide a page with the list of users while we expect the second URL to show us a specific user's page or data.
 
 in the example above, all the requests are made to the server at `www.example.com` and it is the server's inner workings - the server's inner router - that directs the `/users/index` to one part of our code and `/users/1` to another.
 
 Like all web applications, Plezi also has an inner router which routes each request to the corresponding method or code.
 
-Plezi's routing system was designed to build upon conventions used in other routing systems together with an intuitive approach that allows for agail application development.
+Plezi's routing system was designed to build upon conventions used in other routing systems together with an intuitive approach that allows for agile application development.
 
-\* It should be noted that except for file handling and the asset pipeline - which are file-system dependent - routes are case-sensitive.
+\* Except for file handling and the asset pipeline - which are file-system dependent - routes are case-sensitive.
 
 ## Defining a Route
 
 We define a route using Plezi's `Plezi.route` method or the shortcut DSL method `route` (without the `Plezi.` part).
 
-This method accept a String, or Regexp, that should point to a "group" of routes.
+This method accepts a String or Regexp that should point to a "group" of routes.
 
 The method also requires either a class that "controls" that group of routes or a block of code that responds to that route.
 
@@ -55,8 +55,7 @@ end
 # this is because that's all that UsersController defines as public methods.
 Plezi.route '/users', UsersController
 
-# this route includes a catch-all at the end and will
-# catch anything that starts with "/stuff/"
+# this route includes a catch-all at the end and will catch anything that starts with "/stuff/"
 # But, this means this route will route any GET request to "index", ignoring the suffix
 Plezi.route '/stuff/*', UsersController
 
@@ -71,7 +70,7 @@ exit
 ```
 As you may have noticed, the route's order of creation was important and established an order of precedence.
 
-If the order of precedence were not to exist, we couldn't create a catch-all route, in fear that it might respond to valid requests.
+Order of precedence allows us to create a catch-all route, in fear that it might respond to an invalid request.
 
 ### The `:id` parameter
 
@@ -131,9 +130,9 @@ Inline parameters come in more flavors:
 * Required parameters signified only by the `:` sign. i.e. `'/users/:name'`.
 * Optional parameters, as seen before. i.e. `'/users/(:name)'`.
 
-Using inline parameters, it's possible to achive great flexability with the same route, allowing our code to be better organized. This is especially helpful when expecting data to be received using AJAX or when creating an accessible API for native apps to utilize.
+Using inline parameters, it's possible to achive greater flexability with the same route, allowing our code to be better organized. This is especially helpful when expecting data to be received using AJAX or when creating an accessible API for native apps to utilize.
 
-It should be noted, the required parameters can't be placed after optional ones.
+* Required parameters can't be placed after optional ones.
 
 ### Re-Write Routes
 

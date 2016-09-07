@@ -253,7 +253,7 @@ This is all we learned so far, so let see if that might be enough... let's resta
 * [localhost:3000/html/fr](http://localhost:3000/html/fr)
 * [localhost:3000/json/it](http://localhost:3000/json/it)
 
-Wow, that's it. It actually works automatically, since the `:format` parameter is a reserved parameter for template formatting. This allows use to use a single controller codebase for different formats without doing a thing.
+Wow, that's it. It actually works automatically, since the `:format` parameter is a reserved parameter for template formatting. This allows us to use a single controller codebase for different formats without doing a thing.
 
 As you can see, the `html` format and the `en` locale are both optional, since they are the application's default values.
 
@@ -290,7 +290,7 @@ You might notice that the 404 error points at an empty request path (`/` instead
 
 ## Further exploration
 
-There is much we didn't explore, such as setting cookies using the `cookie['name'] = "value"`, redirection (hint: `redirect_to`) and other cool tidbits. But we have enough to point us in the right direction.
+There is much we didn't explore, such as; setting cookies using the `cookie['name'] = "value"`, redirection (hint: `redirect_to`) and other cool tidbits. But we have enough to point us in the right direction.
 
 I found, for myself, I learn best by simply doing, so I invite you to simply jump in the water.
 

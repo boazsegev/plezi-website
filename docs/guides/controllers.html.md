@@ -235,7 +235,7 @@ Rr, for example, to render the same content in JSON format, using the templates 
     params['format'] = 'json'
     render("layout") { render("users/index") }
 
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#render-instance_method).
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Controller#render-instance_method).
 
 Rendering can be extended to include more render engines using the `Plezi::Renderer.register` method.
 
@@ -252,11 +252,7 @@ MyController.url_for :index # the root of the controller
 MyController.url_for id: 1, \_method: :delete # the DELETE method can be emulated for RESTful requests.
 ```
 
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/ControllerMagic/InstanceMethods#url_for-instance_method).
-
-###
-
-
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Controller#url_for-instance_method).
 
 ### The `send_data(data, options = {})` helper
 
@@ -292,7 +288,7 @@ A connection's Plezi ID uniquely identifies the connection across application in
 
 After a websocket connection is established, it is possible to use `write` to write data to the websocket directly.
 
-[`write`](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/InstanceMethods#write-instance_method) writes data to the websocket, framing the data as stated by the Websocket protocol.
+[`write`](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Websocket#write-instance_method) writes data to the websocket, framing the data as stated by the Websocket protocol.
 
 `data` should be a String object.
 
@@ -300,31 +296,43 @@ If the String is Binary encoded, the data will be sent as binary data (according
 
 Using `write` before a websocket connection was established will invoke undefined behavior and will probably leading nuclear missiles being directed at your home town.
 
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/InstanceMethods#write-instance_method).
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Websocket#write-instance_method).
 
 ### The `close` method (Websockets)
 
-[`close`](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/InstanceMethods#close-instance_method) closes the websocket connection after all the data was sent and sending the Websocket's appropriate goodbye frame.
+[`close`](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Websocket#close-instance_method) closes the websocket connection after all the data was sent and sending the Websocket's appropriate goodbye frame.
 
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/InstanceMethods#close-instance_method).
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Websocket#close-instance_method).
 
 ### The `unicast` method (Websockets)
 
 Invokes a method for the specific websocket connection identified by it's id - use `self.id` to get the Plezi id for the websocket connection.
 
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#unicast-instance_method).
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Controller#unicast-instance_method).
 
 (todo: write documentation)
 
 ### The `broadcast` method (Websockets)
 
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#broadcast-instance_method).
+Invokes a method on every websocket connection that belongs to this Controller / Type, except `self`.
+
+When using Iodine, the method is invoked asynchronously.
+
+When calling the class method (instead of an instance method), then all connections are invoked (including `self`). Otherwise `self` is excluded.
+
+```ruby
+self.broadcast :my_method, "argument 1", "argument 2", 3
+```
+
+Methods invoked using unicast, broadcast or multicast will quietly fail if the connection was lost, the requested method is undefined or the 'target' was invalid.
+
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Controller#broadcast-instance_method).
 
 (todo: write documentation)
 
 ### The `multicast` method (Websockets)
 
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Base/WSObject/SuperClassMethods#multicast-instance_method).
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Controller#multicast-instance_method).
 
 (todo: write documentation)
 
@@ -339,3 +347,5 @@ This function can only be called *after* a websocket connection was established 
 This allows a module “library” to be used similar to the way “rooms” are used in node.js, so that event handling code can be reused across a number of different Controllers.
 
 After adopting a module into a websocket instance, the module will be able to `broadcast` Websocket events as if it were a controller.
+
+Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Controller#extend-instance_method).

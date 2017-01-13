@@ -1,17 +1,19 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    iodine (0.2.3)
+    iodine (0.2.8)
       rack
       rake-compiler
-    plezi (0.14.2)
-      iodine (~> 0.2, >= 0.2.1)
+    plezi (0.14.3)
+      bundler (~> 1.13)
+      iodine (~> 0.2, >= 0.2.7)
+      rack (>= 2.0.0)
     rack (2.0.1)
-    rake (11.3.0)
-    rake-compiler (1.0.1)
+    rake (12.0.0)
+    rake-compiler (1.0.3)
       rake
-    redcarpet (3.3.4)
-    sass (3.4.22)
+    redcarpet (3.4.0)
+    sass (3.4.23)
     slim (3.0.7)
       temple (~> 0.7.6)
       tilt (>= 1.3.3, < 2.1)
@@ -28,4 +30,4 @@ DEPENDENCIES
   slim
 
 BUNDLED WITH
-   1.12.5
+   1.13.6

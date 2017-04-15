@@ -4,7 +4,7 @@ GEM
     iodine (0.2.15)
       rack
       rake-compiler
-    plezi (0.14.5)
+    plezi (0.14.6)
       bundler (~> 1.14)
       iodine (~> 0.2, >= 0.2.14)
       rack (>= 2.0.0)

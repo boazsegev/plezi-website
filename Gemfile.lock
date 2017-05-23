@@ -1,8 +1,8 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    iodine (0.3.0)
-      rack (>= 2)
+    iodine (0.3.1)
+      rack
       rake-compiler (>= 1)
     plezi (0.14.7)
       bundler (~> 1.14)

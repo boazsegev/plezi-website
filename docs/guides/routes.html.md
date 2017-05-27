@@ -195,11 +195,11 @@ By default, Plezi assumes assets are baked and servered as static files.
 
 However, during production, it's comfortable to have our assets served dynamically and updated live.
 
-Also, sometimes we forget to back some (or all) of the assets before deployment to a production environment (or we're just lazy).
+Also, sometimes we forget to bake some (or all) of the assets before deployment to a production environment (or we're just lazy).
 
 Plezi has our back by providing us with the `:assets` controller.
 
-Plezi will allow live updates to asstes during development, but in production mode (using `ENV['RACK_ENV'] = 'production'`) plezi will bake any missing assets to the public folder, so that the next request is always served by the static file server without getting the Ruby layer involved.
+Plezi will allow live updates to asstes during development, but in production mode (using `ENV['RACK_ENV'] = 'production'`) plezi will bake any missing assets to the public folder, so that the next request can be served by the static file server without getting the Ruby layer involved.
 
 For example:
 
@@ -219,9 +219,9 @@ Using `:assets` as a controller allows us to control asset priority over other d
 
 Plezi's Auto-Dispatch has a websocket javascript client that gets updated along with Plezi.
 
-The client is also part of the application template and can be served as a static file / asset... but, this means that the client isn't updated when Plezi is updated, since the client in the template is the one that existed when the application was created.
+The client is also part of the application template and can be served as a static file... but, this means that the client isn't updated when Plezi is updated.
 
-To server the updated Plezi Auto-Dispatch javascript client (the client version matching the active Plezi version), Plezi allows the creation of a `:client` route, using the path of our choice:
+To server the updated Plezi Auto-Dispatch javascript client (the client version matching the active Plezi version), Plezi offers the creation of a `:client` route, using any path of our choice:
 
 ```ruby
 Plezi.route '/client.js', :client
@@ -230,7 +230,7 @@ Plezi.route 'a/very/unique/path/to/the/pl_client.js', :client
 ```
 More information about the Auto-Dispatch controller and client can be found in the [websockets guides](./websockets).
 
-It is better to update the static file to the latest version, as static file serving is more performant.
+However, consider updating the static file to the latest version, as static file serving is more performant.
 
 ## The next step
 

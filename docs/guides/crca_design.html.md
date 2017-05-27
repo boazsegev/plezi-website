@@ -40,13 +40,15 @@ No more need to emulate any transport layer details (such as fake HTTP requests)
 
 The web framework's single responsibility is the Router/Controller relationship.
 
-The web framework should route requests from the client to the appropriate Controller and send the response back to the client.
+The framework shouldn't enforce the routes nor author the controllers, but it should make sure that the relationship between these two is flawless and easy to manage.
+
+The web framework should route requests from the client to the appropriate Controller and return the responses so the server can send them back to the client.
 
 As a matter of convenience, the web framework should probably provide helpers for common "translation" related tasks (i.e., template rendering, etc'), as well as helpers for transport related events (push, pub/sub, etc').
 
 That's all.
 
-The web framework is NOT a web server (although it's running on a server), so it shouldn't be in charge of client related "assets" etc'. It is better if these things are served directly the web server, even if during development it is comfortable to serve these through the framework.
+The web framework is NOT a web server (although it's often run on a server), so it shouldn't be in charge of client related "assets" etc'. It is better if these things are served directly by the web server, even if during development it is comfortable to serve these through the framework.
 
 ## Why not MVC?
 
@@ -72,7 +74,7 @@ By doing less, Plezi allows the application's code to be totally decoupled from 
 
 If the application needs a database, it's free to use any general ORM such as `ActiveRecord` or `Squel` or even use database and SQL requests directly.
 
-We, at Plezi, love freedom and love the amazing Ruby community and Open Source gems.
+We, at Plezi, love freedom and love the amazing Ruby community and Open Source gems, we love `dry-rb` and the concept behind it, and we believe that the best way a framework could help your Ruby application to maximize it's potential, is by staying out of your way and keeping to the single responsibility of managing the Router-Controller relationship.
 
 ## Where does the term CRCA come from?
 

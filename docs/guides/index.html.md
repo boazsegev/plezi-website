@@ -19,7 +19,7 @@ Plezi is a Rack based framework with support for native (server side implemented
 
 Plezi will provide the following features over plain Rack:
 
-* Object Oriented (M)VC design, BYO (Bring Your Own) models.
+* Object Oriented (M)VC / CRCA design with support for total separation between the application logic and the HTTP / Websocket layer.
 
 * A case sensitive RESTful router to map HTTP requests to your Controllers.
 
@@ -30,6 +30,8 @@ Plezi will provide the following features over plain Rack:
     Non-RESTful public Controller methods will be automatically published as valid HTTP routes, allowing the Controller to feel like an intuitive "virtual folder" with RESTful features.
 
 * An (optional) Auto-Dispatch to map JSON websocket "events" to Controller functions (handlers).
+
+* Pub/Sub support for the local process cluster using Iodine's native Pub/Sub support.
 
 * Automatic (optional) scaling using Redis.
 
@@ -49,7 +51,7 @@ Things Plezi **doesn't** do (anymore / ever):
 
 * No application logic inside.
 
-    Conneting your application logic to Plezi is easy, however, application logic should really be *independent*, **reusable** and secure. There are plenty of gems that support independent application logic authoring.
+    Connecting your application logic to Plezi is easy, however, application logic should really be *independent*, **reusable** and secure. There are plenty of gems that support independent application logic authoring.
 
 * No native session support. If you *must* have session support, Rack middleware gems provide a lot of options. Pick one... However...
 
@@ -71,7 +73,7 @@ Plezi's goal were:
 
 1. Support client to server and server to client communication in real-time.
 
-	Since I had the model of an interactive game in my head, it was important that updates could be sent to the players in real-time and that the plays could push updates to the server without nagotiating a new connection for each update.
+	Since I had the model of an interactive game in my head, it was important that updates could be sent to the players in real-time and that the plays could push updates to the server without negotiating a new connection for each update.
 
 2. Support client-(server)-client real-time communication.
 
@@ -89,7 +91,7 @@ Plezi's goal were:
 
 5. Another thing that was important for me was to have a 'diet-Rails' alternative. As Ruby on Rails was getting more mature it was also getting more complicated and bloated. Now, that Rails 5 is finally out, I feel even more strongly about this.
 
-    I guess I wnted a light syntetic sugar layer over Rack that will let me use Websockets and support an MVC design.
+    I guess I wanted a light synthetic sugar layer over Rack that will let me use Websockets and support a design that truly separates the transport layer (HTTP / Websocket / terminal text input) from the application logic and code.
 
 I wanted Plezi to be easy... and it is.
 
@@ -115,7 +117,7 @@ To your right you'll find a floating "Table of Contents" for the document your r
 
 ## Please excuse us while we write
 
-This website and the guides are being rewritten for Plezi 0.14.0 (which is a whole new approach) and we're still writing everything down...
+This website and the guides are being rewritten for Plezi 0.15.0 (which is revolutionized by it's native Pub/Sub support and performace) and we're still writing everything down...
 
 ...and when I say that "we" are still writing everything down, it's because I invite you to join in on the writing and help document Plezi's different features.
 

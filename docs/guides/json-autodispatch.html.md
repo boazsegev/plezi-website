@@ -28,12 +28,12 @@ The auto-dispatch defines and uses the following JSON "sub-protocol":
 
     ```ruby
         @auto_dispatch = true
-        def auth msg
+        def auth1 msg
             msg[:event] == 'auth'
         end
         # to use for both Websockets AND AJAX(AJAJ), make sure
         # the method is public and add a default value. i.e.
-        def auth msg = nil
+        def auth2 msg = nil
             if msg
               # is Websockets
               msg[:event] == 'auth'
@@ -44,6 +44,11 @@ The auto-dispatch defines and uses the following JSON "sub-protocol":
             end
             # this will write a JSON response for both
             # AJAJ and Websockets
+            {event: :connection, token: "token"}.to_json
+        end
+        # This is a more idiomatic way to unify the AJAJ and Websocket API
+        def auth3 msg = nil
+            msg ||= params
             {event: :connection, token: "token"}.to_json
         end
     ```

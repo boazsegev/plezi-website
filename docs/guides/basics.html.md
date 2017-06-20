@@ -109,71 +109,42 @@ Plezi.route '/', MyDemo
 exit
 ```
 
-Plezi will also, automatically, route the controller's (public and protected) instance methods to websocket events which you can "fire" using the `unicast`/`broadcast` methods.
-
-Why protected methods, you ask? ... well, We wouldn't want any miscreant users using HTTP requests to activate websocket events. This is why both public and protected methods are available for websocket events, but only public methods are available for HTTP.
-
-Each controller can also act as a "channel", broadcasting websocket events (controller protected methods) to everyone who's connected to it.
-
-Here's a websocket chat-room server using Plezi, complete with minor authentication (requires a chat handle):
+Here's a simple RESTful API the returns the same result using both Websockets and HTTP (AJAJ):
 
 ```ruby
 require 'plezi'
 class MyDemo
+  @auto_dispatch = true
 
-    def on_open
-        # there's a better way to require a user handle, but this is good enough for now.
-        close unless params['id']
-    end
-
-    def on_message data
-        # broadcast to everyone else (NOT ourselves):
-        # this will have every connection execute the `chat_message` with the following argument(s).
-        broadcast :chat_message, "#{params['id']}: #{data}"
-        # write to our own websocket:
-        # - remember to sanitize the data.
-        write "Me: #{ERB::Util.html_escape data}"
-    end
-
-    protected
-    # receive and implement the broadcast
-    def chat_message data
-        write ERB::Util.html_escape(data)
-    end
+  def echo args = nil
+     args ||= params # now HTTP and Websockets will behave the same.
+    {event: :echo, message: args}
+  end
 end
 
 Plezi.route '/', MyDemo
-# You can connect to this chatroom by going to ws://localhost:3000/any_nickname
-# but you need to write a websocket client too...
-# try two browsers with the client provided by http://www.websocket.org/echo.html
-# (don't use the www.websocket.org SSL version, as our server isn't running SSL)
 exit
 ```
 
-Broadcasting isn't the only tool Plezi offers, we can also send a message to a specific connection using `unicast`, or send a message to everyone (no matter what controller is handling their connection) using `multicast`...
+Now visit [/echo?my_data=Hello!](http://localhost:3000/echo?my_data=Hello!) and try sending this request (message) using a websocket: `"{\"event\":\"echo\",\"my_data\":\"Hello!\"}"` (there's a built-in Javascript to make this even easier).
 
-You can read our [websockets guide](./websockets) for more information about these options.
+You will notice both the HTTP request and the Websocket request were both routed to the same `MyDemo#echo` method, amazing! Moreover, the Hash return value was automatically formatted as a JSON response. Sweet.
 
-## Websocket scaling is as easy as one line of code!
+You can read the [websockets guide](./websockets) for more information about websockets.
 
-A common issue with Websocket scaling occurs when server X is trying to send websocket messages to a user connected to server Y... On Heroku, it's enough add one Dyno (a total of two Dynos) to break some websocket applications... but with Plezi, fixing this issue is easy.
+## Websocket scaling is as easy as setting an environment variable!
+
+A common issue with Websocket scaling occurs when server X is trying to send websocket messages to a user connected to server Y... On Heroku, it's enough to add one Dyno (a total of two Dynos) to break some websocket applications... but with Plezi, fixing this issue is easy.
 
 Plezi leverages the power or Redis to automatically push Websocket messages across server instances, so that we can easily scale our applications (on Heroku, add Dynos) with only one line of code!
 
-Just tell Plezi how to acess our Redis server and Plezi will make sure that our users get their messages accross different servers:
+Just tell Plezi how to acess our Redis server and Plezi will make sure that our users get their messages across different servers:
 
 ```ruby
 # REDIS_URL is where Herolu-Redis stores it's URL
-ENV['PL_REDIS_URL'] ||= ENV['REDIS_URL'] || "redis://:password@my.host:6389/0" # 0 is the DB selector
+ENV['PL_REDIS_URL'] ||= ENV['REDIS_URL'] || "redis://:password@my.host:6389/"
 ```
-
-## HTTP-Websocket API
-
-Often, when writing our applications, we want to be able to access the same data both using websockets AND using HTTP. In more common terms, we want to write an API for our service and we want it to support both XHR/AJAX (AJAJ actually) and Websockets.
-
-Socket.io forces us to certain restrictions to achive this shared API. With Plezi, it's easy to opt-in - allowing use to decide which API will be available for websockets, which will be available for AJAX/AJAJ and which will be shared by both websockets and AJAX/AJAJ.
-
-However, this is a bit more advanced (unless we use the `@auto_dispatch` feature), so maybe we'll get back to this later.
+As you can see, this isn't a question of code at all, it's an environment variable, making it easy to keep Redis scaling limited to the production environment while testing the application locally.
 
 ## Template Rendering, assets...?
 

@@ -6,7 +6,7 @@ RESTful routing and Websocket callback support both allow us to use conventional
 
 The first layer of this powerful routing system is the Plezi's HTTP Router and the core method `Plezi.route`.
 
-## What is a Route?
+## What is a Route? (I probably know this, skip ahead)
 
 Routes are what connects different URLs to different parts of our code.
 
@@ -22,11 +22,11 @@ Plezi's routing system was designed to build upon conventions used in other rout
 
 ## Defining a Route
 
-We define a route using Plezi's `Plezi.route` method or the shortcut DSL method `route` (without the `Plezi.` part).
+We define a route using Plezi's `Plezi.route` method.
 
-This method accepts a String or Regexp that should point to a "group" of routes.
+This method accepts a String that should point to a route's "root".
 
-The method also requires either a class that "controls" that group of routes or a block of code that responds to that route.
+The method also requires either a class that the route leads to. This class is called a Controller.
 
 Here are a few examples for valid routes. You can run the following script in the `irb` terminal:
 
@@ -38,6 +38,18 @@ class UsersController
     puts requested_method, params
     puts request.env
     'All Users'
+  end
+  def show
+    "Looking for user #{params[:id]}"
+  end
+  def new
+    "A new user creation form"
+  end
+  def create
+    "Creating a new user #{params.to_s}"
+  end
+  def John
+    "John is a special guy."
   end
   protected
   def unseen
@@ -51,7 +63,7 @@ class Catch
   end
 end
 
-# the "/users" group can be extended. for now, it will answer: "/users" and "/users/index"
+# the "/users" group can be extended. for now, it will answer: "/users", "/users/new", "/users/1" and a little more...
 # this is because that's all that UsersController defines as public methods.
 Plezi.route '/users', UsersController
 
@@ -68,15 +80,35 @@ Plezi.route('/never-seen', UsersController)
 
 exit
 ```
+
+You might notice that the route is smart enough to choose the correct method according to the request's path. i.e., try any of the following:
+
+* [/users](http://localhost:3000/users)
+* [/users/Mitchel](http://localhost:3000/users/Mitchel)
+* [/users/John](http://localhost:3000/users/John)
+* [/users/new](http://localhost:3000/users/new)
+* [/users?_method=post&name=Jenny](http://localhost:3000/users?_method=post&name=Jenny)
+
+v.s
+
+* [/stuff](http://localhost:3000/stuff)
+* [/stuff/Mitchel](http://localhost:3000/stuff/Mitchel)
+* [/stuff/John](http://localhost:3000/stuff/John)
+
+
 As you may have noticed, the route's order of creation was important and established an order of precedence.
 
 Order of precedence allows us to create a catch-all route, in fear that it might respond to an invalid request.
 
 ### The `:id` parameter
 
-In order to manage route "groups", Plezi's router attmpts to add an optional `:id` parameter at the end of the route. This is only possible when the route doesn't end with a catch-all (if a catch-all exists, the `:id` parameter can't be isolated).
+Each route can lead to a number of possible Controller methods (access points).
 
-So, the following two routes are identical:
+Plezi's router attempts to add an optional `:id` parameter at the end of the route, which makes it possible for the router to choose the correct method to call when an HTTP request comes in.
+
+Of course, if a catch-all is specified, the `:id` parameter can't be isolated and the router will be more limited in it's ability to route to the correct method within a Controller.
+
+For example, the following two routes are identical:
 
 ```ruby
 require 'plezi'
@@ -182,24 +214,25 @@ exit
 
 Try the code above and visit:
 
+* [localhost:3000/users](http://localhost:3000/users)
 * [localhost:3000/fr/users](http://localhost:3000/fr/users)
 * [localhost:3000/ru/users](http://localhost:3000/ru/users)
 * [localhost:3000/en/users](http://localhost:3000/en/users)
 * [localhost:3000/it/users](http://localhost:3000/it/users) (doesn't exist, does it?)
 
-Notice the re-write route containes an implied catch all. This catch-all is automatically added if missing. The catch-all is the part of the path that will remain for the following routes to check against.
+Notice the re-write route contains an implied catch all. This catch-all is automatically added if missing. The catch-all is the part of the path that will remain for the following routes to check against.
 
 ### The Plezi Assets Route
 
-By default, Plezi assumes assets are baked and servered as static files.
+By default, Plezi assumes assets are baked and served as static files.
 
-However, during production, it's comfortable to have our assets served dynamically and updated live.
+However, during development, it's comfortable to have our assets served dynamically and updated live.
 
 Also, sometimes we forget to bake some (or all) of the assets before deployment to a production environment (or we're just lazy).
 
-Plezi has our back by providing us with the `:assets` controller.
+Plezi has our back by providing us with the built in `:assets` controller.
 
-Plezi will allow live updates to asstes during development, but in production mode (using `ENV['RACK_ENV'] = 'production'`) plezi will bake any missing assets to the public folder, so that the next request can be served by the static file server without getting the Ruby layer involved.
+Plezi will allow live updates to assets during development, but in production mode (using `ENV['RACK_ENV'] = 'production'`) Plezi will "bake" any missing assets to the public folder, so that the next request can be served by the static file server without getting the Ruby layer involved.
 
 For example:
 

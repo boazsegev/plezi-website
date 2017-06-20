@@ -43,31 +43,33 @@ Let's open our terminal window and type:
 
 You should get a response on your terminal, something along these lines:
 
-      created the hello_world application directory.
-      starting to write template data...
+    created the hello_world application directory.
+    starting to write template data...
 
-          wrote ./hello_world
-          wrote ./hello_world.rb
-          wrote ./routes.rb
-          wrote ./config.ru
-          wrote ./Procfile
-          wrote ./Gemfile
-          wrote ./rakefile
-          created ./app
-          wrote ./app/my_controler.rb
-          created ./views
-          wrote ./views/404.html.erb
-          wrote ./views/500.html.erb
-          wrote ./views/welcome.html.erb
-          created ./public
-          created ./public/javascripts
-          wrote ./public/javascripts/client.js
-          wrote ./public/javascripts/simple-client.js
-      done.
+        wrote ./hello_world
+        wrote ./hello_world.rb
+        wrote ./routes.rb
+        wrote ./config.ru
+        wrote ./Procfile
+        wrote ./Gemfile
+        wrote ./rakefile
+        created ./controllers
+        wrote ./controllers/example.rb
+        created ./views
+        wrote ./views/welcome.html.erb
+        wrote ./views/404.html.erb
+        wrote ./views/500.html.erb
+        wrote ./views/503.html
+        created ./public
+        created ./public/javascripts
+        wrote ./public/javascripts/client.js
+        wrote ./public/javascripts/simple-client.js
+        created ./test
+    done.
 
-      please change directory into the app directory: cd hello_world
+    please change directory into the app directory: cd hello_world
 
-      run the hello_world app using: ./hello_world or using the iodine / rackup commands.
+    run the hello_world app using: ./hello_world or using the iodine or rackup commands.
 
 Great. We have something to start with.
 

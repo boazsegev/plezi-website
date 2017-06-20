@@ -45,7 +45,7 @@ class AIConnection
   MESSAGES[0..24].each { |m| MESSAGES << m } # make common messages more common.
   def initialize
     @name = NAMES.sample
-    HomeController.broadcast :print, "#{@name} joind the chat."
+    Iodine::Websocket.publish channel: "chat", message: "#{@name} joind the chat."
     Iodine.run_after(pause) { post_message }
     # options = {}
     # options[:on_open] = Proc.new { Iodine.run_after(pause) { write MESSAGES.sample; rand(1..7).even? ? (Iodine.run_after(pause) { close }) : Iodine.run_after(pause) {on_open} } }
@@ -55,7 +55,7 @@ class AIConnection
   end
 
   def post_message
-    HomeController.broadcast :print, "#{@name}: #{MESSAGES.sample}"
+    Iodine::Websocket.publish channel: "chat", message: "#{@name}: #{MESSAGES.sample}"
     return Iodine.run_after(pause) { post_message } unless rand(1..7).even? # last?
     Iodine.run_after(pause) { leave }
   end
@@ -65,7 +65,7 @@ class AIConnection
   end
 
   def leave
-    HomeController.broadcast :print, "#{@name} left the chat."
+    Iodine::Websocket.publish channel: "chat", message: "#{@name} left the chat."
   end
 end
 

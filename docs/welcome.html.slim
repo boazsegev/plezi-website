@@ -50,15 +50,16 @@ javascript:
 				$('#output')[0].scrollHeight }, "slow");
 	}
 h1#tagline Websockets for Ruby made easy
-h3#version_data Version 0.14.x - more focus, more umph - a new world of performance
+h3#version_data Version 0.15.x - Thinner, Leanner and Meaner - a Whole New Pub/Sub World
 div#demo
 	div#client
 		div class='bordered'
-			p Websockets? AJAX? RESTful Http? - Plezi.
+			p Websockets? AJAX? RESTful HTTP? Pub/Sub? - Plezi.
 			ul
 				li Easier than Faye, more fun than socket.io.
 				li Works on it's own or with Rack/Rails/Sinatra.
-			p A real-time Websocket Chat Room? It's the new "Hello World"!
+				li Takes performance to the edge of Pub/Sub capabilities.
+			p A Pub/Sub chatroom was never easier.
 			p
 				a href='/docs/basics'  Get started now.
 			form#form
@@ -75,31 +76,27 @@ div#demo
 					# finish with `exit` if running within `irb`
 					require 'plezi'
 					class ChatServer
-						def index
-							render 'client'
-						end
-						def on_open
-							return close unless params['id']
-							@name = params['id']
-							broadcast :print,
-									"\#{@name} joind the chat."
-							print "Welcome, \#{@name}!"
-						end
-						def on_close
-							broadcast :print,
-									"\#{@name} left the chat."
-						end
-						def on_message data
-							self.class.broadcast :print,
-										"\#{@name}: \#{data}"
-						end
-						protected
-						def print data
-							write ::ERB::Util.html_escape(data)
-						end
+					  def index
+					    render 'client'
+					  end
+					  def on_open
+					    return close unless params['id']
+					    @name = params['id']
+					    subscribe channel: "chat"
+					    publish channel: "chat", message: "\#{@name} joind the chat."
+					    write "Welcome, \#{@name}!"
+					  end
+					  def on_close
+					    publish channel: "chat, message: "\#{@name} joind the chat."
+					  end
+					  def on_message data
+					    publish channel: "chat", message: "\#{@name}: \#{data}"
+					  end
 					end
+					# setup route to html/javascript client
 					path_to_client = File.expand_path( File.dirname(__FILE__) )
 					Plezi.templates = path_to_client
+					# connect route to controller
 					Plezi.route '/', ChatServer
 input#show_code type='checkbox'
 div id='client_code'

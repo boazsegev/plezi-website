@@ -1,26 +1,22 @@
 # Plezi Websockets
 
-Inside Plezi's core code is the pure Ruby HTTP and Websocket Server (and client) that comes with [Iodine](https://github.com/boazsegev/iodine), a wonderful little server that supports an effective websocket functionality both as a server and as a client.
-
-Plezi augmentes Iodine by adding auto-Redis support for scaling and automatically mapping each Contoller Class as a broadcast channel and each server instance to it's own unique channel - allowing unicasting to direct it's message at the target connection's server and optimizing resources.
-
-Reading through this document, you should remember that Plezi's websocket connections are object oriented - they are instances of Controller classes that answer a specific url/path in the Plezi application. More than one type of connection (Controller instance) could exist in the same application.
+A lot of Plezi's features comes from the powerful [Iodine HTTP / Websocket Server](https://github.com/boazsegev/iodine) that supports it.
 
 ## What are Websockets? (skip if you know)
 
-In a very broad sense, Websockets allow the browser communicate with the server in a bi-directional manner. This overcomes some of the limitations imposed by Http alone, allowing (for instance) to push real-time data, such as chat messages or stock quotes, directly to the browser.
+In a very broad sense, Websockets allow the browser communicate with the server in a bi-directional manner. This overcomes some of the limitations imposed by HTTP alone, allowing (for instance) to push real-time data, such as chat messages or stock quotes, directly to the browser.
 
-In essense, while Http's worflow is a call and response (the browser "calls", the server "responds"), Websockets is a conversation, sometimes with long pauses, where both sides can speak whenever they feel the need to.
+In essence, while HTTP's workflow is a call and response (the browser "calls", the server "responds"), Websockets is a conversation, sometimes with long pauses, where both sides can speak whenever they feel the need to, sometimes simultaneously.
 
 This, in nature, requires that both sides of the conversation establish a common language... this part is pretty much up to each application.
 
 It's easy to think about it this way:
 
-the browsers starts a call-response sequence. All websocket connections start as Http call-response. The browser shouts over the internet "I want to start a conversation".
+the browsers starts a call-response sequence. All websocket connections start as an HTTP call-response. The browser shouts over the internet "I want to start a conversation".
 
 The server responds: "Sure thing, let's talk".
 
-Than they start their websocket conversation, keeping the connection between them open. The server can also answer "no thanks", but than there's no websocket connection and the Http connection will probably die out (unless it's Http/2).
+Than they start their websocket conversation, keeping the connection between them open. The server can also answer "no thanks", but than there's no websocket connection and the HTTP connection will probably die out.
 
 ### Establishing the connection (generic client)
 
@@ -79,15 +75,15 @@ As you can tell from reading through the code, this means that the browser will 
 
 In our example the script sent a message: `"Hello there!"`. It's up to your code to decide what to do with the data it receives, be it using JSON or raw data.
 
-When data comes in from the browser, the `onmessage` event is raised. It's up to your script to decypher the meaning of that message within the `onmessage` callback.
+When data comes in from the browser, the `onmessage` event is raised. It's up to your script to decipher the meaning of that message within the `onmessage` callback.
 
-Now that we know a bit about what Websockets are and how to initiate a websocket connection to send and receive data... next up, how do we get Plezi to answer (or refuse) websocket requests?
+Now that we know a bit about what Websockets are and how to initiate a websocket connection to send and receive data... next up: How do we get Plezi to answer (or refuse) websocket requests?
 
 ## Communicating between the application and clients
 
 A Plezi application can handle multiple websocket connection controllers, allowing us to use different connections for different tasks (such as file uploading on one connection while getting real-time updates on another).
 
-To set up a routeto accept websocket connections, our controller must **either** implement an `on_message(data)` callback **OR** be an `auto_dispatch` enabled controller (more about this powerful feature soon).
+To set up a route to accept websocket connections, our controller must **either** implement an `on_message(data)` callback **OR** be an `auto_dispatch` enabled controller (more about this powerful feature soon).
 
 ### Raw Websocket data communication
 
@@ -194,9 +190,10 @@ It is very common for websocket applications to use json messages to "emit" JSON
 
 This use-case is so common, that Plezi includes an easy to use Auto-Dispatch feature for the Controller and an Auto-Dispatch Javascript client (PleziClient).
 
-When using the Auto-Dispatch, there is no need to write an `on_message` callback. But the controller must set the class variable `@auto_dispatch` to `true`. i.e.:
+When using the Auto-Dispatch, there is no need to write an `on_message` callback. However, the controller must set the class variable `@auto_dispatch` to `true`. i.e.:
 
     class JSONDemo
+        # Sets this controller to accept JSON encoded websocket connections
         @auto_dispatch = true
         # then define events
         protected
@@ -210,65 +207,23 @@ To learn more about the JSON websocket Auto-Dispatch read the [JSON Websocket Au
 
 ## Communicating between different Websocket clients
 
-Plezi allows easy communication between websocket connections. Operating System security and memory guards would normally limit such communication to the connections of a single process, however, Plezi provides an easy scaling and cross process (even cross server) communication using Redis.
+Plezi leverages Iodine's native Pub/Sub features as well as it's native Redis engine that allow Websocket clients to communicate across process and machine boundries.
 
-When using this type of communication, it is expected that each connection's controller provide a protected instance method with a name matching the event name and that this method will accept, as arguments, the data sent with the event.
+The Pub/Sub idiom is very common with plenty of examples on the web. The examples in the [Hello Chatroom](/docs/hello_chat) guide should  offer a good starting point.
 
-This type of communication includes:
-
-- **Multicasting**:
-
-    Use `multicast` to send an "event" to all the websocket connections currently connected to the application (including connections on other servers running the application, if Redis is used).
-
-- **Unicasting**:
-
-    Use `unicast` to send an event to a specific websocket connection.
-
-    This uses a unique connection id that contains both the target server's information and the specific connection identifier. This allows a message to be sent to any connected websocket across multiple application instances when using Redis, minimizing network activity and server load as much as effectively possible.
-
-    Again, exacly like when using multicasting, any connection targeted by the message is expected to implemnt a method matching the name of the event, which will accept (as arguments) the data sent.
-
-- **Unicasting**:
-
-    Use `broadcast` or `Controller.broadcast` to send an event to a "type" of websocket connection.
-
-    Websocket connection "types" mostly refer to the Controller class, but this can be exteded (still experimental) to include other types, such as modules, using the `adopt` Controller method.
-
-
-
-Errors and invalid connection IDs are silently ignored.
-
-"Events" are actually methid names to be invoked with the stated argumnets.
-
-For instance, when using:
-
-```ruby
-unicast target_id, :event_name, "string", any: :options
-```
-
-The receiving websocket controller is expected to have a method named `event_name` like so:
-
-```ruby
-class MyController
-    #...
-    protected
-    def event_name str, options_hash
-        #...
-    end
-end
-```
+It should be noted that Iodine's Pub/Sub allows for connectionless Pub/Sub as well as the more common Websocket bound Pub/Sub (that dies along with the connection). This powerful feature is very versatile when used correctly... but is can also be performance draining when implemented poorly.
 
 ## Scaling Websocket Services
 
-Plezi supports easy websocket services scaling with Redis.
+Plezi leverages Iodine's RedisEngine for easily scaling the Pub/Sub service across machine boundries.
 
-This allows applications to run multiple servers, where all the websocket and session data is synchronized using a shared Redis server.
+This allows applications to run multiple servers that share their Pub/Sub event data.
 
-To use Redis for scaling, simply tell Plezi the URL for the Redis server, by using the environment variable `PL_REDIS_URL`. i.e.:
+To use Redis for scaling, simply tell Plezi the URL for the Redis server, by using the environment variable `PL_REDIS_URL` or `REDIS_URL`. i.e.:
 
     ENV['PL_REDIS_URL'] ||=  "redis://user:password@redis.example.com:9999"
 
-It's also possible to manage load balancing and seperation of interests by writing a number of different applications that all sync together using Redis, each application in charge of a different aspect of the whole design.
+It's also possible to manage load balancing and separation of interests by writing a number of different applications that all sync together using Redis, each application in charge of a different aspect of the whole design.
 
 To use Redis scaling across multiple **different applications**, a shared Plezi channel should be set across all the applications. This is done by setting the `Plezi.app_name` to a unique (shared) name. i.e.:
 
@@ -276,34 +231,4 @@ To use Redis scaling across multiple **different applications**, a shared Plezi 
 
 By default, the `Plezi.app_name` is automatically set using the name of the application script. i.e., for an application script called `chat` (or `chat.rb`), the default channel will be: `"chat_app"`.
 
-### How websocket scaling is achieved
-
-The following information explains some of Plezi's internal workings.
-
-The following protocol is used by Plezi to send messages through a Redis Pub/Sub server, allowing Plezi websocket services to scale vertically (adding servers).
-
-The message format is published here to be used when sending messages to a Plezi application from a non-Ruby application (i.e. from Python, PHP, node.js, C, etc').
-
-When Redis is enabled (the gem included and the `PL_REDIS_URL` set), each application instance (each server) connects to two pub/sub Redis channels - a global channel and a "private" channel.
-
-Plezi listens to global events using the global channel set by the `Plezi.app_name`.
-
-Each application instance also listens to `unicasting` events sent specifically to it's "private" channel. The unique private channel name is dynamically allocated on each instance start-up and cannot be pre-determined.
-
-Messages are published using the following protocol/data stracture:
-
-* Messages are safe [YAML](http://yaml.org) formatted objects (only core Ruby objects can be passed through, such as String, Fixnum, Symbol, Date, Time, Range, `true`, `false`, `nil` and Arrays/Hashes/Sets containing these core objects).
-
-* Messages contain a root object that is a Hash/Dictionary.
-
-* The root's optional `:type` field will contain a String with the class of the receiving Controller OR the Symbol `:all` (when multicasting).
-
-* The root's optional `:target` field will contain a String with the connection's id.
-
-    This field will designate a message used for unicating and it should be sent to the server's private channel.
-
-* The root's `:event` field will contain a Symbol identifying the method designated to handle the broadcast.
-
-* The root's `:args` field will contain an Array (can be empty) of the arguments that will be passed along to the designated method.
-
-* If neither a `:type` or `:target` are present or if either the `:event` or `:args` are missing, Plezi will probably ignore the broadcasted message (or yell at you).
+This is placeholder for future features and isn't in use at the moment.

@@ -121,21 +121,13 @@ require 'plezi'
 class MyDemo
     def on_open
         # there's a better way to require a user handle, but this is good enough for now.
-        close unless params[:id]
+        return close unless params[:id]
+        subscribe channel: :chat
     end
     def on_message data
         # sanitize the data.
         data = ERB::Util.html_escape data
-        # broadcast to everyone else (NOT ourselves):
-        # this will have every connection execute the `chat_message` with the following argument(s).
-        broadcast :chat_message, "#{params[:id]}: #{data}"
-        # write to our own websocket:
-        write "Me: #{data}"
-    end
-    protected
-    # receive and implement the broadcast
-    def chat_message data
-        write data
+        publish channel: :chat, message: "#{params[:id]}: #{data}"
     end
 end
 
@@ -146,17 +138,13 @@ Plezi.route '/', MyDemo
 exit
 ```
 
-Broadcasting isn't the only tool Plezi offers, we can also send a message to a specific connection using `unicast`, or send a message to everyone (no matter what controller is handling their connection) using `multicast`...
-
-...It's even possible to register a unique identity, such as a specific user or even a `session.id`, so their messages are waiting for them even when they're off-line (you decide how long they wait)! We simply use `register_as @user.id` in our `on_open` callback, and than the user can get notifications sent by `notify user.id, :evet_method, *args`.
-
 ### Websocket scaling is as easy as one line of code!
 
 A common issue with Websocket scaling is trying to send websocket messages from server X to a user connected to server Y... On Heroku, it's enough add one Dyno (a total of two Dynos) to break some websocket applications.
 
 Plezi leverages the power or Redis to automatically push both websocket messages and Http session data across servers, so that you can easily scale your applications (on Heroku, add Dynos) with only one line of code!
 
-Just tell Plezi how to acess your Redis server and Plezi will make sure that your users get their messages and that your application can access it's session data accross different servers:
+Just tell Plezi how to access your Redis server and Plezi will make sure that your users get their messages and that your application can access it's session data across different servers:
 
     # REDIS_URL is where Herolu-Redis stores it's URL
     ENV['PL_REDIS_URL'] ||= ENV['REDIS_URL'] || "redis://username:password@my.host:6389"
@@ -225,226 +213,15 @@ It's also possible to define a number of controllers for a similar route. The co
 
 \* please read the demo code for Plezi::StubRESTCtrl and Plezi::StubWSCtrl to learn more. Also, read more about the [Iodine's Websocket and HTTP server](https://github.com/boazsegev/iodine) at the core of Plezi to get more information about the amazing [Request](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Http/Request) and [Response](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Http/Response) objects.
 
-## Native Websocket and Redis support
+## Native Websocket, Pub/Sub and Redis support
 
-Plezi Controllers have access to native websocket support through the `pre_connect`, `on_open`, `on_message(data)`, `on_close`, `multicast`, `broadcast`, `unicast` and the Identity API (`register_as` and `notify` methods).
-
-Here is some demo code for a simple Websocket broadcasting server, where messages sent to the server will be broadcasted back to all the **other** active connections (the connection sending the message will not recieve the broadcast).
-
-As a client side, we will use the WebSockets echo demo page - we will simply put in ws://localhost:3000/ as the server, instead of the default websocket server (ws://echo.websocket.org).
-
-Remember to connect to the service from at least two browser windows - to truly experience the `broadcast`ed websocket messages.
-
-```ruby
-require 'plezi'
-
-# do you need automated redis support?
-# require 'redis'
-# ENV['PL_REDIS_URL'] = "redis://user:password@localhost:6379"
-
-class BroadcastCtrl
-    def index
-        redirect_to 'http://www.websocket.org/echo.html'
-    end
-    def on_message data
-        # try replacing the following two lines are with:
-        # self.class.broadcast :_send_message, data
-        broadcast :_send_message, data
-        response << "sent."
-    end
-    def _send_message data
-        response << data
-    end
-    def hello
-        'Hello!'
-    end
-    def_special_method "humans.txt" do
-        'I made this :)'
-    end
-end
-
-Plezi.route '/', BroadcastCtrl
-```
-
-method names starting with an underscore (`'_'`) are protected from the Http router, even when they are public.
-
-This is why even though both '/hello' and '/humans.txt' are public ( [try it](http://localhost:3000/humans.txt) ), `'/_send_message'` will return a 404 not found error ( [try it](http://localhost:3000/_send_message) ).
+Plezi Controllers have access to native websocket support through the `pre_connect`, `on_open`, `on_message(data)`, `on_close`, `subscribe`, `subscribe?`, `unsubscribe` and `publish` API.
 
 ## Adding Websockets to your existing Rails/Sinatra/Rack application
 
-You already have an amazing WebApp, but now you want to add websocket broadcasting and unicasting support - Plezi makes connecting your existing WebApp with your Plezi Websocket backend as easy as it gets.
+You already have an amazing WebApp, but now you want to add websocket or pub/sub support - Plezi makes connecting your existing WebApp with your Plezi Websocket backend as easy as it gets.
 
-
-There are two easy ways to add Plezi websockets to your existing WebApp, depending on your needs and preferences:
-
-1. **The super easy way - a Hybrid app**:
-
-     Plezi plays well with others, so you can add Plezi to your existing framework and let it catch any incoming websocket connections. Your application will still handle anything you didn't ask Plezi to handle (Plezi Websockets and routes will recieve priority, so your app can keep handling the 404 response).
-
-
-2. **The Placebo API**:
-
-     Plezi has a Placebo API, allowing you to add Plezi features without running a Plezi app.
-
-     By adding the Plezi Placebo to your app, you can easily communicate between your existing app and a remote Plezi process/server. So, although websocket connections are made to a different server, your app can still send and recieve data through the websocket connection (using Redis).
-
-### The super easy way - a Hybrid app
-
-The easiest way to add Plezi websockets to your existing application is to use [Iodine's](https://github.com/boazsegev/iodine) Rack adapter to run your Rack app, while Plezi will use Iodine's native features (such as Websockets and HTTP streaming).
-
-You can eaither use your existing Plezi application or create a new mini plezi application inside your existing app folder using:
-
-    $   plezi mini appname
-
-Next, add the `plezi` gem to your `Gemfile` and add the following line somewhere in your apps code:
-
-```ruby
-require './appname/appname.rb'
-```
-
-That's it! Now you can use the Plezi API and your existing application's API at the same time and they are both running on the same server.
-
-Plezi's routes will be attempted first, so that your app can keep handling the 404 (not found) error page.
-
-\* just remember to remove any existing servers, such as `thin` of `puma` from your gemfile, otherwise they might take precedence over Plezi's choice of server (Iodine).
-
-### The Plezi Placebo API - talking from afar
-
-To use Plezi and your App on different processes, without mixing them together, simply include the Plezi App in your existing app and call `Plezi.start_placebo` - now you can access all the websocket API that you want from your existing WebApp, but Plezi will not interfere with your WebApp in any way.
-
-For instance, add the following code to your environment setup on a Rails or Sinatra app:
-
-```ruby
-
-require './my_plezi_app/environment.rb'
-require './my_plezi_app/routes.rb'
-
-# # Make sure the following is already in your 'my_plezi_app/environment.rb' file:
-# ENV['PL_REDIS_URL'] = "redis://username:password@my.host:6379"
-# Plezi::Settings.redis_channel_name = 'unique_channel_name_for_app_b24270e2'
-
-Plezi.start_placebo
-```
-
-That's it!
-
-Plezi will automatically set up the Redis connections and pub/sub to connect your existing WebApp with Plezi's Websocket backend - which you can safely scale over processes or machines.
-
-Now you can use Plezi from withing your existing App's code. For example, if your Plezi app has a controller named `ClientPleziCtrl`, you might use:
-
-```ruby
-# Demo a Rails Controller:
-class ClientsController < ApplicationController
-  def update
-     #... your original logic here
-     @client = Client.find(params[:id])
-
-     # now unicast data to your client on the websocket
-     # (assume his websocket uuid was saved in @client.ws_uuid)
-
-     ClientPleziCtrl.unicast @client.ws_uuid, :method_name, @client.attributes
-
-     # or broadcast data to your all your the clients currently connected
-
-     ClientPleziCtrl.broadcast :method_name, @client.attributes
-
-  end
-end
-```
-
-Easy.
-
-\- "But wait...", you might say to me, "How do we get information back FROM the back end?"
-
-Oh, that's easy too.
-
-With a few more lines of code, we can have the websocket connections _broadcast_ back to us using the `Plezi::Placebo` API.
-
-In your Rails app, add the logic:
-
-```ruby
-class MyReciever
-    def my_reciever_method arg1, arg2, arg3, arg4...
-        # your app's logic
-    end
-end
-Plezi.start_placebo MyReciever
-```
-
-Plezi will now take your class and add mimick an IO connection (the Placebo connection) on it's Iodine serever. This Placebo connection will answer the Redis broadcasts just as if your class was a websocket controller...
-
-On the Plezi side, use multicasting or unicasting (but not broadcasting), from ANY controller:
-
-```ruby
-
-class ClientPleziCtrl
-    def on_message data
-        # app logic here
-        multicast :my_reciever_method, arg1, arg2, arg3, arg4...
-    end
-end
-```
-
-That's it! Now you have your listening object... but be aware - to safely scale up this communication you might consider using unicasting instead of broadcasting.
-
-We recommend saving the uuid of the Rails process to a Redis key and picking it up from there.
-
-On your Rails app, add:
-
-```ruby
-#...
-class MyReciever
-    def my_reciever_method arg1, arg2, arg3, arg4...
-        # ...
-    end
-end
-
-pl = Plezi.start_placebo MyReciever
-
-Plezi.redis_connection.set 'MainUUIDs', pl.uuid
-
-```
-In your Plezi app, use unicasting when possible:
-
-```ruby
-class ClientPleziCtrl
-    def on_message data
-        # app logic here
-        main_uuid = Plezi.redis_connection.get 'MainUUIDs'
-        unicast main_uuid, :my_reciever_method, arg1, arg2, arg3, arg4... if main_uuid
-    end
-end
-
-```
-
-## Native HTTP streaming with Asynchronous events
-
-Plezi comes with native HTTP streaming support (Http will use chuncked encoding unless experimental Http/2 is in use), alowing you to use Plezi Events and Timers to send an Asynchronous response.
-
-Let's make the classic 'Hello World' use HTTP Streaming:
-
-```ruby
-require 'plezi'
-
-class Controller
-    def index
-        response.stream_async do
-            sleep 0.5
-            response << "Hello ";
-            response.stream_async{ sleep 0.5; response << "World" }
-        end
-        true
-    end
-end
-
-Plezi.route '*' , Controller
-```
-
-Notice you can nest calls to the `response.stream_async` method, allowing you to breakdown big blocking tasks into smaller chunks. `response.stream_async` will return immediately, scheduling the task for background processing.
-
-You can also handle other tasks asynchronously using the [Iodine's API](http://www.rubydoc.info/gems/iodine).
-
-More on asynchronous events and timers later.
+As explained [here](./with_rack_app), Plezi can be used as middleware within your existing application - it's as easy as that.
 
 ## Plezi Routes
 
@@ -467,100 +244,6 @@ now visit:
 * [http://localhost:3000/post/12/1](http://localhost:3000/post/12/1)
 
 **[please see the `route` documentation for more information on routes](/docs/routes)**.
-
-## Plezi Virtual Hosts
-
-Plezi can be used to create virtual hosts for the same service, allowing you to handle different domains and subdomains with one app:
-
-```ruby
-require 'plezi'
-
-# define a named host.
-host 'localhost', alias: 'localhost2', public: File.join('my', 'public', 'folder')
-
-shared_route '/shared' do |req, res|
-    res << "shared by all existing hosts.... but the default host doesn't exist yet, so we're only on localhost and localhost2."
-end
-
-# define a default (catch-all) host.
-host
-
-shared_route '/humans.txt' do |req, res|
-    res << "we are people - we're in every existing hosts."
-end
-
-
-Plezi.route('*') do |req, res|
-    res << "this is a 'catch-all' host. you got here by putting in the IP adderess."
-end
-
-# get's the existing named host
-host 'localhost'
-
-Plezi.route('*') do |req, res|
-    res << "this is localhost or localhost 2"
-end
-```
-
-Now visit:
-
-* [http://127.0.0.1:3000/](http://127.0.0.1:3000/)
-* [http://localhost:3000/](http://localhost:3000/)
-* [http://127.0.0.1:3000/shared](http://127.0.0.1:3000/shared) - won't show, becuse this host was created AFTER the route was declered.
-* [http://localhost:3000/shared](http://localhost:3000/shared)
-* [http://127.0.0.1:3000/humans.txt](http://127.0.0.1:3000/humans.txt)
-* [http://localhost:3000/humans.txt](http://localhost:3000/humans.txt)
-* notice: `localhost2` will only work if it was defined in your OS's `hosts` file.
-
-## Plezi Logging
-
-The Plezi module (also `PL`) delegates to the Iodine methods, helping with logging as well as the support you already noticed for dynamic routes, dynamic services and more.
-
-Logging:
-
-```ruby
-require 'plezi'
-
-# simple logging of strings
-PL.info 'log info'
-Iodine.info 'This is the same, but more direct.'
-PL.warn 'log warning'
-PL.error 'log error'
-PL.fatal "log a fatal error (shuoldn't be needed)."
-PL.log_raw "Write raw strings to the logger."
-
-# the logger accepts exceptions as well.
-begin
-    raise "hell"
-rescue Exception => e
-    PL.error e
-end
-```
-Please notice it is faster to use the Iodine's API directly when using API that is delegated to Iodine.
-
-## Plezi Events and Timers
-
-Plezi uses [Iodine's API](http://www.rubydoc.info/gems/greactor/iodine) to help with asynchronous tasking, callbacks, timers and customized shutdown cleanup.
-
-Asynchronous callbacks (works only while services are active and running and when using the default Iodine server):
-
-```ruby
-require 'plezi'
-
-def my_shutdown_proc time_start
-    puts "Services were running for #{Time.now - time_start} seconds."
-end
-
-# shutdown callbacks
-Iodine.on_shutdown(Kernel, :my_shutdown_proc, Time.now) { puts "this will run after shutdown." }
-Iodine.on_shutdown() { puts "this will run too." }
-
-# a timer
-Iodine.run_after(2) {puts "this will wait 2 seconds to run... too late. for this example"}
-
-Iodine.run {puts "notice that the background tasks will only start once the Plezi's engine is running."}
-Iodine.run {puts "exit Plezi to observe the shutdown callbacks."}
-```
 
 ## Re-write Routes
 

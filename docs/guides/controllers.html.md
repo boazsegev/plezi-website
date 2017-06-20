@@ -10,7 +10,7 @@ The second layer of this powerful routing system is the Controller class which w
 
 ## What is a Controller Class?
 
-Plezi has the ability to take in any class as a controller class and route HTTP requests to the classes public methods. This powerful routing system has built-in support for RESTful CRUD methods (`index`, `show`, `new`, `create`, `update`, `delete`) and for WebSockets (`pre_connect`, `on_open`, `on_message(data)`, `on_close`, `broadcast`, `unicast`, `multicast`).
+Plezi has the ability to take in any class as a controller class and route HTTP requests to the classes public methods. This powerful routing system has built-in support for RESTful CRUD methods (`index`, `show`, `new`, `create`, `update`, `delete`) and for WebSockets (`pre_connect`, `on_open`, `on_message(data)`, `on_close`, `subscribe`, `unsubscribe`, `subscribed?` and `publish`).
 
 In effect, Controller classes act as "virtual folders" where methods behave similarly to "files" and where new "files" can be created, edited and deleted by implementing the special (reserved) methods for these actions.
 
@@ -136,6 +136,10 @@ class RootCtrl
     end
     def echo
         request.env.to_s
+    end
+    def sweet_and_special msg = nil
+      msg ||= params
+        "This idiomatic Plezi method signature answers both HTTP (AJAJ) and Websocket Auto-Dispatch."
     end
     def _not_published
       "methods starting with an underscore aren't exposed"
@@ -304,37 +308,9 @@ Read more at the [YARD documentation for this method](http://www.rubydoc.info/gi
 
 Read more at the [YARD documentation for this method](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Websocket#close-instance_method).
 
-### The `unicast` method (Websockets)
+### Pub/Sub with `subscribe`, `unsubscribe`, `publish` and `subscribed?`
 
-Invokes a method for the specific websocket connection identified by it's id - use `self.id` to get the Plezi id for the websocket connection.
-
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Controller#unicast-instance_method).
-
-(todo: write documentation)
-
-### The `broadcast` method (Websockets)
-
-Invokes a method on every websocket connection that belongs to this Controller / Type, except `self`.
-
-When using Iodine, the method is invoked asynchronously.
-
-When calling the class method (instead of an instance method), then all connections are invoked (including `self`). Otherwise `self` is excluded.
-
-```ruby
-self.broadcast :my_method, "argument 1", "argument 2", 3
-```
-
-Methods invoked using unicast, broadcast or multicast will quietly fail if the connection was lost, the requested method is undefined or the 'target' was invalid.
-
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Controller#broadcast-instance_method).
-
-(todo: write documentation)
-
-### The `multicast` method (Websockets)
-
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Controller#multicast-instance_method).
-
-(todo: write documentation)
+Plezi leverages Iodine's native Pub/Sub. To learn more about Pub/Sub you can peak at the websocket examples. I hope to write a tutorial soon.
 
 ### The `extend` method (Websockets)
 
@@ -345,7 +321,5 @@ The method "extend" a module to be used for Websocket callbacks events (listenin
 This function can only be called *after* a websocket connection was established (i.e., within the `on_open` callback).
 
 This allows a module “library” to be used similar to the way “rooms” are used in node.js, so that event handling code can be reused across a number of different Controllers.
-
-After adopting a module into a websocket instance, the module will be able to `broadcast` Websocket events as if it were a controller.
 
 Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Controller#extend-instance_method).

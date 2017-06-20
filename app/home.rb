@@ -12,24 +12,16 @@ class HomeController
 
   # Websockets
   def on_open
-    return close unless params['id'.freeze]
-    broadcast :print, "#{params['id'.freeze]} joind the chat."
-    print "Welcome, #{params['id'.freeze]}!"
-  rescue => e
-    puts e.message, e.backtrace
+    return close unless params['id']
+    @name = ::ERB::Util.html_escape params['id']
+    subscribe channel: "chat"
+    publish channel: "chat", message: "#{@name} joind the chat."
+    write "Welcome, #{@name}!"
   end
-
   def on_close
-    broadcast :print, "#{params['id'.freeze]} left the chat."
+    publish channel: "chat", message: "#{@name} joind the chat."
   end
-
-  def on_message(data)
-    self.class.broadcast :print, "#{params['id'.freeze]}: #{data}"
-  end
-
-  protected
-
-  def print(data)
-    write ::ERB::Util.html_escape(data)
+  def on_message data
+    publish channel: "chat", message: "#{@name}: #{::ERB::Util.html_escape data}"
   end
 end

@@ -100,6 +100,16 @@ As you may have noticed, the route's order of creation was important and establi
 
 Order of precedence allows us to create a catch-all route, in fear that it might respond to an invalid request.
 
+### A note about inheritance
+
+It's somewhat obvious that we want to create a route when we call `Plezi.route "/", MyClass`.
+
+It's also obvious that, in our example, `MyClass` should behave and act as a Controller for the route.
+
+Plezi understands this simple fact and doesn't require that `MyClass` inherit explicitly from Plezi's Controller class.
+
+Instead, Plezi automatically implements the implied inheritance by using Ruby's powerful meta-programming features and module mixins, allowing `MyClass` to inherit everything it needs from Plezi::Controller and Plezi::Controller::ClassMethods.
+
 ### The `:id` parameter
 
 Each route can lead to a number of possible Controller methods (access points).

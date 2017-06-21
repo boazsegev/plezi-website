@@ -47,6 +47,36 @@ For example:
 
     exit
 
+### Connection bound execution (`defer`)
+
+`Iodine::Protocol#defer { block }` and `Iodine::Websocket#defer { block }` are very similar to the `Iodine.run`, except they are connection bound and will only execute if the connection is still alive.
+
+These methods cause the `block` to execute within the connection's lock, meaning it is safe to update connection data as long as all updates occure either within the connection's `on_message` callback or within a `defer` block.
+
+    require 'plezi'
+
+    class MyController
+        def on_message data
+            @count = 0
+            4.times do
+              defer do
+                tmp = @count
+                # do stuff, maybe takes time
+                write "[#{tmp}] start"
+                sleep(0.5)
+                write "[#{tmp}] finish"
+                @count = tmp + 1
+              end
+            end
+        end
+    end
+
+    Plezi.route '/', MyController
+
+    exit
+
+    # @count will always end up as 4, actions always performed "atomically".
+
 ### Timed events
 
 Sometimes we want to schedule something to be done in a while, or maybe we want a task to repeat every certain interval...
@@ -100,33 +130,3 @@ The timed event allows us to create a new event with the same job, if we wish. H
     Plezi.route '/', MyController
 
     exit
-
-### Connection bound execution (`defer`)
-
-`Iodine::Protocol#defer { block }` and `Iodine::Websocket#defer { block }` are very similar to the `Iodine.run`, except they are connection bound and will only execute if the connection is still alive.
-
-These methods cause the `block` to execute within the connection's lock, meaning it is safe to update connection data as long as all updates occure either within the connection's `on_message` callback or within a `defer` block.
-
-    require 'plezi'
-
-    class MyController
-        def on_message data
-            @count = 0
-            4.times do
-              defer do
-                tmp = @count
-                # do stuff, maybe takes time
-                write "[#{tmp}] start"
-                sleep(0.5)
-                write "[#{tmp}] finish"
-                @count = tmp + 1
-              end
-            end
-        end
-    end
-
-    Plezi.route '/', MyController
-
-    exit
-
-    # @count will always end up as 4, actions always performed "atomically".

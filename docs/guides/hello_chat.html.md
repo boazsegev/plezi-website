@@ -81,10 +81,14 @@ The following is the HTML / Javascript client part of the code:
       };
       // handle the chat_message event
       client.chat_message = function(event) {
+          if(client.user_id == event.user_id)
+            event.name = "Me";
           print2output(event.name + ": " + event.message)
       };
       // handle the chat_login event
       client.chat_login = function(event) {
+          if(!client.id && client.nickname == event.name)
+            client.user_id = event.user_id;
           print2output("System: " + event.name + " logged into the chat.")
       };
       // handle the chat_logout event
@@ -103,15 +107,13 @@ The following is the HTML / Javascript client part of the code:
       if (!client) {
           // connect to the chat
           connect2chat(msg);
-          // prevent default action (form submition)
+          // prevent default action (form submission)
           return false;
       }
       // there is a client, the text is a chat message.
       client.emit({
           event: "chat_message",
           message: msg
-      }, function(e) {
-          print2output("Me: " + e.message)
       });
       // prevent default action (avoid form submission)
       return false;

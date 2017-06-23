@@ -24,7 +24,9 @@ For now, I will leave you with some code for a Plezi client (HTML / Javascript) 
 
 ## The Client Code
 
-The following is the HTML / Javascript client part of the code:
+The following is the HTML / Javascript client part of the code.
+
+I used the optional `PleziClient` just to keep the code a bit shorter, but Plezi works with any Websocket client.
 
 ```html
 <!DOCTYPE html>
@@ -57,12 +59,13 @@ The following is the HTML / Javascript client part of the code:
   // creating the client object and connecting
   function connect2chat(nickname) {
       // create a global client object. The default connection URL is the same as our Controller's URL.
+      // the optional PleziClient uses a Websocket connection with automated JSON event routing (auto-dispatch).
       client = new PleziClient();
       // save the nickname
       client.nickname = nickname;
       // Set automatic reconnection. This is great when a laptop or mobile phone is closed.
       client.autoreconnect = true
-          // handle connection state updates
+      // handle connection state updates
       client.onopen = function(event) {
           client.was_closed = false;
           // when the connection opens, we will authenticate with our nickname.
@@ -138,6 +141,61 @@ The following is the HTML / Javascript client part of the code:
 
 ## The Server code
 
+The server code is significantly shorter, since Ruby code is often more concise than Javascript and because all the "display" (formatting) logic is naturally offloaded to the client side.
+
+Offloading the "rendering" to the client side application provides a better resource distribution and allows the server to focus on the important stuff.
+
+```ruby
+# Server
+require 'plezi'
+class MyChatroom
+  # HTTP
+  def index
+    # Normally, the client would be served as a static, pre-compressed, file.
+    # However, for this example we will return the whole client as a Ruby string.
+    CLIENT_AS_STRING
+  end
+
+  # Websocket / AJAJ
+  @auto_dispatch = true
+
+  def chat_auth event
+    if params[:nickname] || (::ERB::Util.h(event[:nickname]) == "Me")
+      # Not allowed (double authentication / reserved name)
+      close
+      return
+    end
+    # set our ID and subscribe to the chatroom's channel
+    params[:nickname] = ::ERB::Util.h event[:nickname]
+    subscribe channel: :chat
+    # publish the new client's presence.
+    publish channel: :chat, message: {event: 'chat_login',
+                           name: params[:nickname],
+                           user_id: id}.to_json
+    # if we return an object, it will be sent to the websocket client.
+    nil
+  end
+  def chat_message msg
+    # prevent false identification
+    msg[:name] = params[:nickname]
+    msg[:user_id] = id
+    # publish the chat message
+    publish channel: :chat, message: msg.to_json
+    nil
+  end
+  def on_close
+    # inform about client leaving the chatroom
+    publish channel: :chat, message: {event: 'chat_logout',
+                           name: params[:nickname],
+                           user_id: id}.to_json
+  end
+end
+
+Plezi.route "/javascripts/client.js", :client
+Plezi.route '/(:nickname)', MyChatroom
+
+exit
+```
 
 ## All Together
 
@@ -261,6 +319,8 @@ require 'plezi'
 class MyChatroom
   # HTTP
   def index
+    # Normally, the client would be served as a static, pre-compressed, file.
+    # However, for this example we will return the whole client as a Ruby string.
     CLIENT_AS_STRING
   end
 

@@ -14,4 +14,5 @@
 * [Plezi with Rails/Sinatra/Rack](/docs/with_rack_app)
 * [Plezi with Rake](/docs/rake)
 *   
-* [YARD Documentation](http://www.rubydoc.info/gems/plezi)
+* [Plezi's YARD Docs](http://www.rubydoc.info/gems/plezi)
+* [Iodine's YARD Docs](http://www.rubydoc.info/gems/iodine)

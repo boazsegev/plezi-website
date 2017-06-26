@@ -36,7 +36,8 @@ javascript:
 			ws.onclose = function(e) {
 				output("<b>Disonnected :-/</b>")
 				$('#text')[0].placeholder = 'nickname';
-				$('#text')[0].value = handle
+				$('#text')[0].value = handle;
+				ws = undefined;
 			}
 			ws.onmessage = function(e) {
 				output(e.data);

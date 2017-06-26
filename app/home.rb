@@ -24,5 +24,6 @@ class HomeController
   def on_message data
     STDERR.puts "INFO: publishing message: #{@name}: #{data}"
     publish channel: :chat, message: "#{@name}: #{::ERB::Util.html_escape data}"
+    STDERR.puts "INFO: published message (fin)."    
   end
 end

@@ -22,8 +22,8 @@ class HomeController
     publish channel: :chat, message: "#{@name} joind the chat."
   end
   def on_message data
-    STDERR.puts "INFO: publishing message: #{@name}: #{data}"
+    # STDERR.puts "INFO: publishing message: #{@name}: #{data}"
     publish channel: :chat, message: "#{@name}: #{::ERB::Util.html_escape data}"
-    STDERR.puts "INFO: published message (fin)."    
+    # STDERR.puts "INFO: published message (fin)."    
   end
 end

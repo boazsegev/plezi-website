@@ -1,8 +1,13 @@
-GEM
-  remote: https://rubygems.org/
+GIT
+  remote: https://github.com/boazsegev/iodine
+  revision: dd25e996ac3cda8b79b67ccea8be35ad6c3efdb6
   specs:
     iodine (0.4.3)
       rack
+
+GEM
+  remote: https://rubygems.org/
+  specs:
     plezi (0.15.0)
       bundler (~> 1.14)
       iodine (~> 0.4)
@@ -20,6 +25,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  iodine!
   plezi (~> 0.15.0)
   redcarpet
   sass

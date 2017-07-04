@@ -68,5 +68,5 @@ class AIConnection
     Iodine.publish channel: :chat, message: "#{@name} left the chat."
   end
 end
-
-Iodine.run_every(60_000) { AIConnection.new }
+# timers require an active reactor. We'll schedule this a bit later.
+Iodine.run { Iodine.run_every(60_000) { AIConnection.new } }

@@ -46,7 +46,8 @@ class AIConnection
   def initialize
     @name = NAMES.sample
     Iodine.publish channel: :chat, message: "#{@name} joind the chat."
-    Iodine.run_after(pause) { post_message }
+    ret = Iodine.run_after(pause) { post_message }
+    leave unless ret
     # options = {}
     # options[:on_open] = Proc.new { Iodine.run_after(pause) { write MESSAGES.sample; rand(1..7).even? ? (Iodine.run_after(pause) { close }) : Iodine.run_after(pause) {on_open} } }
     # options[:on_message] = Proc.new {|data| }
@@ -56,8 +57,8 @@ class AIConnection
 
   def post_message
     Iodine.publish channel: :chat, message: "#{@name}: #{MESSAGES.sample}"
-    return Iodine.run_after(pause) { post_message } unless rand(1..7).even? # last?
-    Iodine.run_after(pause) { leave }
+    ret = Iodine.run_after(pause) { (rand(1..7).even?) ? post_message : leave }
+    leave unless ret
   end
 
   def pause

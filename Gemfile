@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
-
+if ENV['SET_RUBY_VERSION'] 
+	ruby ENV['SET_RUBY_VERSION']
+end
 ####################
 # core gems
 

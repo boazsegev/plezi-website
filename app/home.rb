@@ -19,7 +19,7 @@ class HomeController
     write "Welcome, #{@name}!"
   end
   def on_close
-    publish channel: :chat, message: "#{@name} joind the chat."
+    publish channel: :chat, message: "#{@name} left the chat."
   end
   def on_message data
     # STDERR.puts "INFO: publishing message: #{@name}: #{data}"

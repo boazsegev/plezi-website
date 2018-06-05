@@ -122,12 +122,12 @@ class MyDemo
     def on_open
         # there's a better way to require a user handle, but this is good enough for now.
         return close unless params[:id]
-        subscribe channel: :chat
+        subscribe :chat
     end
     def on_message data
         # sanitize the data.
         data = ERB::Util.html_escape data
-        publish channel: :chat, message: "#{params[:id]}: #{data}"
+        publish :chat, "#{params[:id]}: #{data}"
     end
 end
 
@@ -215,7 +215,7 @@ It's also possible to define a number of controllers for a similar route. The co
 
 ## Native Websocket, Pub/Sub and Redis support
 
-Plezi Controllers have access to native websocket support through the `pre_connect`, `on_open`, `on_message(data)`, `on_close`, `subscribe`, `subscribe?`, `unsubscribe` and `publish` API.
+Plezi Controllers have access to native websocket support through the `pre_connect`, `on_open`, `on_message(data)`, `on_close`, `subscribe`, and `publish` API.
 
 ## Adding Websockets to your existing Rails/Sinatra/Rack application
 

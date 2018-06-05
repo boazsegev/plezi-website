@@ -51,11 +51,11 @@ javascript:
 				$('#output')[0].scrollHeight }, "slow");
 	}
 h1#tagline Websockets for Ruby made easy
-h3#version_data Version 0.15.x - Thinner, Leanner and Meaner - a Whole New Pub/Sub World
+h3#version_data Version 0.16.x - almost the same, but totally different
 div#demo
 	div#client
 		div class='bordered'
-			p Websockets? AJAX? RESTful HTTP? Pub/Sub? - Plezi.
+			p WebSockets? SSE? AJAX? RESTful HTTP? Pub/Sub? - Plezi.
 			ul
 				li Easier than Faye, more fun than socket.io.
 				li Works on it's own or with Rack/Rails/Sinatra.
@@ -83,15 +83,15 @@ div#demo
 					  def on_open
 					    return close unless params['id']
 					    @name = params['id']
-					    subscribe channel: "chat"
-					    publish channel: "chat", message: "\#{@name} joind the chat."
+					    subscribe "chat"
+					    publish "chat", "\#{@name} joind the chat."
 					    write "Welcome, \#{@name}!"
 					  end
 					  def on_close
-					    publish channel: "chat", message: "\#{@name} joind the chat."
+					    publish "chat", "\#{@name} joind the chat."
 					  end
 					  def on_message data
-					    publish channel: "chat", message: "\#{@name}: \#{data}"
+					    publish "chat", "\#{@name}: \#{data}"
 					  end
 					end
 					# setup route to html/javascript client

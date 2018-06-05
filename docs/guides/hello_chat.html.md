@@ -167,11 +167,11 @@ class MyChatroom
     end
     # set our ID and subscribe to the chatroom's channel
     params[:nickname] = ::ERB::Util.h event[:nickname]
-    subscribe channel: :chat
+    subscribe :chat
     # publish the new client's presence.
-    publish channel: :chat, message: {event: 'chat_login',
-                           name: params[:nickname],
-                           user_id: id}.to_json
+    publish :chat, {event: 'chat_login',
+                    name: params[:nickname],
+                    user_id: id}.to_json
     # if we return an object, it will be sent to the websocket client.
     nil
   end
@@ -180,14 +180,14 @@ class MyChatroom
     msg[:name] = params[:nickname]
     msg[:user_id] = id
     # publish the chat message
-    publish channel: :chat, message: msg.to_json
+    publish :chat, msg.to_json
     nil
   end
   def on_close
     # inform about client leaving the chatroom
-    publish channel: :chat, message: {event: 'chat_logout',
-                           name: params[:nickname],
-                           user_id: id}.to_json
+    publish :chat, {event: 'chat_logout',
+                    name: params[:nickname],
+                    user_id: id}.to_json
   end
 end
 
@@ -335,10 +335,10 @@ class MyChatroom
     end
     # set our ID and subscribe to the chatroom's channel
     params[:nickname] = ::ERB::Util.h event[:nickname]
-    subscribe channel: :chat
-    publish channel: :chat, message: {event: 'chat_login',
-                           name: params[:nickname],
-                           user_id: id}.to_json
+    subscribe :chat
+    publish :chat, {event: 'chat_login',
+                    name: params[:nickname],
+                    user_id: id}.to_json
     # if we return an object, it will be sent to the websocket client.
     nil
   end
@@ -346,13 +346,13 @@ class MyChatroom
     # prevent false identification
     msg[:name] = params[:nickname]
     msg[:user_id] = id
-    publish channel: :chat, message: msg.to_json
+    publish :chat, msg.to_json
     nil
   end
   def on_close
-    publish channel: :chat, message: {event: 'chat_logout',
-                           name: params[:nickname],
-                           user_id: id}.to_json
+    publish :chat, {event: 'chat_logout',
+                    name: params[:nickname],
+                    user_id: id}.to_json
   end
 end
 

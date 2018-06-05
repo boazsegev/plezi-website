@@ -10,7 +10,7 @@ The second layer of this powerful routing system is the Controller class which w
 
 ## What is a Controller Class?
 
-Plezi has the ability to take in any class as a controller class and route HTTP requests to the classes public methods. This powerful routing system has built-in support for RESTful CRUD methods (`index`, `show`, `new`, `create`, `update`, `delete`) and for WebSockets (`pre_connect`, `on_open`, `on_message(data)`, `on_close`, `subscribe`, `unsubscribe`, `subscribed?` and `publish`).
+Plezi has the ability to take in any class as a controller class and route HTTP requests to the classes public methods. This powerful routing system has built-in support for RESTful CRUD methods (`index`, `show`, `new`, `create`, `update`, `delete`) and for WebSockets (`pre_connect`, `on_open`, `on_message(data)`, `on_close`, `subscribe`, and `publish`).
 
 In effect, Controller classes act as "virtual folders" where methods behave similarly to "files" and where new "files" can be created, edited and deleted by implementing the special (reserved) methods for these actions.
 
@@ -308,18 +308,20 @@ Read more at the [YARD documentation for this method](http://www.rubydoc.info/gi
 
 Read more at the [YARD documentation for this method](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Websocket#close-instance_method).
 
-### Pub/Sub with `subscribe`, `unsubscribe`, `publish` and `subscribed?`
+### Pub/Sub with `subscribe` and `publish`
 
 Plezi leverages Iodine's native Pub/Sub. To learn more about Pub/Sub you can peak at the websocket examples. I hope to write a tutorial soon.
 
-### The `extend` method (Websockets)
+The basic use is very simple:
 
-This method is still experimental.
+```ruby
+subscription = subscribe :stream
+# or
+subscription = subscribe(:stream) {|stream, message| write "#{stream}: #{message}" }
+publish :stream, "a message"
+subscription.close
+```
 
-The method "extend" a module to be used for Websocket callbacks events (listening, not sending).
+Subscriptions opened using a connection's method will be automatically destroyed when the connection closes.
 
-This function can only be called *after* a websocket connection was established (i.e., within the `on_open` callback).
-
-This allows a module “library” to be used similar to the way “rooms” are used in node.js, so that event handling code can be reused across a number of different Controllers.
-
-Read more at the [YARD documentation for this method](http://www.rubydoc.info/gems/plezi/Plezi/Controller#extend-instance_method).
+Global (non-connection related) subscriptions can be opened as well using the Iodine::PubSub methods.

@@ -1,19 +1,19 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    ffi (1.9.18)
-    iodine (0.4.16)
+    ffi (1.9.23)
+    iodine (0.6.2)
       rack (>= 1.0, < 3.0)
-    plezi (0.15.0)
+    plezi (0.16.0)
       bundler (~> 1.14)
-      iodine (~> 0.4)
+      iodine (>= 0.6.0, < 0.7.0)
       rack (>= 2.0.0)
-    rack (2.0.3)
-    rb-fsevent (0.10.2)
+    rack (2.0.4)
+    rb-fsevent (0.10.3)
     rb-inotify (0.9.10)
       ffi (>= 0.5.0, < 2)
     redcarpet (3.4.0)
-    sass (3.5.4)
+    sass (3.5.5)
       sass-listen (~> 4.0.0)
     sass-listen (4.0.0)
       rb-fsevent (~> 0.9, >= 0.9.4)
@@ -29,7 +29,7 @@ PLATFORMS
 
 DEPENDENCIES
   iodine
-  plezi (~> 0.15.0)
+  plezi (= 0.16.0)
   redcarpet
   sass
   slim

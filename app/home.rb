@@ -14,16 +14,21 @@ class HomeController
   def on_open
     return close unless params['id']
     @name = ::ERB::Util.html_escape params['id']
-    subscribe channel: :chat
-    publish channel: :chat, message: "#{@name} joind the chat."
+    subscribe :chat
+    publish :chat, "#{@name} joind the chat."
     write "Welcome, #{@name}!"
   end
   def on_close
-    publish channel: :chat, message: "#{@name} left the chat."
+    publish :chat, "#{@name} left the chat."
   end
   def on_message data
     # STDERR.puts "INFO: publishing message: #{@name}: #{data}"
-    publish channel: :chat, message: "#{@name}: #{::ERB::Util.html_escape data}"
+    publish :chat, "#{@name}: #{::ERB::Util.html_escape data}"
     # STDERR.puts "INFO: published message (fin)."    
+  end
+  def on_shutdown
+    write "--- SYSTEM ---"
+    write "--- Server is going away (restarting / maintanence)..."
+    write "--- See you later."
   end
 end

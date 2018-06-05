@@ -45,7 +45,7 @@ class AIConnection
   MESSAGES[0..24].each { |m| MESSAGES << m } # make common messages more common.
   def initialize
     @name = NAMES.sample
-    Iodine.publish channel: :chat, message: "#{@name} joind the chat."
+    Iodine.publish :chat, "#{@name} joind the chat."
     ret = Iodine.run_after(pause) { post_message }
     leave unless ret
     # options = {}
@@ -56,7 +56,7 @@ class AIConnection
   end
 
   def post_message
-    Iodine.publish channel: :chat, message: "#{@name}: #{MESSAGES.sample}"
+    Iodine.publish :chat, "#{@name}: #{MESSAGES.sample}"
     ret = Iodine.run_after(pause) { (rand(1..7).even?) ? post_message : leave }
     leave unless ret
   end
@@ -66,7 +66,7 @@ class AIConnection
   end
 
   def leave
-    Iodine.publish channel: :chat, message: "#{@name} left the chat."
+    Iodine.publish :chat, "#{@name} left the chat."
   end
 end
 # Schedule Robot connection interval.

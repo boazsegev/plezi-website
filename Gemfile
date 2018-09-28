@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-if ENV['SET_RUBY_VERSION'] 
+if ENV['SET_RUBY_VERSION']
 	ruby ENV['SET_RUBY_VERSION']
 end
 ####################
@@ -7,7 +7,7 @@ end
 
 # include the basic plezi framework and server
 gem 'iodine' # , :git => 'https://github.com/boazsegev/iodine'
-gem 'plezi', '0.16.0'
+gem 'plezi'
 gem 'sass'
 gem 'slim'
 gem 'redcarpet'

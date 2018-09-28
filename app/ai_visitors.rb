@@ -69,5 +69,9 @@ class AIConnection
     Iodine.publish :chat, "#{@name} left the chat."
   end
 end
+ROOT_PID = Process.pid
 # Schedule Robot connection interval.
-Iodine.run_every(60_000) { AIConnection.new }
+Iodine.run do
+    return unless(Process.pid == ROOT_PID)
+    Iodine.run_every(60_000) { AIConnection.new }
+end

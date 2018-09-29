@@ -72,6 +72,6 @@ end
 ROOT_PID = Process.pid
 # Schedule Robot connection interval.
 Iodine.run do
-    return unless(Process.pid == ROOT_PID)
+    next unless(Process.pid == ROOT_PID)
     Iodine.run_every(60_000) { AIConnection.new }
 end

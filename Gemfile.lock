@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     ffi (1.9.25)
-    iodine (0.7.5)
+    iodine (0.7.6)
       rack (>= 1.0, < 3.0)
     plezi (0.16.3)
       bundler (~> 1.14)

@@ -7,6 +7,7 @@ end
 
 # include the basic plezi framework and server
 gem 'iodine' # , :git => 'https://github.com/boazsegev/iodine'
+gem 'rack'
 gem 'plezi'
 gem 'sass'
 gem 'slim'

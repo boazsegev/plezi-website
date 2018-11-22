@@ -16,9 +16,6 @@ Bundler.require(:default, ENV['ENV'].to_s.to_sym)
 # # Load code from a subfolder called 'app'?
 Dir[File.join '{app}', '**', '*.rb'].each { |file| load File.expand_path(file) }
 
-## Log to a file?
-# Iodine.logger = Logger.new Root.join('server.log').to_s
-
 # # Optional Scaling (across processes or machines):
 ENV['PL_REDIS_URL'] ||= ENV['REDIS_URL'] ||
                         ENV['REDISCLOUD_URL'] ||

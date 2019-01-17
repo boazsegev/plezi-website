@@ -1,13 +1,13 @@
 # Plezi - the Ruby framework for realtime web-apps
 [![Gem Version](https://badge.fury.io/rb/plezi.svg)](http://badge.fury.io/rb/plezi) [![Inline docs](http://inch-ci.org/github/boazsegev/plezi.svg?branch=master)](http://www.rubydoc.info/github/boazsegev/plezi/master) [![GitHub](https://img.shields.io/badge/GitHub-Open%20Source-blue.svg)](https://github.com/boazsegev/plezi)
 
-Plezi is a Ruby framework for realtime web applications. It's name comes from the word "pleasure", since Plezi is a pleasure to work with.
+Plezi is a Ruby framework for real-time web applications. It's name comes from the word "pleasure", since Plezi is a pleasure to work with.
 
 With Plezi, you can easily:
 
-1. Create a Ruby web application, taking full advantage of RESTful routing, HTTP streaming and scalable Websocket features;
+1. Create a Ruby web application, taking full advantage of RESTful routing, HTTP streaming and scalable WebSocket features;
 
-2. Add Websocket services and RESTful HTTP Streaming to your existing Web-App, (Rails/Sinatra or any other Rack based Ruby app);
+2. Add WebSocket services and RESTful HTTP Streaming to your existing Web-App, (Rails/Sinatra or any other Rack based Ruby app);
 
 3. Create an easily scalable backend for your SPA.
 
@@ -33,9 +33,9 @@ If you prefer to have the application template already full blown and ready for 
 
     $ plezi new appname
 
-That's it, we now have a our first Plezi application - it's a websocket chatroom (that's the starter code).
+That's it, we now have a our first Plezi application - it's a WebSocket chat-room (that's the starter code).
 
-On MacOS or linux, simply double click the `appname` script file to start the server. Or, from the terminal:
+On MacOS or Linux, simply double click the `appname` script file to start the server. Or, from the terminal:
 
     $ cd appname
     $ ./appname # ( or: plezi s )
@@ -89,21 +89,21 @@ exit
 
 Now visit [index](http://localhost:3000/) and [foo](http://localhost:3000/foo) or request an id, i.e. [http://localhost:3000/1](http://localhost:3000/1).
 
-Did you notice how the controller has natural access to the request's `params`?
+Did you notice how the controller has natural access to the requests' `params`?
 
 This is because Plezi inherits our controller and adds some magic to it, allowing us to read _and set_ cookies using the `cookies` Hash based cookie-jar, set or read session data using `session`, look into the `request`, set special headers for the `response`, store self destructing cookies using `flash` and so much more!
 
-### Can websockets do that?!
+### Can WebSockets do that?!
 
-Plezi was designed for websockets from the ground up. If your controller class defines an `on_message(data)` callback, plezi will automatically enable websocket connections for that route.
+Plezi was designed for WebSockets from the ground up. If your controller class defines an `on_message(data)` callback, plezi will automatically enable WebSocket connections for that route.
 
-Here's a Websocket echo server using Plezi:
+Here's a WebSocket echo server using Plezi:
 
 ```ruby
 require 'plezi'
 class MyDemo
     def on_message data
-        # sanitize the data and write it to the websocket.
+        # sanitize the data and write it to the WebSocket.
         write ">> #{ERB::Util.html_escape data}"
     end
 end
@@ -114,7 +114,7 @@ exit
 
 But that's not all, each controller is also a "channel" which can broadcast to everyone who's connected to it.
 
-Here's a websocket chat-room server using Plezi, comeplete with minor authentication (requires a chat handle):
+Here's a WebSocket chat-room server using Plezi, complete with minor authentication (requires a chat handle):
 
 ```ruby
 require 'plezi'
@@ -132,22 +132,21 @@ class MyDemo
 end
 
 Plezi.route '/', MyDemo
-# You can connect to this chatroom by going to ws://localhost:3000/any_nickname
-# but you need to write a websocket client too...
-# try two browsers with the client provided by http://www.websocket.org/echo.html
+# You can connect to this chat-room by going to ws://localhost:3000/any_nickname
+# but you need to write a WebSocket client too...
+# try two browsers with the client provided by http://www.WebSocket.org/echo.html
 exit
 ```
 
-### Websocket scaling is as easy as one line of code!
+### WebSocket scaling is as easy as one line of code!
 
-A common issue with Websocket scaling is trying to send websocket messages from server X to a user connected to server Y... On Heroku, it's enough add one Dyno (a total of two Dynos) to break some websocket applications.
+A common issue with WebSocket scaling is trying to send WebSocket messages from server X to a user connected to server Y... On Heroku, it's enough add one Dyno (a total of two Dynos) to break some WebSocket applications.
 
-Plezi leverages the power or Redis to automatically push both websocket messages and Http session data across servers, so that you can easily scale your applications (on Heroku, add Dynos) with only one line of code!
+Plezi leverages the power or Redis to automatically push both WebSocket messages and HTTP session data across servers, so that you can easily scale your applications (on Heroku, add Dynos).
 
-Just tell Plezi how to access your Redis server and Plezi will make sure that your users get their messages and that your application can access it's session data across different servers:
+The easiest and recommended approach is to set up Redis using the command line option when starting iodine:
 
-    # REDIS_URL is where Herolu-Redis stores it's URL
-    ENV['PL_REDIS_URL'] ||= ENV['REDIS_URL'] || "redis://username:password@my.host:6389"
+    iodine -r "redis://:password@my.host:6389"
 
 ### Hosts, template rendering, assets...?
 
@@ -188,7 +187,7 @@ Plezi supports ERB (i.e. `template.html.erb`), Slim (i.e. `template.html.slim`),
 
 ## More about Plezi Controller classes
 
-One of the best things about the Plezi is it's ability to take in any class as a controller class and route to the classes methods with special support for RESTful methods (`index`, `show`, `new`, `save`, `update`, `delete`, `before` and `after`) and for WebSockets (`pre_connect`, `on_open`, `on_message(data)`, `on_close`, `broadcast`, `unicast`, `multicast`, `on_broadcast(data)`, `register_as(identity)`, `notify`).
+One of the best things about the Plezi is it's ability to take in any class as a controller class and route to the classes methods with special support for RESTful methods (`index`, `show`, `new`, `save`, `update`, `delete`, `before` and `after`) and for WebSockets (`pre_connect`, `on_open`, `on_message(data)`, `on_close`, `publish`, `subscribe`, `unsubscribe`).
 
 Here is a Hello World using a Controller class (run in `irb`):
 
@@ -211,15 +210,15 @@ Except when using WebSockets, returning a String will automatically add the stri
 
 It's also possible to define a number of controllers for a similar route. The controllers will answer in the order in which the routes are defined (this allows to group code by logic instead of url).
 
-\* please read the demo code for Plezi::StubRESTCtrl and Plezi::StubWSCtrl to learn more. Also, read more about the [Iodine's Websocket and HTTP server](https://github.com/boazsegev/iodine) at the core of Plezi to get more information about the amazing [Request](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Http/Request) and [Response](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/Http/Response) objects.
+\* please read the demo code for Plezi::StubRESTCtrl and Plezi::StubWSCtrl to learn more. Also, read more about the [Iodine's WebSocket and HTTP server](https://github.com/boazsegev/iodine) at the core of Plezi to get more information about the amazing [Request](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/HTTP/Request) and [Response](http://www.rubydoc.info/github/boazsegev/iodine/master/Iodine/HTTP/Response) objects.
 
-## Native Websocket, Pub/Sub and Redis support
+## Native WebSocket, Pub/Sub and Redis support
 
-Plezi Controllers have access to native websocket support through the `pre_connect`, `on_open`, `on_message(data)`, `on_close`, `subscribe`, and `publish` API.
+Plezi Controllers have access to native WebSocket support through the `pre_connect`, `on_open`, `on_message(data)`, `on_close`, `subscribe`, and `publish` API.
 
-## Adding Websockets to your existing Rails/Sinatra/Rack application
+## Adding WebSockets to your existing Rails/Sinatra/Rack application
 
-You already have an amazing WebApp, but now you want to add websocket or pub/sub support - Plezi makes connecting your existing WebApp with your Plezi Websocket backend as easy as it gets.
+You already have an amazing WebApp, but now you want to add WebSocket or pub/sub support - Plezi makes connecting your existing WebApp with your Plezi WebSocket backend as easy as it gets.
 
 As explained [here](./with_rack_app), Plezi can be used as middleware within your existing application - it's as easy as that.
 
@@ -227,7 +226,7 @@ As explained [here](./with_rack_app), Plezi can be used as middleware within you
 
 Plezi supports magic routes, in similar formats found in other systems, such as: `route "/:required/(:optional_with_format){[\\d]*}/(:optional)", Plezi::StubRESTCtrl`.
 
-Plezi assummes all simple routes to be RESTful routes with the parameter `:id` ( `"/user" == "/user/(:id)"` ).
+Plezi assumes all simple routes to be RESTful routes with the parameter `:id` ( `"/user" == "/user/(:id)"` ).
 
 ```ruby
 require 'plezi'
@@ -310,13 +309,13 @@ try:
 
 As you can see in the example above, Plezi supports Proc routes as well as Class controller routes.
 
-Please notice that there are some differences between the two. Proc routes less friedly, but plenty powerful and are great for custom 404 error handling.
+Please notice that there are some differences between the two. Proc routes are less friendly, but plenty powerful and are great for custom 404 error handling.
 
 ## OAuth2 and other Helpers
 
 Plezi has a few helpers that help with common tasks.
 
-For instance, Plezi has a built in controller that allows you to add social authentication using Google, Facebook
+For instance, Plezi has a built in controller that allows you to add social authentication using Google, FaceBook
 and and other OAuth2 authentication service. For example:
 
 ```ruby
@@ -362,25 +361,25 @@ Whether such goodies are part of the Plezi-App Template (such as rake tasks for 
 
 ## Plezi Settings
 
-Plezi leverages [Iodine's server](https://github.com/boazsegev/iodine) new architecture. Iodine is a pure Ruby HTTP and Websocket Server built using [Iodine's](https://github.com/boazsegev/iodine) core library - a multi-threaded pure ruby alternative to EventMachine with process forking support (enjoy forking, if your code is scaling ready).
+Plezi leverages [Iodine's server](https://github.com/boazsegev/iodine) new architecture. Iodine is a pure Ruby HTTP and WebSocket Server built using [Iodine's](https://github.com/boazsegev/iodine) core library - a multi-threaded pure ruby alternative to EventMachine with process forking support (enjoy forking, if your code is scaling ready).
 
-Plezi and Iodine are meant to be very effective, allowing for much flexability where needed.
+Plezi and Iodine are meant to be very effective, allowing for much flexibility where needed.
 
-Settings for the Iodine's core allow you to change different things, such as the level of concurrency you want (`Iodine.threads = ` or `Iodine.processes = `), logging destination (such as logging to a file) and more.
+Settings for the Iodine's core allow you to change different things, such as the level of concurrency you want (`Iodine.threads = ` or `Iodine.workers = `), security settings and more.
 
-Settings for Iodine's Http and Websockets server, allow you to change upload limits (which can be super important for security) using `Iodine::Http.max_http_buffer =`, limit websocket message sizes using `Iodine::Http::Websockets.message_size_limit =`, change the Websocket's auto-ping interval using `Iodine::Http::Websockets.default_timeout =` or `Plezi::Settings.ws_message_size_limit` and more... Poke around ;-)
+Settings for Iodine's HTTP and WebSockets server, allow you to change upload limits (which can be super important for security) using `Iodine::DEFAULT_SETTINGS[:max_body]`, limit WebSocket message sizes using `Iodine::DEFAULT_SETTINGS[:max_msg]`, change the WebSocket's auto-ping interval using `Iodine::DEFAULT_SETTINGS[:ping]` and more... Poke around the [iodine documentation](https://www.rubydoc.info/github/boazsegev/iodine/master/frames) ;-)
 
-Plezi and Iodine are written for Ruby versions 2.1.0 or greater (or API compatible variants). Version 2.2.3 is the currently recommended version.
+Plezi and Iodine are written for Ruby versions 2.2.2 or greater (or API compatible variants). Version 2.5.3 and above is currently recommended.
 
 ## Who's afraid of multi-threading?
 
-Plezi builds on Iodine's concept of "connection locking", meaning that your controllers shouldn't be acessed by more than one thread at the same time.
+Plezi builds on Iodine's concept of "connection locking", meaning that your controllers shouldn't be accessed by more than one thread at the same time.
 
-This allows you to run Plezi as a multi-threaded (and even multi-process) application as long as your controllers don't change or set any global data... Readeing global data after it was set during initialization is totally fine, just not changing or setting it...
+This allows you to run Plezi as a multi-threaded (and even multi-process) application as long as your controllers don't change or set any global data... Reading global data after it was set during initialization is totally fine, just not changing or setting it...
 
 But wait, global data is super important, right?
 
-Well, sometimes it is. And although it's a better practice to avoide storing any global data in global variables, sometimes storing stuff in the global space is exactly what we need.
+Well, sometimes it is. And although it's a better practice to avoid storing any global data in global variables, sometimes storing stuff in the global space is exactly what we need.
 
 The solution is simple - if you can't use persistent databases with thread-safe libraries (i.e. Sequel / ActiveRecord / Redis, etc'), use Plezi's global cache storage (see Plezi::Cache).
 
@@ -428,7 +427,7 @@ global_hash = Plezi.get_cached :global_hash do |global_hash|
 global_hash[:change] = "NOT safe"
 ```
 
-\* be aware, if using Plezi in as a multi-process application, that each process has it's own cache and that processes can't share the cache. The different threads in each of the processes will be able to acess their process's cache, but each process runs in a different memory space, so they can't share.
+\* be aware, if using Plezi in as a multi-process application, that each process has it's own cache and that processes can't share the cache. The different threads in each of the processes will be able to access their process's cache, but each process runs in a different memory space, so they can't share.
 
 ## Contributing
 

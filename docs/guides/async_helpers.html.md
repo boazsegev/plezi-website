@@ -12,9 +12,9 @@ Here we will discuss the methods used for asynchronous processing of different t
 
 A word, before we continue, about HTTP streaming, SSE (Server Side Events), long polling and friends.
 
-Plezi is a Rack based framework (starting with Plezi 0.14.0). This, sadly, means that HTTP streaming, SSE and long polling are very hard to achive.
+Plezi is a Rack based framework (starting with Plezi 0.14.0). This, sadly, means that HTTP streaming, SSE and long polling are very hard to achieve.
 
-On the bright side, Plezi make Websockets easy to implement (and yes, it's easy to use websockets to stream long responses), allowing us to utilize a more optimized solution for accomplishing the same goal.
+On the bright side, Plezi make WebSockets easy to implement (and yes, it's easy to use WebSockets to stream long responses), allowing us to utilize a more optimized solution for accomplishing the same goal.
 
 Having said that, whatever "hacks" normally used with Rack for initiating HTTP streaming, SSE or long polling connections should work (or fail) in the same way.
 
@@ -46,36 +46,6 @@ For example:
     Plezi.route '/', MyController
 
     exit
-
-### Connection bound execution (`defer`)
-
-`Iodine::Protocol#defer { block }` and `Iodine::Websocket#defer { block }` are very similar to the `Iodine.run`, except they are connection bound and will only execute if the connection is still alive.
-
-These methods cause the `block` to execute within the connection's lock, meaning it is safe to update connection data as long as all updates occure either within the connection's `on_message` callback or within a `defer` block.
-
-    require 'plezi'
-
-    class MyController
-        def on_message data
-            @count = 0
-            4.times do
-              defer do
-                tmp = @count
-                # do stuff, maybe takes time
-                write "[#{tmp}] start"
-                sleep(0.5)
-                write "[#{tmp}] finish"
-                @count = tmp + 1
-              end
-            end
-        end
-    end
-
-    Plezi.route '/', MyController
-
-    exit
-
-    # @count will always end up as 4, actions always performed "atomically".
 
 ### Timed events
 

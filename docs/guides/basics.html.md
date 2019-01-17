@@ -3,7 +3,7 @@
         <Attribute name="title">Getting started with Plezi</Attribute>
         <Attribute name="author">Bo (Myst)</Attribute>
         <Attribute name="description">
-            In this tutorial we explore how to quickly write web applications with full support for Websocket, RESTful routes and CRUD operations using the Plezi Ruby framework.
+            In this tutorial we explore how to quickly write web applications with full support for WebSocket, RESTful routes and CRUD operations using the Plezi Ruby framework.
         </Attribute>
     </DataObject>
     <DataObject type="thumbnail">
@@ -26,7 +26,7 @@ I love starting small and growing, and Plezi follows the same spirit, provoding 
 
     $ plezi new appname
 
-That's it, we now have a our first Plezi application - it's a websocket chatroom (that's the starter code).
+That's it, we now have a our first Plezi application - it's a WebSocket chatroom (that's the starter code).
 
 On MacOS or linux, simply double click the `appname` script file to start the server. Or, from the terminal:
 
@@ -90,17 +90,17 @@ Did you notice how the controller has natural access to the request's `params`?
 
 This is because Plezi inherits our controller and adds some magic to it, allowing us to read _and set_ cookies using the `cookies` Hash based cookie-jar, look into the `request`, set special headers for the `response`, etc'
 
-## Can Websockets do that?!
+## Can WebSockets do that?!
 
-Plezi was designed for websockets from the ground up. If your controller class defines sets the `@auto_dispatch` class variable or defines an `on_message(data)` callback, plezi will automatically enable websocket connections for that route.
+Plezi was designed for WebSockets from the ground up. If your controller class defines sets the `@auto_dispatch` class variable or defines an `on_message(data)` callback, plezi will automatically enable WebSocket connections for that route.
 
-Here's a Websocket echo server using Plezi:
+Here's a WebSocket echo server using Plezi:
 
 ```ruby
 require 'plezi'
 class MyDemo
     def on_message data
-        # sanitize the data and write it to the websocket.
+        # sanitize the data and write it to the WebSocket.
         write ">> #{ERB::Util.html_escape data}"
     end
 end
@@ -109,7 +109,7 @@ Plezi.route '/', MyDemo
 exit
 ```
 
-Here's a simple RESTful API the returns the same result using both Websockets and HTTP (AJAJ):
+Here's a simple RESTful API the returns the same result using both WebSockets and HTTP (AJAJ):
 
 ```ruby
 require 'plezi'
@@ -117,7 +117,7 @@ class MyDemo
   @auto_dispatch = true
 
   def echo args = nil
-     args ||= params # now HTTP and Websockets will behave the same.
+     args ||= params # now HTTP and WebSockets will behave the same.
     {event: :echo, message: args}
   end
 end
@@ -126,19 +126,19 @@ Plezi.route '/', MyDemo
 exit
 ```
 
-Now visit [/echo?my_data=Hello!](http://localhost:3000/echo?my_data=Hello!) and try sending this request (message) using a websocket: `"{\"event\":\"echo\",\"my_data\":\"Hello!\"}"` (there's a built-in Javascript to make this even easier).
+Now visit [/echo?my_data=Hello!](http://localhost:3000/echo?my_data=Hello!) and try sending this request (message) using a WebSocket: `"{\"event\":\"echo\",\"my_data\":\"Hello!\"}"` (there's a built-in Javascript to make this even easier).
 
-You will notice both the HTTP request and the Websocket request were both routed to the same `MyDemo#echo` method, amazing! Moreover, the Hash return value was automatically formatted as a JSON response. Sweet.
+You will notice both the HTTP request and the WebSocket request were both routed to the same `MyDemo#echo` method, amazing! Moreover, the Hash return value was automatically formatted as a JSON response. Sweet.
 
-You can read the [websockets guide](./websockets) for more information about websockets.
+You can read the [WebSockets guide](./WebSockets) for more information about WebSockets.
 
-## Websocket scaling is as easy as setting an environment variable!
+## WebSocket scaling is as easy as setting an environment variable!
 
-A common issue with Websocket scaling occurs when server X is trying to send websocket messages to a user connected to server Y... On Heroku, it's enough to add one Dyno (a total of two Dynos) to break some websocket applications... but with Plezi, fixing this issue is easy.
+A common issue with WebSocket scaling occurs when server X is trying to send WebSocket messages to a user connected to server Y... On Heroku, it's enough to add one Dyno (a total of two Dynos) to break some WebSocket applications... but with Plezi, fixing this issue is easy.
 
-Plezi leverages the power or Redis to automatically push Websocket messages across server instances, so that we can easily scale our applications (on Heroku, add Dynos) with only one line of code!
+Plezi leverages the power or Redis to automatically push WebSocket messages across server instances, so that we can easily scale our applications (on Heroku, add Dynos) with only one line of code!
 
-Just tell Plezi how to acess our Redis server and Plezi will make sure that our users get their messages across different servers:
+Just tell Plezi how to access our Redis server and Plezi will make sure that our users get their messages across different servers:
 
 ```ruby
 # REDIS_URL is where Herolu-Redis stores it's URL
@@ -148,7 +148,7 @@ As you can see, this isn't a question of code at all, it's an environment variab
 
 ## Template Rendering, assets...?
 
-Rendering allows use to seperate the View from the Controller and the data. This allows us to use the same code for different response formats (i.e., both for an html and a JSON response).
+Rendering allows use to separate the View from the Controller and the data. This allows us to use the same code for different response formats (i.e., both for an html and a JSON response).
 
 This feature is extra powerful when coupled with Plezi's rewrite routes and the `:format` parameter, that allow us to set up the format as part of the routing system.
 

@@ -48,11 +48,7 @@ class AIConnection
     Iodine.publish :chat, "#{@name} joind the chat."
     ret = Iodine.run_after(pause) { post_message }
     leave unless ret
-    # options = {}
-    # options[:on_open] = Proc.new { Iodine.run_after(pause) { write MESSAGES.sample; rand(1..7).even? ? (Iodine.run_after(pause) { close }) : Iodine.run_after(pause) {on_open} } }
-    # options[:on_message] = Proc.new {|data| }
-    # options[:url] = "ws://localhost:#{Iodine.port}/#{name}"
-    # Iodine::Http.ws_connect options
+
   end
 
   def post_message

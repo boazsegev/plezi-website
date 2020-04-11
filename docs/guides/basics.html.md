@@ -130,7 +130,7 @@ Now visit [/echo?my_data=Hello!](http://localhost:3000/echo?my_data=Hello!) and 
 
 You will notice both the HTTP request and the WebSocket request were both routed to the same `MyDemo#echo` method, amazing! Moreover, the Hash return value was automatically formatted as a JSON response. Sweet.
 
-You can read the [WebSockets guide](./WebSockets) for more information about WebSockets.
+You can read the ["Plezi WebSockets" guide](./websockets) for more information about WebSockets.
 
 ## WebSocket scaling is as easy as setting an environment variable!
 

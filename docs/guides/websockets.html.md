@@ -1,12 +1,12 @@
-# Plezi Websockets
+# Plezi WebSockets
 
-A lot of Plezi's features comes from the powerful [Iodine HTTP / Websocket Server](https://github.com/boazsegev/iodine) that supports it.
+A lot of Plezi's features comes from the powerful [Iodine HTTP / WebSocket Server](https://github.com/boazsegev/iodine) that supports it.
 
-## What are Websockets? (skip if you know)
+## What are WebSockets? (skip if you know)
 
-In a very broad sense, Websockets allow the browser communicate with the server in a bi-directional manner. This overcomes some of the limitations imposed by HTTP alone, allowing (for instance) to push real-time data, such as chat messages or stock quotes, directly to the browser.
+In a very broad sense, WebSockets allow the browser communicate with the server in a bi-directional manner. This overcomes some of the limitations imposed by HTTP alone, allowing (for instance) to push real-time data, such as chat messages or stock quotes, directly to the browser.
 
-In essence, while HTTP's workflow is a call and response (the browser "calls", the server "responds"), Websockets is a conversation, sometimes with long pauses, where both sides can speak whenever they feel the need to, sometimes simultaneously.
+In essence, while HTTP's workflow is a call and response (the browser "calls", the server "responds"), WebSockets is a conversation, sometimes with long pauses, where both sides can speak whenever they feel the need to, sometimes simultaneously.
 
 This, in nature, requires that both sides of the conversation establish a common language... this part is pretty much up to each application.
 
@@ -77,7 +77,7 @@ In our example the script sent a message: `"Hello there!"`. It's up to your code
 
 When data comes in from the browser, the `onmessage` event is raised. It's up to your script to decipher the meaning of that message within the `onmessage` callback.
 
-Now that we know a bit about what Websockets are and how to initiate a websocket connection to send and receive data... next up: How do we get Plezi to answer (or refuse) websocket requests?
+Now that we know a bit about what WebSockets are and how to initiate a websocket connection to send and receive data... next up: How do we get Plezi to answer (or refuse) websocket requests?
 
 ## Communicating between the application and clients
 
@@ -109,7 +109,7 @@ Plezi.route '/', MyEcho
 
 To use the JSON format for websocket messages, we will need to parse and format the data using Ruby's `JSON.parse(data)` and `{my: :data}.to_json` as well as the Javascipt `JSON.parse(e.data)` and `JSON.stringify({my: "data"})`.
 
-That's it. It really is all it takes to accept websocket connections and communicate with a websocket client using raw websockets.
+That's it. It really is all it takes to accept websocket connections and communicate with a websocket client using raw WebSockets.
 
 There's a bit more in the [getting started guide](./basics) and I hope to finish writing a Websocket tutorial soon... However, I have noticed that the [Auto Dispatch feature](./json-autodispatch) is an easier way to accomplish mosts tasks.
 
@@ -117,7 +117,7 @@ Remember to set the javascript connection(s) path to the path of your websocket 
 
 #### Websocket Callbacks
 
-When using Websockets, the following callbacks can be defined:
+When using WebSockets, the following callbacks can be defined:
 
 * `pre_connect` is called **before** the websocket connection is accepted. If the method returns `false`, the connection will be refused.
 

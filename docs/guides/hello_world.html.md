@@ -12,7 +12,7 @@
         <Attribute name="height" value="256" />
     </DataObject>
 </PageMap>-->
-# Hello World for more then english
+# Hello World, for more than English
 
 If you read [the getting started guide](./basics), you know that a "Hello World" Plezi application only needs just a few lines of code... it can be written using the `irb` terminal like so:
 
@@ -29,7 +29,7 @@ exit # <- this exits the terminal and starts the server
 
 So... instead of writing the __shortest__ hello world tutorial, we're going to write a "realistic" (read: __bloated__) hello world example that will allow us to say "Hello world":
 
-* With three languages (english being the default).
+* With three languages (English being the default).
 * With two different formats (HTML and JSON), using templates and a format (and language) agnostic code base.
 * With one codebase - formatting should only change the view, not the controller.
 
@@ -56,6 +56,7 @@ You should get a response on your terminal, something along these lines:
         created ./controllers
         wrote ./controllers/example.rb
         created ./views
+        wrote ./views/assets
         wrote ./views/welcome.html.erb
         wrote ./views/404.html.erb
         wrote ./views/500.html.erb
@@ -71,15 +72,16 @@ You should get a response on your terminal, something along these lines:
 
     run the hello_world app using: ./hello_world or using the iodine or rackup commands.
 
+
 Great. We have something to start with.
 
 Here's the list of files that Plezi created for us. We can skip reading the list, but I'm putting it here so we can have a quick reference guide whenever we're wondering about this or that file:
 
-* `hello_world` This is a cool short-cut for our unix based systems, such as Mac OS X. We can double click this file to start our application, even without openning the terminal window - ain't that cool?
+* `hello_world` - This "shell script" is a cool short-cut for our Unix-based systems, such as macOS. We can double-click this file to start our application, even without openning the terminal window - ain't that cool?
 
-* `hello_world.rb` - This is our actual application. We should look into this file as we change things.
+* `hello_world.rb` - This Ruby script is our actual application. It initialises the Plezi app by applying the main conventional settings and by loading all of the files in `controllers/` and `lib/`. We should look into this file as we change things.
 
-* `routes.rb` - This defines the HTTP routes for our application. It's super important and we'll edit it soon. You can [read more about routes here](./routes).
+* `routes.rb` - This defines the HTTP routes for our application. It's super important and we'll edit it soon. [Read "Plezi's smart routing system"](./routes) for more information.
 
 * `config.ru` - By convention, Rack applications have a file named `config.ru` that is used by Rack to load the application and run it. Plezi, like most Ruby frameworks, is built on Rack. The `config.ru` allows us to use middleware with Plezi, which is quite powerful stuff.
 
@@ -87,37 +89,45 @@ Here's the list of files that Plezi created for us. We can skip reading the list
 
 * `Gemfile` - The Gemfile should be really well known if you've used Ruby before. Ruby allows you to extend your code with Ruby libraries called "gems" such as Plezi. The Gemfile lists the gems our application uses and allows us to easily use different gems to simplify our work.
 
-* `app/my_controler.rb` - This file defines the first (and only) Controller for our application. It's super important and we'll edit it soon. You can [read more about controllers here](./controllers).
+* `rakefile` - Skeleton file in which you could define tasks for `rake`.
 
-* `views/welcome.html.erb` - This is our application's welcome page. As the name suggests, it's an `html` template using the `ERB` (embedded Ruby) templating engine. This `html` and Javascript page is actually a chat-room client application. We're going to wreck havoc on this, because we'll want it to say "Hello World".
+* `controllers/example.rb` - This file defines the first (and only) Controller for our application. It's super important and we'll edit it soon. [Read "Plezi's Controllers"](./controllers) for more information.
 
-* `views/404.html.erb` - This is a template for any 404 file not found errors. We'll see this when we request something our application doesn't know how to serve us.
+* `views/welcome.html.erb` - This is our application's welcome page. As the name suggests, it's an `html` template using the `ERB` (embedded Ruby) templating engine. This `html` and JavaScript page is actually a chat-room client application. We're going to wreak havoc on this, because we'll want it to say "Hello World".
+
+* `views/404.html.erb` - This is a template for any "404 Not Found" errors. We'll see this when we request something our application doesn't know how to serve us.
 
 * `views/500.html.erb` - This is a template for any 500 internal server errors. We often see this page as we debug our applications. The page won't show us the errors (that's what the terminal is for), but it will let us know something was broken in our code.
 
-* `public/javascripts/client.js` - This is the prototype code for the powerful auto-dispatch websocket client. We can use this client in our `html` responses to send and receive websocket / AJAJ events.
+* `views/503.html` - This is a static page for displaying a "503 Service Unavailable" server-side error. It's typically used to show that there are no workers available to process the client request, due to heavy load.
+
+* `public/javascripts/client.js` - This is the prototype code for the powerful auto-dispatch websocket client. We can use this client in our `html` responses to send and receive websocket / [AJAJ](https://en.wiktionary.org/wiki/AJAJ) events.
 
 * `public/javascripts/simple-client.js` - This is stub code for raw websocket connections. We can update this code or use it in any `html` response, to implement a quick and raw websocket client.
 
-Let's double click on the `hello_world` to start our application (or run `./hello_world` from our terminal).
+Let's double click on the `hello_world` script file to start our application (or run `./hello_world` from our terminal).
 
 Next, let's open a new browser window or two and visit [localhost:3000](http://localhost:3000) to see what we've got. We can use two browser windows to chat with ourselves...
 
 Congratulations! We've created a Plezi application. It's a chat room and we want it to be something different, but it's a start :-)
 
+You can press <kbd>CTRL+C</kbd> in your terminal to stop the app server, or just close the shell window.
+
 ## Parlez-vous français?
 
-Pleazi created a Controller for us - located at `app/my_controler.rb` - and a landing page template - located at `views/welcome.html.erb`.
+_NOTE: The following information will be updated later to be consistent with the template app created by `plezi new hello_world` above, but it still serves to demonstrate how you can use `params` with Plezi's "[Re-write Routes](http://www.plezi.io/docs/routes#re-write-routes)". Stay tuned!_
+
+Plezi created a Controller for us - located at `controllers/example.rb` - and a landing page template - located at `views/welcome.html.erb`.
 
 We want these to say "Hello world" in three languages:
 
 * English (`en`): "Hello world"
 
-* Itallian (`it`): "Ciao mondo"
+* Italian (`it`): "Ciao mondo"
 
 * French (`fr`): "Salut le monde"
 
-Since we know any String returned by our Controller is automatically appended to the Rack::Response (`response`) object, we can simply edit our controller for each language, something like this:
+Since we know any `String` returned by a Controller is automatically appended to the `Rack::Response` (`response`) object, we can simply edit our Controller for each language. For example, we could do something like this:
 
 ```ruby
 class RootController
@@ -138,13 +148,13 @@ end
 
 Although this might work, it will be no fun when we want to support 52 languages...
 
-...However, I also don't want to install the I18n gem right now. I know the I18n gem would probably be a very good solution, we're going to keep this translation code for now. We're here to learn how to use Plezi, we can always revisit this code later on.
+...However, I also don't want to install the I18n gem right now. Sure, the I18n gem would probably be a great solution, but we're going to keep this translation code for now. We're here to learn how to use Plezi; we can always revisit this code later on.
 
 Let's restart our application and visit:
 
 * [localhost:3000/?locale=fr](http://localhost:3000/?locale=fr)
 
-This is okay but... well... it's Ugly. The URL looks ugly and there's no HTML formatting... Let start with fixing that URL, shall we?
+This is okay but... well... it's ugly. The URL looks ugly and there's no HTML formatting... Let start with fixing that URL, shall we?
 
 ## Rewriting the route
 
@@ -154,11 +164,11 @@ Plezi supports inline route parameters. So we could edit our `routes.rb` file to
 Plezi.route ':locale', RootController
 ```
 
-But then we have to always use a locale, which is ugly in a different way and means the root path (`'/'`) just became invalid... besides, when we have 15 routes, we will have to keep writing `:locale` every time, which is error prone.
+But then we have to always use a locale, which is ugly in a different way and means the root path (`'/'`) just became invalid... besides, when we have 15 routes, we will have to keep writing `:locale` every time, which is error-prone.
 
 Rewrite routes give us so much more flexibility and control.
 
-A rewrite route uses a Regexp object instead of a Controller and it will look something like this (let write this into our `routes.rb` file):
+A rewrite route uses a `Regexp` object instead of a Controller and it will look something like this (let's write this into our `routes.rb` file):
 
 ```ruby
 Plezi.route ':locale', /^(en|fr|it)$/
@@ -170,6 +180,17 @@ Let's restart our application and visit:
 * [localhost:3000/](http://localhost:3000/)
 * [localhost:3000/it](http://localhost:3000/it)
 * [localhost:3000/fr](http://localhost:3000/fr)
+
+So what's happening here?
+
+* Plezi sees the `':locale'` part combined with a Regexp (instead of a Controller), and hence understands that the first route is a rewrite route.
+* Plezi will try to match any given request path against the Regexp `/^(en|fr|it)$/`.
+* If there's no match, it won't do anything special, and just carries on (where the request gets picked up by `RootController`).
+* If it _does_ match, the captured part (i.e. the matching part within the Regexp's parentheses) will be extracted from the request path and instead passed to the controller as `params['locale']`.
+
+Hence:
+* A request to `/something` will be seen by `RootController` as `/something` with no `params['locale']`.
+* A request to `/fr/something` will be seen by `RootController` _also_ as just `/something` but with `params['locale']` now set to `'fr'`.
 
 Much better. Next step - let's fix use a template to render this in `html` format.
 

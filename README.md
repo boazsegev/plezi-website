@@ -1,15 +1,19 @@
-# The Plezi Website
+# Contributing to the Website / Documentation
 
-This is the public Plezi.io website, which publishes guides and demo code.
+Thank you for your interest in contributing to the facil.io website and documentation.
 
-It's also a cool demo for a Plezi website in a production environment (although, it's a bit customized).
+NOTICE: `_SOURCE` is the folder that contains the actual documentation files. Edits to the documentation should be placed in this folder.
 
-# Contributing
+Anything outside the `_SOURCE` folder (including this file) is created automatically by the `server` script and shouldn't be edited.
 
-Guides are placed in the /docs/guides folder (confusing, I know... but I wanted you to find it).
+If you want to contribute to the documentation, please do so by opening a Pull Request (PR) with updates to the files in the `_SOURCE` folder.
 
-When submitting guides and demo code, please submit them as github flavored markdown files, with the html type signature (`demo.html.md`). This will make guide maintenance easier in the long-run.
+## Running the website locally
 
-Remeber to add a link to your guide in the `sidebar.html.md` file.
+It's possible to run a local version of the website using Ruby (make sure to have Ruby and Ruby gems available on your system).
 
-Thanks!!!
+Open the terminal window and go to the `_SOURCE` folder. Than run (currently runs on macOS and Linux):
+
+    $ bundle install
+    $ ./server
+
